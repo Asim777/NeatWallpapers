@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">NeatWallpapers</string>
-    <string name="one">First Fragment</string>
-    <string name="two">Second Fragment</string>
-    <string name="three">Third Fragment</string>
-    <string name="four">Fourth Fragment</string>
-    <string name="five">Fifth Fragment</string>
-    <string name="six">Sixth Fragment</string>
+    <string name="popular">Popular Fragment</string>
+    <string name="recent">Recent Fragment</string>
+    <string name="random">Random Fragment</string>
+    <string name="categories">Categories Fragment</string>
+    <string name="colors">Colors Fragment</string>
+    <string name="favorites">Favorites Fragment</string>
 </resources>

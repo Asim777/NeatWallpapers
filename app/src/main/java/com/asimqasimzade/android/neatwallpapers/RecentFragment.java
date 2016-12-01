@@ -11,9 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class SixFragment extends Fragment{
+public class RecentFragment extends Fragment{
 
-    public SixFragment() {
+    public RecentFragment() {
         // Required empty public constructor
     }
 
@@ -27,7 +27,7 @@ public class SixFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_six, container, false);
+        return inflater.inflate(R.layout.fragment_recent, container, false);
     }
 
 }

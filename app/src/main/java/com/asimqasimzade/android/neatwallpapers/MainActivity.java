@@ -18,11 +18,6 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private int[] tabIcons = {
-            R.drawable.ic_tab_favorite,
-            R.drawable.ic_tab_call,
-            R.drawable.ic_tab_face
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,33 +27,23 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
-        setupTabIcons();
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new OneFragment(), "ONE");
-        adapter.addFragment(new TwoFragment(), "TWO");
-        adapter.addFragment(new ThreeFragment(), "THREE");
-        adapter.addFragment(new FourFragment(), "FOUR");
-        adapter.addFragment(new FiveFragment(), "FIVE");
-        adapter.addFragment(new SixFragment(), "SIX");
+        adapter.addFragment(new PopularFragment(), "POPULAR");
+        adapter.addFragment(new RecentFragment(), "RECENT");
+        adapter.addFragment(new RandomFragment(), "RANDOM");
+        adapter.addFragment(new CategoriesFragment(), "CATEGORIES");
+        adapter.addFragment(new ColorsFragment(), "COLORS");
+        adapter.addFragment(new FavoritesFragment(), "FAVORITES");
 
         viewPager.setAdapter(adapter);
-    }
-
-    private void setupTabIcons() {
-        tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
