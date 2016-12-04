@@ -33,7 +33,6 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
     private ArrayList<GridItem> mGridData;
     private Context mContext;
     private View mRootView;
-    private GridView mGridView;
 
 
     AsyncHttpTask(Context context, View rootView){
@@ -44,7 +43,7 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
     @Override
     protected void onPreExecute() {
         mProgressBar = (ProgressBar) mRootView.findViewById(R.id.progressBar);
-        mGridView = (GridView) mRootView.findViewById(R.id.gridView);
+        GridView mGridView = (GridView) mRootView.findViewById(R.id.gridView);
         //Initialize with empty data
         mGridData = new ArrayList<>();
         mGridAdapter = new GridViewAdapter(mContext, R.layout.grid_item_layout, mGridData);

@@ -1,34 +1,19 @@
 package com.asimqasimzade.android.neatwallpapers;
 
-import android.os.AsyncTask;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 
-public class PopularFragment extends Fragment{
-
-    private ProgressBar mProgressBar;
-    private ArrayList<GridItem> mGridData;
+public class PopularFragment extends Fragment {
+    GridView mGridView;
+    View rootView;
 
 
     public PopularFragment() {
@@ -45,17 +30,32 @@ public class PopularFragment extends Fragment{
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_popular, container, false);
-        mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        rootView = inflater.inflate(R.layout.fragment_popular, container, false);
+        mGridView = (GridView) rootView.findViewById(R.id.gridView);
+        ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
         //Start Download
         new AsyncHttpTask(getActivity(), rootView).execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
+        //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //Get an item position
+                GridItem item = (GridItem) parent.getItemAtPosition(position);
+
+                //Pass image url to SingleImageActivity
+                Intent intent = new Intent(getActivity(), SingleImageActivity.class);
+                intent.putExtra("image", item.getImage());
+
+                //Start SingleImageActivity
+                startActivity(intent);
+            }
+        });
         return rootView;
 
     }
-
 
 
 }
