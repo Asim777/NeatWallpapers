@@ -14,12 +14,12 @@ import android.widget.ProgressBar;
 public class PopularFragment extends Fragment {
     GridView mGridView;
     View rootView;
-
+    String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&order=popular&per_page=200";
 
     public PopularFragment() {
         // Required empty public constructor
     }
-
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +35,7 @@ public class PopularFragment extends Fragment {
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
         //Start Download
-        new AsyncHttpTask(getActivity(), rootView).execute();
+        new AsyncHttpTask(getActivity(), rootView, url).execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity

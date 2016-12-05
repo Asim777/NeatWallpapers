@@ -7,11 +7,9 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,11 +31,14 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
     private ArrayList<GridItem> mGridData;
     private Context mContext;
     private View mRootView;
+    private String mUrl;
 
 
-    AsyncHttpTask(Context context, View rootView){
+    AsyncHttpTask(Context context, View rootView, String url){
         mContext = context;
         mRootView = rootView;
+        mUrl = url;
+
     }
 
     @Override
@@ -56,8 +57,7 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
         Integer result = 0;
 
         try{
-            feed_url =
-                    new URL("https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&order=popular&per_page=100");
+            feed_url = new URL(mUrl);
         } catch (MalformedURLException e){
             e.printStackTrace();
         }

@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new PopularFragment(), "POPULAR");
         adapter.addFragment(new RecentFragment(), "RECENT");
-        adapter.addFragment(new RandomFragment(), "RANDOM");
         adapter.addFragment(new CategoriesFragment(), "CATEGORIES");
         adapter.addFragment(new ColorsFragment(), "COLORS");
         adapter.addFragment(new FavoritesFragment(), "FAVORITES");
