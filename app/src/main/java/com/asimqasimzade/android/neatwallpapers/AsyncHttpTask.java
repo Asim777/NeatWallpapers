@@ -1,12 +1,17 @@
 package com.asimqasimzade.android.neatwallpapers;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +32,7 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
     private HttpURLConnection urlConnection;
     private static final String TAG = PopularFragment.class.getSimpleName();
     private ProgressBar mProgressBar;
-    private GridViewAdapter mGridAdapter;
+    private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
     private Context mContext;
     private View mRootView;
@@ -47,7 +52,7 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
         GridView mGridView = (GridView) mRootView.findViewById(R.id.gridView);
         //Initialize with empty data
         mGridData = new ArrayList<>();
-        mGridAdapter = new GridViewAdapter(mContext, R.layout.grid_item_layout, mGridData);
+        mGridAdapter = new ImagesGridViewAdapter(mContext, R.layout.image_grid_item_layout, mGridData);
         mGridView.setAdapter(mGridAdapter);
 
     }
@@ -89,7 +94,14 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
         if(result == 1){
             mGridAdapter.setGridData(mGridData);
         } else {
-            Toast.makeText(mContext, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            if(activeNetworkInfo == null){
+                Toast.makeText(mContext, "Please check the status of the network.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(mContext, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+            }
         }
         mProgressBar.setVisibility(View.GONE);
     }

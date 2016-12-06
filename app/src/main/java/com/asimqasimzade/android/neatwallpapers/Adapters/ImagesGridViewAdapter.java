@@ -1,4 +1,4 @@
-package com.asimqasimzade.android.neatwallpapers;
+package com.asimqasimzade.android.neatwallpapers.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,21 +8,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.asimqasimzade.android.neatwallpapers.GridItem;
+import com.asimqasimzade.android.neatwallpapers.R;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-/**
- * Created by Asim on 12/2/2016.
- */
 
-public class GridViewAdapter extends ArrayAdapter<GridItem>{
+public class ImagesGridViewAdapter extends ArrayAdapter<GridItem>{
 
     private Context mContext;
     private int layoutResourceId;
     private ArrayList<GridItem> mGridData = new ArrayList<>();
 
-    public GridViewAdapter(Context mContext, int layoutResourceId, ArrayList<GridItem> mGridData) {
+    public ImagesGridViewAdapter(Context mContext, int layoutResourceId, ArrayList<GridItem> mGridData) {
         super(mContext, layoutResourceId , mGridData);
         this.mContext = mContext;
         this.layoutResourceId = layoutResourceId;

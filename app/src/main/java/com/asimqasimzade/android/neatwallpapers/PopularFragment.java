@@ -19,7 +19,7 @@ public class PopularFragment extends Fragment {
     public PopularFragment() {
         // Required empty public constructor
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +45,7 @@ public class PopularFragment extends Fragment {
                 //Get an item position
                 GridItem item = (GridItem) parent.getItemAtPosition(position);
 
-                //Pass image url to SingleImageActivity
+                //Pass image url to x`SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("image", item.getImage());
 
@@ -54,8 +54,5 @@ public class PopularFragment extends Fragment {
             }
         });
         return rootView;
-
     }
-
-
 }
