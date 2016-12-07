@@ -1,8 +1,5 @@
 package com.asimqasimzade.android.neatwallpapers;
 
-/**
- * Created by Asim on 12/1/2016.
- */
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

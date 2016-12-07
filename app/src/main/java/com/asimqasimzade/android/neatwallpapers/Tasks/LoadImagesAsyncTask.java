@@ -1,4 +1,4 @@
-package com.asimqasimzade.android.neatwallpapers;
+package com.asimqasimzade.android.neatwallpapers.Tasks;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -11,6 +11,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
+import com.asimqasimzade.android.neatwallpapers.GridItem;
+import com.asimqasimzade.android.neatwallpapers.PopularFragment;
+import com.asimqasimzade.android.neatwallpapers.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +29,7 @@ import java.util.ArrayList;
 
 
 //Downloading data asynchronously
-class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
+public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
     private URL feed_url;
     private HttpURLConnection urlConnection;
@@ -39,7 +42,7 @@ class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
     private String mUrl;
 
 
-    AsyncHttpTask(Context context, View rootView, String url){
+    public LoadImagesAsyncTask(Context context, View rootView, String url){
         mContext = context;
         mRootView = rootView;
         mUrl = url;

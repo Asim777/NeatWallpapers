@@ -10,11 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.asimqasimzade.android.neatwallpapers.Category;
-import com.asimqasimzade.android.neatwallpapers.GridItem;
 import com.asimqasimzade.android.neatwallpapers.R;
-import com.bumptech.glide.Glide;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -34,6 +30,7 @@ public class CategoriesListViewAdapter extends ArrayAdapter<Category> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         View row = convertView;
         CategoriesListViewAdapter.ViewHolder holder;
         if(row == null){

@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
+import com.asimqasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
+
 
 public class RecentFragment extends Fragment{
     GridView mGridView;
@@ -36,7 +38,7 @@ public class RecentFragment extends Fragment{
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
         //Start Download
-        new AsyncHttpTask(getActivity(), rootView, url).execute();
+        new LoadImagesAsyncTask(getActivity(), rootView, url).execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
