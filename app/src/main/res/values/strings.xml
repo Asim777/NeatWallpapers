@@ -6,4 +6,5 @@
     <string name="categories">Categories Fragment</string>
     <string name="colors">Colors Fragment</string>
     <string name="favorites">Favorites Fragment</string>
+    <string name="sort_action_title">Sort</string>
 </resources>

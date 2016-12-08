@@ -1,17 +1,73 @@
 package com.asimqasimzade.android.neatwallpapers;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
+import com.asimqasimzade.android.neatwallpapers.Adapters.CategoriesListViewAdapter;
+
+import java.util.ArrayList;
 
 
 public class ColorsFragment extends Fragment{
 
+    private ListView mCategoriesListView;
+    private View rootView;
+    private ArrayList<Category> mCategoryData = new ArrayList<>();
+    private CategoriesListViewAdapter mCategoryAdapter;
+
+    //String array for holding list of categories
+    public String[] colorNames = new String[]{
+            "Black", "White", "Red", "Blue", "Green", "Yellow", "Purple",
+            "Grey", "Orange", "Brown"
+    };
+
+    public String[] categoryAPInames = new String[]{
+            "", "backgrounds", "science", "places", "animals", "feelings", "travel",
+            "computer", "music", "people", "religion", "buildings", "sports", "food", "industry",
+            "fashion", "business", "education", "health", "transportation"
+    };
+
+    public int[] categoryThumbnails = new int[]{
+            R.drawable.nature,
+            R.drawable.textures_backgrounds,
+            R.drawable.technology_science,
+            R.drawable.monuments_places,
+            R.drawable.animals,
+            R.drawable.emotions_feelings,
+            R.drawable.travel,
+            R.drawable.communication_computers,
+            R.drawable.music,
+            R.drawable.people,
+            R.drawable.religion,
+            R.drawable.architecture,
+            R.drawable.sports,
+            R.drawable.food_drinks,
+            R.drawable.industry,
+            R.drawable.fashion,
+            R.drawable.business,
+            R.drawable.education,
+            R.drawable.health,
+            R.drawable.transportation,
+    };
+
+
     public ColorsFragment() {
-        // Required empty public constructor
+        // We need to set mCategoryData only once when Fragment is started so ListView doesn't get
+        //populated with the same data again when Fragment is relaunched
+        for (int i = 0; i < colorNames.length; i++) {
+            Category category = new Category();
+            category.setCategoryName(colorNames[i]);
+            category.setCategoryThumbnail(categoryThumbnails[i]);
+            category.setCategoryApiName(categoryAPInames[i]);
+            mCategoryData.add(category);
+        }
     }
 
     @Override
@@ -24,7 +80,35 @@ public class ColorsFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_colors, container, false);
+        rootView = inflater.inflate(R.layout.fragment_categories, container, false);
+        mCategoriesListView = (ListView) rootView.findViewById(R.id.categories_listView);
+
+
+        // Create new ArrayAdapter - giving it arguments - context, single row xml, which is
+        // category_list_item_layout.xml and array to take data from
+        mCategoryAdapter = new CategoriesListViewAdapter(getActivity(), R.layout.category_list_item_layout, mCategoryData);
+        // If ListView is not null, set ArrayAdapter to this ListView
+        if (mCategoriesListView != null) {
+            mCategoriesListView.setAdapter(mCategoryAdapter);
+        }
+
+        //Set OnItemClickListener, so when user clicks on a category, according category is opened
+        mCategoriesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //Get an item position
+                Category category = (Category) parent.getItemAtPosition(position);
+
+                Intent openCategoryIntent = new Intent(getActivity(), SingleCategoryActivity.class);
+                openCategoryIntent.putExtra("categoryApiName", category.getCategoryApiName());
+                openCategoryIntent.putExtra("categoryName", category.getCategoryName());
+                startActivity(openCategoryIntent);
+            }
+        });
+
+
+        return rootView;
     }
+
 
 }

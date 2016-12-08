@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.CategoriesListViewAdapter;
-import com.asimqasimzade.android.neatwallpapers.Tasks.LoadCategoriesAsyncTask;
 
 import java.util.ArrayList;
 
@@ -23,9 +22,53 @@ public class CategoriesFragment extends Fragment {
     private ArrayList<Category> mCategoryData = new ArrayList<>();
     private CategoriesListViewAdapter mCategoryAdapter;
 
+    //String array for holding list of categories
+    public String[] categoryNames = new String[]{
+            "Nature", "Textures", "Technology", "Monuments", "Animals", "Feelings", "Travel",
+            "Computers", "Music", "People", "Religion", "Buildings", "Sports", "Food", "Industry",
+            "Fashion", "Business", "Education", "Health", "Transportation"
+    };
+
+    public String[] categoryAPInames = new String[]{
+            "nature", "backgrounds", "science", "places", "animals", "feelings", "travel",
+            "computer", "music", "people", "religion", "buildings", "sports", "food", "industry",
+            "fashion", "business", "education", "health", "transportation"
+    };
+
+    public int[] categoryThumbnails = new int[]{
+            R.drawable.nature,
+            R.drawable.textures_backgrounds,
+            R.drawable.technology_science,
+            R.drawable.monuments_places,
+            R.drawable.animals,
+            R.drawable.emotions_feelings,
+            R.drawable.travel,
+            R.drawable.communication_computers,
+            R.drawable.music,
+            R.drawable.people,
+            R.drawable.religion,
+            R.drawable.architecture,
+            R.drawable.sports,
+            R.drawable.food_drinks,
+            R.drawable.industry,
+            R.drawable.fashion,
+            R.drawable.business,
+            R.drawable.education,
+            R.drawable.health,
+            R.drawable.transportation,
+    };
+
 
     public CategoriesFragment() {
-        // Required empty public constructor
+        // We need to set mCategoryData only once when Fragment is started so ListView doesn't get
+        //populated with the same data again when Fragment is relaunched
+        for (int i = 0; i < categoryNames.length; i++) {
+            Category category = new Category();
+            category.setCategoryName(categoryNames[i]);
+            category.setCategoryThumbnail(categoryThumbnails[i]);
+            category.setCategoryApiName(categoryAPInames[i]);
+            mCategoryData.add(category);
+        }
     }
 
     @Override
@@ -41,7 +84,7 @@ public class CategoriesFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_categories, container, false);
         mCategoriesListView = (ListView) rootView.findViewById(R.id.categories_listView);
 
-        new LoadCategoriesAsyncTask(mCategoryData).execute();
+
 
         // Create new ArrayAdapter - giving it arguments - context, single row xml, which is
         // category_list_item_layout.xml and array to take data from

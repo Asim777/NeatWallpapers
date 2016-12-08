@@ -33,6 +33,7 @@ public class CategoriesListViewAdapter extends ArrayAdapter<Category> {
 
         View row = convertView;
         CategoriesListViewAdapter.ViewHolder holder;
+
         if(row == null){
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             row = inflater.inflate(mLayoutResourceId, parent, false);
