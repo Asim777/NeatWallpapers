@@ -139,6 +139,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                     JSONObject image = hits.getJSONObject(i);
                     if(image != null){
                         item.setImage(image.getString("webformatURL"));
+                        item.setName(image.getString("id"));
                     }
                 }
                 mGridData.add(item);

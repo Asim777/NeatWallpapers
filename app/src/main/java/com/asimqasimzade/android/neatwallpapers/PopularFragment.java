@@ -58,6 +58,7 @@ public class PopularFragment extends Fragment {
                 //Pass image url to x`SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("image", item.getImage());
+                intent.putExtra("name", item.getName());
 
                 //Start SingleImageActivity
                 startActivity(intent);
