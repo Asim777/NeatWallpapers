@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.asimqasimzade.android.neatwallpapers.GridItem;
+import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
 import com.asimqasimzade.android.neatwallpapers.R;
 import com.bumptech.glide.Glide;
 

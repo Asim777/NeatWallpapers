@@ -18,11 +18,10 @@ import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
 import com.asimqasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
 
-public class SingleCategoryActivity extends AppCompatActivity {
+public class SingleColorActivity extends AppCompatActivity {
     String url;
     View rootView;
-    String categoryApiName;
-    String categoryName;
+    String colorName;
 
 
     @Override
@@ -30,13 +29,12 @@ public class SingleCategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_category);
 
-        //Get categoryApiName to use in URL and Category name to use in activity title from intent
-        categoryApiName = getIntent().getStringExtra("categoryApiName");
-        categoryName = getIntent().getStringExtra("categoryName");
-        //Set Category name as title
-        setTitle(categoryName);
-        //Set categoryApiName as URL extension
-        constructUrl("popular", categoryApiName);
+        //Get Color name to use in activity title from intent
+        colorName = getIntent().getStringExtra("colorName");
+        //Set Color name as title
+        setTitle(colorName);
+        //Set colorName as URL extension
+        constructUrl("popular", colorName);
         // Inflate the layout for this fragment
         rootView = findViewById(R.id.rootView);
 
@@ -74,11 +72,11 @@ public class SingleCategoryActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     switch (i) {
                         case 0: {
-                            constructUrl("popular", categoryApiName);
+                            constructUrl("popular", colorName);
                             break;
                         }
                         case 1: {
-                            constructUrl("latest", categoryApiName);
+                            constructUrl("latest", colorName);
                             break;
                         }
                     }
@@ -111,7 +109,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
                 GridItem item = (GridItem) parent.getItemAtPosition(position);
 
                 //Pass image url to x`SingleImageActivity
-                Intent intent = new Intent(SingleCategoryActivity.this, SingleImageActivity.class);
+                Intent intent = new Intent(SingleColorActivity.this, SingleImageActivity.class);
                 intent.putExtra("image", item.getImage());
 
                 //Start SingleImageActivity
@@ -120,8 +118,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
         });
     }
 
-    private void constructUrl(String order, String categoryApiName){
-        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&per_page=200&order=" + order +"&category=" + categoryApiName;
+    private void constructUrl(String order, String colorName){
+        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&per_page=200&order=" + order +"&q=" + colorName;
     }
-
 }

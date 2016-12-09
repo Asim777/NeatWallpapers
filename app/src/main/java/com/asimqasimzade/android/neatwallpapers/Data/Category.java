@@ -1,4 +1,4 @@
-package com.asimqasimzade.android.neatwallpapers;
+package com.asimqasimzade.android.neatwallpapers.Data;
 
 
 public class Category {

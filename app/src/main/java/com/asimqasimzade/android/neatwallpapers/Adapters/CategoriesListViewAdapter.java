@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.asimqasimzade.android.neatwallpapers.Category;
+import com.asimqasimzade.android.neatwallpapers.Data.Category;
 import com.asimqasimzade.android.neatwallpapers.R;
 
 import java.util.ArrayList;

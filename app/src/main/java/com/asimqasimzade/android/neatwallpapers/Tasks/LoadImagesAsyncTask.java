@@ -11,7 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
-import com.asimqasimzade.android.neatwallpapers.GridItem;
+import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
 import com.asimqasimzade.android.neatwallpapers.PopularFragment;
 import com.asimqasimzade.android.neatwallpapers.R;
 

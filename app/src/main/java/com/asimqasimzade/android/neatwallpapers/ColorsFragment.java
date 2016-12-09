@@ -10,17 +10,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.asimqasimzade.android.neatwallpapers.Adapters.CategoriesListViewAdapter;
+import com.asimqasimzade.android.neatwallpapers.Adapters.ColorsListViewAdapter;
+import com.asimqasimzade.android.neatwallpapers.Data.Color;
 
 import java.util.ArrayList;
 
 
 public class ColorsFragment extends Fragment{
 
-    private ListView mCategoriesListView;
+    private ListView mColorsListView;
     private View rootView;
-    private ArrayList<Category> mCategoryData = new ArrayList<>();
-    private CategoriesListViewAdapter mCategoryAdapter;
+    private ArrayList<Color> mColorData = new ArrayList<>();
+    private ColorsListViewAdapter mColorAdapter;
 
     //String array for holding list of categories
     public String[] colorNames = new String[]{
@@ -28,45 +29,28 @@ public class ColorsFragment extends Fragment{
             "Grey", "Orange", "Brown"
     };
 
-    public String[] categoryAPInames = new String[]{
-            "", "backgrounds", "science", "places", "animals", "feelings", "travel",
-            "computer", "music", "people", "religion", "buildings", "sports", "food", "industry",
-            "fashion", "business", "education", "health", "transportation"
-    };
-
-    public int[] categoryThumbnails = new int[]{
-            R.drawable.nature,
-            R.drawable.textures_backgrounds,
-            R.drawable.technology_science,
-            R.drawable.monuments_places,
-            R.drawable.animals,
-            R.drawable.emotions_feelings,
-            R.drawable.travel,
-            R.drawable.communication_computers,
-            R.drawable.music,
-            R.drawable.people,
-            R.drawable.religion,
-            R.drawable.architecture,
-            R.drawable.sports,
-            R.drawable.food_drinks,
-            R.drawable.industry,
-            R.drawable.fashion,
-            R.drawable.business,
-            R.drawable.education,
-            R.drawable.health,
-            R.drawable.transportation,
+    public int[] colorThumbnails = new int[]{
+            R.drawable.black,
+            R.drawable.white,
+            R.drawable.red,
+            R.drawable.blue,
+            R.drawable.green,
+            R.drawable.yellow,
+            R.drawable.purple,
+            R.drawable.grey,
+            R.drawable.orange,
+            R.drawable.brown
     };
 
 
     public ColorsFragment() {
-        // We need to set mCategoryData only once when Fragment is started so ListView doesn't get
+        // We need to set mColorData only once when Fragment is started so ListView doesn't get
         //populated with the same data again when Fragment is relaunched
         for (int i = 0; i < colorNames.length; i++) {
-            Category category = new Category();
-            category.setCategoryName(colorNames[i]);
-            category.setCategoryThumbnail(categoryThumbnails[i]);
-            category.setCategoryApiName(categoryAPInames[i]);
-            mCategoryData.add(category);
+            Color color = new Color();
+            color.setColorName(colorNames[i]);
+            color.setColorThumbnail(colorThumbnails[i]);
+            mColorData.add(color);
         }
     }
 
@@ -80,29 +64,27 @@ public class ColorsFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.fragment_categories, container, false);
-        mCategoriesListView = (ListView) rootView.findViewById(R.id.categories_listView);
-
+        rootView = inflater.inflate(R.layout.fragment_colors, container, false);
+        mColorsListView = (ListView) rootView.findViewById(R.id.colors_listView);
 
         // Create new ArrayAdapter - giving it arguments - context, single row xml, which is
-        // category_list_item_layout.xml and array to take data from
-        mCategoryAdapter = new CategoriesListViewAdapter(getActivity(), R.layout.category_list_item_layout, mCategoryData);
+        // color_list_item_layout.xml and array to take data from
+        mColorAdapter = new ColorsListViewAdapter(getActivity(), R.layout.color_list_item_layout, mColorData);
         // If ListView is not null, set ArrayAdapter to this ListView
-        if (mCategoriesListView != null) {
-            mCategoriesListView.setAdapter(mCategoryAdapter);
+        if (mColorsListView != null) {
+            mColorsListView.setAdapter(mColorAdapter);
         }
 
-        //Set OnItemClickListener, so when user clicks on a category, according category is opened
-        mCategoriesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        //Set OnItemClickListener, so when user clicks on a color, according color is opened
+        mColorsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Get an item position
-                Category category = (Category) parent.getItemAtPosition(position);
+                Color color = (Color) parent.getItemAtPosition(position);
 
-                Intent openCategoryIntent = new Intent(getActivity(), SingleCategoryActivity.class);
-                openCategoryIntent.putExtra("categoryApiName", category.getCategoryApiName());
-                openCategoryIntent.putExtra("categoryName", category.getCategoryName());
-                startActivity(openCategoryIntent);
+                Intent openColorIntent = new Intent(getActivity(), SingleColorActivity.class);
+                openColorIntent.putExtra("colorName", color.getColorName());
+                startActivity(openColorIntent);
             }
         });
 

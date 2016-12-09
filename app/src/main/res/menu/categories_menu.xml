@@ -8,6 +8,6 @@
         android:id="@+id/action_sort"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:icon="@mipmap/sort"
+        android:icon="@mipmap/ic_sort"
         />
 </menu>

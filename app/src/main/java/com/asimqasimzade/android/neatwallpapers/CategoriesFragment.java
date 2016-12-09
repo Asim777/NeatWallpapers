@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.CategoriesListViewAdapter;
+import com.asimqasimzade.android.neatwallpapers.Data.Category;
 
 import java.util.ArrayList;
 
