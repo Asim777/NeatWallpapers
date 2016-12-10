@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/textColorPrimary">
 
-    <TouchImageView
+    <ImageView
         android:id="@+id/single_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:scaleType="centerCrop"
-        android:background="@color/textColorPrimary"/>
+        android:scaleType="centerCrop" />
 
     <Button
         android:id="@+id/single_image_back_button"
@@ -17,9 +17,7 @@
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
         android:background="@mipmap/ic_left_arrow"
-        android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         />
@@ -29,10 +27,8 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:background="@mipmap/ic_favorite"
-        android:layout_marginRight="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginTop="20dp"
         />
@@ -49,23 +45,19 @@
             android:id="@+id/set_as_wallpaper_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:text="@string/set_as_wallpaper"
             android:textColor="@color/white"
-            android:background="@color/colorPrimary"
-            android:layout_marginRight="5dp"
-            android:layout_marginEnd="5dp"
+            android:backgroundTint="@color/colorPrimary"
             />
         <Button
             android:id="@+id/download_button"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:text="@string/download"
             android:textColor="@color/white"
-            android:background="@color/colorPrimary"
-           />
+            android:backgroundTint="@color/colorPrimary"
+            />
     </LinearLayout>
 </RelativeLayout>

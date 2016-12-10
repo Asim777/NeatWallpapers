@@ -120,6 +120,6 @@ public class SingleColorActivity extends AppCompatActivity {
     }
 
     private void constructUrl(String order, String colorName){
-        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&per_page=200&order=" + order +"&q=" + colorName;
+        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&order=" + order +"&q=" + colorName;
     }
 }
