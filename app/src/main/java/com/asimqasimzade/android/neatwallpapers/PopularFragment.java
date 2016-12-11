@@ -10,11 +10,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
-import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
 import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
 import com.asimqasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
-
-import java.util.ArrayList;
 
 
 public class PopularFragment extends Fragment {

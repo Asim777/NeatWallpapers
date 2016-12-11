@@ -1,6 +1,9 @@
 package com.asimqasimzade.android.neatwallpapers;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -17,6 +20,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
+import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
+import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -29,13 +35,12 @@ import java.io.IOException;
 public class SingleImageActivity extends AppCompatActivity {
     private static final String LOG_TAG = SingleImageActivity.class.getSimpleName();
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
-    int favoritePressedTimes = 0;
     Button favoriteButton;
     Button backButton;
     Button setAsWallpaperButton;
     Button downloadButton;
-    String image;
-    String name;
+    String image_url;
+    String image_name;
     SimpleTarget<Bitmap> target;
     File imageFile;
     File imageFileForChecking;
@@ -43,8 +48,9 @@ public class SingleImageActivity extends AppCompatActivity {
     enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER
     }
+    Cursor cursor;
     Operation operation;
-
+    boolean imageIsFavorite;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,18 +58,18 @@ public class SingleImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_image);
 
         //Loading image
-        image = getIntent().getStringExtra("image");
-        name = getIntent().getStringExtra("name");
+        image_url = getIntent().getStringExtra("image");
+        image_name = getIntent().getStringExtra("name");
 
         //We'll use this file to check if given image already exists on device and take corresponding
         //course of action depending on that
         //Specifying path to our app's directory
         File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
         //Creating imageFile using path to our custom album
-        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + name + ".jpg");
+        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + image_name + ".jpg");
 
         ImageView singleImageView = (ImageView) findViewById(R.id.single_image_view);
-        Glide.with(this).load(image).into(singleImageView);
+        Glide.with(this).load(image_url).into(singleImageView);
 
         //Back button
         backButton = (Button) findViewById(R.id.single_image_back_button);
@@ -78,29 +84,16 @@ public class SingleImageActivity extends AppCompatActivity {
 
         //Favorite button
         favoriteButton = (Button) findViewById(R.id.single_image_favorite_button);
+        ImageIsFavoriteTask imageIsFavoriteTask = new ImageIsFavoriteTask();
+        imageIsFavoriteTask.execute();
+
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //When favorite button inside SingleImageActivity is clicked, we are adding this
                 //image to Favorites database and changing background of a button
-                favoritePressedTimes++;
-                //TODO: Substitute it with code that checks if image is in favorites database
-                if (favoritePressedTimes % 2 != 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
-                    } else {
-                        //noinspection deprecation
-                        favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
-                    }
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
-                    } else {
-                        //noinspection deprecation
-                        favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
-                    }
-                }
-                //TODO: Add code to add image to Favorite Database
+                AddOrRemoveFavoriteAsyncTask addOrRemoveFavoriteAsyncTask = new AddOrRemoveFavoriteAsyncTask();
+                addOrRemoveFavoriteAsyncTask.execute();
             }
         });
 
@@ -114,7 +107,7 @@ public class SingleImageActivity extends AppCompatActivity {
                 //if image doesn't exist then download it first
                 operation = Operation.SET_AS_WALLPAPER;
                 if (!fileExists(imageFileForChecking)) {
-                    Glide.with(getApplicationContext()).load(image).asBitmap().into(target);
+                    Glide.with(getApplicationContext()).load(image_url).asBitmap().into(target);
                 } else {
                     //if it exists, just set it as wallpaper
                     setWallpaper(imageFileForChecking);
@@ -134,7 +127,7 @@ public class SingleImageActivity extends AppCompatActivity {
                         //Specifying path to our app's directory
                         File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
                         //Creating imageFile using path to our custom album
-                        imageFile = new File(path, "NEATWALLPAPERS_" + name + ".jpg");
+                        imageFile = new File(path, "NEATWALLPAPERS_" + image_name + ".jpg");
 
                         //Creating our custom album directory, if it's not created, logging error message
                         if (!path.mkdirs()) {
@@ -215,7 +208,7 @@ public class SingleImageActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
                 } else {
                     //if it doesn't exist, download it
-                    Glide.with(getApplicationContext()).load(image).asBitmap().into(target);
+                    Glide.with(getApplicationContext()).load(image_url).asBitmap().into(target);
                 }
             }
         });
@@ -254,7 +247,8 @@ public class SingleImageActivity extends AppCompatActivity {
     }
 
     /**
-     * This method cheks if there is External Storage currently mounted or in Read Only Mode. It returns boolean
+     * This method cheks if there is External Storage currently mounted or in Read Only Mode. It
+     * returns boolean
      *
      * @return boolean, true if External Storage is mounted or in Read Only Mode, false if not
      */
@@ -264,4 +258,86 @@ public class SingleImageActivity extends AppCompatActivity {
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
+
+    public class AddOrRemoveFavoriteAsyncTask extends  AsyncTask<Void, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            FavoritesDBHelper dbHelper = new FavoritesDBHelper(SingleImageActivity.this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            // Define 'where' part of query
+            String selection = FavoritesDBContract.FavoritesEntry.IMAGE_URL + " = ?";
+
+            if(imageIsFavorite){
+                // Issue SQL statement
+                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[] {image_url});
+                return null;
+            } else {
+                //Create content values for new database entry
+                ContentValues values = new ContentValues();
+                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_NAME, image_name);
+                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_URL, image_url);
+
+                // Insert the new row using our values
+                db.insert(FavoritesDBContract.FavoritesEntry.TABLE_NAME, null, values);
+                return null;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(favoriteButton.getBackground() == ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite)){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
+                } else {
+                    //noinspection deprecation
+                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
+                }
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
+                } else {
+                    //noinspection deprecation
+                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
+                }
+            }
+        }
+    }
+
+    public class ImageIsFavoriteTask extends  AsyncTask<Void, Void, Void>  {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //Check if this entry exists in database
+            FavoritesDBHelper dbHelper = new FavoritesDBHelper(SingleImageActivity.this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String selectString = "SELECT * FROM " + FavoritesDBContract.FavoritesEntry.TABLE_NAME
+                    + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
+
+            try {
+                cursor = db.rawQuery(selectString, new String[] {image_name});
+                imageIsFavorite = cursor.moveToFirst();
+            } finally {
+                cursor.close();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(imageIsFavorite){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
+                } else {
+                    //noinspection deprecation
+                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
+                }
+            }
+        }
+    }
+
+
+
 }

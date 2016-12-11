@@ -46,7 +46,6 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         mContext = context;
         mRootView = rootView;
         mUrl = url;
-
     }
 
     @Override
@@ -57,7 +56,6 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         mGridData = new ArrayList<>();
         mGridAdapter = new ImagesGridViewAdapter(mContext, R.layout.image_grid_item_layout, mGridData);
         mGridView.setAdapter(mGridAdapter);
-
     }
 
     @Override
