@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
 import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
+import com.asimqasimzade.android.neatwallpapers.MainActivity;
 import com.asimqasimzade.android.neatwallpapers.PopularFragment;
 import com.asimqasimzade.android.neatwallpapers.R;
 
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 //Downloading data asynchronously
 public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
+    private static final String LOG_TAG = "LoadImagesAsyncTask";
     private URL feed_url;
     private HttpURLConnection urlConnection;
     private static final String TAG = PopularFragment.class.getSimpleName();
@@ -98,10 +100,13 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             ConnectivityManager connectivityManager =
                     (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            if(activeNetworkInfo == null){
-                Toast.makeText(mContext, "Please check the status of the network.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(mContext, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+            try {
+                if (activeNetworkInfo == null || !activeNetworkInfo.isConnectedOrConnecting()) {
+                    Toast.makeText(mContext, "Please check the status of the network.", Toast.LENGTH_SHORT).show();
+                }
+            } catch (NullPointerException e){
+                e.printStackTrace();
+                Log.e(LOG_TAG, "Can't check if network info isConnectedOrConnecting");
             }
         }
         mProgressBar.setVisibility(View.GONE);

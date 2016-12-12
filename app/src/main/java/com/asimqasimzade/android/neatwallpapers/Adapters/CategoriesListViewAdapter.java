@@ -15,6 +15,9 @@ import com.asimqasimzade.android.neatwallpapers.R;
 
 import java.util.ArrayList;
 
+/**
+ * ArrayAdapter that sets Category ListView items
+ */
 
 public class CategoriesListViewAdapter extends ArrayAdapter<Category> {
     private Context mContext;

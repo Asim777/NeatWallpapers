@@ -18,10 +18,10 @@ import java.util.ArrayList;
 
 public class ColorsFragment extends Fragment{
 
-    private ListView mColorsListView;
-    private View rootView;
+    ListView mColorsListView;
+
     private ArrayList<Color> mColorData = new ArrayList<>();
-    private ColorsListViewAdapter mColorAdapter;
+
 
     //String array for holding list of categories
     public String[] colorNames = new String[]{
@@ -63,13 +63,14 @@ public class ColorsFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.fragment_colors, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
         mColorsListView = (ListView) rootView.findViewById(R.id.colors_listView);
 
         // Create new ArrayAdapter - giving it arguments - context, single row xml, which is
         // color_list_item_layout.xml and array to take data from
-        mColorAdapter = new ColorsListViewAdapter(getActivity(), R.layout.color_list_item_layout, mColorData);
+        ColorsListViewAdapter mColorAdapter = new ColorsListViewAdapter(getActivity(), R.layout.color_list_item_layout, mColorData);
         // If ListView is not null, set ArrayAdapter to this ListView
         if (mColorsListView != null) {
             mColorsListView.setAdapter(mColorAdapter);

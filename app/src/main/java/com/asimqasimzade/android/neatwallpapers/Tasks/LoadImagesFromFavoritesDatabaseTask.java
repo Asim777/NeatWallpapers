@@ -26,7 +26,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
     private Context mContext;
     private View mRootView;
     private ProgressBar mProgressBar;
-    private GridItem item;
+
     private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
 
@@ -54,6 +54,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
 
     @Override
     protected Void doInBackground(String... strings) {
+
         FavoritesDBHelper dbHelper = new FavoritesDBHelper(mContext);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(
@@ -61,7 +62,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
         for(int i=0; i<cursor.getCount(); i++){
             try {
                 while (cursor.moveToNext()) {
-                    item = new GridItem();
+                    GridItem item = new GridItem();
                     item.setImage(cursor.getString(1));
                     item.setName(cursor.getString(2));
                     mGridData.add(item);

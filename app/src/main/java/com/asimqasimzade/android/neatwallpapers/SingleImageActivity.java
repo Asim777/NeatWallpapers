@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +21,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
 import com.bumptech.glide.Glide;
@@ -88,7 +86,7 @@ public class SingleImageActivity extends AppCompatActivity {
 
 
         //-----------------------------------------------------------------------------------------
-        //Favorite button
+        // Favorite button
         //-----------------------------------------------------------------------------------------
 
         favoriteButton = (Button) findViewById(R.id.single_image_favorite_button);
@@ -108,7 +106,7 @@ public class SingleImageActivity extends AppCompatActivity {
 
 
         //-----------------------------------------------------------------------------------------
-        //Set as wallpaper button
+        // Set as wallpaper button
         //-----------------------------------------------------------------------------------------
 
         setAsWallpaperButton = (Button) findViewById(R.id.set_as_wallpaper_button);
@@ -130,7 +128,7 @@ public class SingleImageActivity extends AppCompatActivity {
 
 
         //-----------------------------------------------------------------------------------------
-        //Download button
+        // Download button
         //-----------------------------------------------------------------------------------------
 
         downloadButton = (Button) findViewById(R.id.download_button);
@@ -261,19 +259,6 @@ public class SingleImageActivity extends AppCompatActivity {
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    /**
-     * This method cheks if there is External Storage currently mounted or in Read Only Mode. It
-     * returns boolean
-     *
-     * @return boolean, true if External Storage is mounted or in Read Only Mode, false if not
-     */
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
-
     public class AddOrRemoveFavoriteAsyncTask extends  AsyncTask<Void, Void, Void> {
 
 
@@ -304,7 +289,12 @@ public class SingleImageActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-           new ImageIsFavoriteTask().execute();
+            if(!imageIsFavorite){
+                Toast.makeText(SingleImageActivity.this, "Image is added to Favorites", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(SingleImageActivity.this, "Image is removed from Favorites", Toast.LENGTH_SHORT).show();
+            }
+            new ImageIsFavoriteTask().execute();
         }
     }
 

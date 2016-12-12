@@ -1,5 +1,8 @@
 package com.asimqasimzade.android.neatwallpapers.Data;
 
+/**
+ * Data model class for Category item
+ */
 
 public class Category {
     private String categoryName;

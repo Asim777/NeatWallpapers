@@ -10,4 +10,12 @@
     <string name="set_as">NeatWallpapers</string>
     <string name="download">Download</string>
     <string name="set_as_wallpaper">Set as wallpaper</string>
+    <string name="exit_confirmation_dialog_string">Are you sure you want to exit?</string>
+    <string name="exit_confirmation_positive_button_string">Exit</string>
+    <string name="exit_confirmation_negative_button_string">Cancel</string>
+    <string name="popular_fragment_tag">POPULAR</string>
+    <string name="recent_fragment_tag">RECENT</string>
+    <string name="categories_fragment_tag">CATEGORIES</string>
+    <string name="colors_fragment_tag">COLORS</string>
+    <string name="favorites_fragment_tag">FAVORITES</string>
 </resources>

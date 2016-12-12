@@ -2,6 +2,7 @@ package com.asimqasimzade.android.neatwallpapers.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import com.asimqasimzade.android.neatwallpapers.R;
 import java.util.ArrayList;
 
 /**
- * Created by Asim on 12/8/2016.
+ * ArrayAdapter that sets Color ListView items
  */
 
 public class ColorsListViewAdapter extends ArrayAdapter<Color> {
@@ -32,7 +33,8 @@ public class ColorsListViewAdapter extends ArrayAdapter<Color> {
 
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         View row = convertView;
         ColorsListViewAdapter.ViewHolder holder;
@@ -54,7 +56,7 @@ public class ColorsListViewAdapter extends ArrayAdapter<Color> {
         return row;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView colorNameTextView;
         ImageView colorThumbnailImageView;
     }

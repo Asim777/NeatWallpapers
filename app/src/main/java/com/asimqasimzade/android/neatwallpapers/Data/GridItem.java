@@ -1,12 +1,12 @@
 package com.asimqasimzade.android.neatwallpapers.Data;
 
 /**
- * Created by Asim on 12/2/2016.
+ * Data model class for GridItem
  */
 
 public class GridItem {
-    String image;
-    String name;
+    private String image;
+    private String name;
 
     public String getName() {
         return name;

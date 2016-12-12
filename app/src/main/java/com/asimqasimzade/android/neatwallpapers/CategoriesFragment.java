@@ -18,10 +18,9 @@ import java.util.ArrayList;
 
 public class CategoriesFragment extends Fragment {
 
-    private ListView mCategoriesListView;
-    private View rootView;
+    ListView mCategoriesListView;
+
     private ArrayList<Category> mCategoryData = new ArrayList<>();
-    private CategoriesListViewAdapter mCategoryAdapter;
 
     //String array for holding list of categories
     public String[] categoryNames = new String[]{
@@ -82,14 +81,14 @@ public class CategoriesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.fragment_categories, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_categories, container, false);
         mCategoriesListView = (ListView) rootView.findViewById(R.id.categories_listView);
 
 
 
         // Create new ArrayAdapter - giving it arguments - context, single row xml, which is
         // category_list_item_layout.xml and array to take data from
-        mCategoryAdapter = new CategoriesListViewAdapter(getActivity(), R.layout.category_list_item_layout, mCategoryData);
+        CategoriesListViewAdapter mCategoryAdapter = new CategoriesListViewAdapter(getActivity(), R.layout.category_list_item_layout, mCategoryData);
         // If ListView is not null, set ArrayAdapter to this ListView
         if (mCategoriesListView != null) {
             mCategoriesListView.setAdapter(mCategoryAdapter);

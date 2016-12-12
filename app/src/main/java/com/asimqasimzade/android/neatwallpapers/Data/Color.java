@@ -1,7 +1,7 @@
 package com.asimqasimzade.android.neatwallpapers.Data;
 
 /**
- * Created by Asim on 12/8/2016.
+ * Data model class for Color(Category) item
  */
 
 public class Color {

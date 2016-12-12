@@ -2,6 +2,7 @@ package com.asimqasimzade.android.neatwallpapers.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,9 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+/**
+ * ArrayAdapter that sets Image GridView items
+ */
 
 public class ImagesGridViewAdapter extends ArrayAdapter<GridItem>{
 
@@ -30,7 +34,7 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem>{
 
     /**
      * Updates grid data and refresh grid items.
-     * @param mGridData
+     * @param mGridData is ArrayList of GridItems that this adapter sets to GridView layout
      */
     public void setGridData(ArrayList<GridItem> mGridData){
         this.mGridData = mGridData;
@@ -38,7 +42,8 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem>{
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View row = convertView;
         ViewHolder holder;
         if(row == null){
@@ -56,7 +61,7 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem>{
         return row;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         ImageView imageView;
     }
 }
