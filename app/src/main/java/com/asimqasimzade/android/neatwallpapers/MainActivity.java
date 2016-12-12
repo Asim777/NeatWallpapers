@@ -4,7 +4,9 @@ package com.asimqasimzade.android.neatwallpapers;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,7 +28,9 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private static int SelectedTabPosition;
+    private int selectedTabPosition;
+    SharedPreferences sharedPreferences;
+    private static final String SHARED_PREFERENCE_TAG = "tab position";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,18 +46,22 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        if (SelectedTabPosition != -1) {
-            try {
-                tabLayout.getTabAt(SelectedTabPosition).select();
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
+
+        sharedPreferences = getPreferences(MODE_PRIVATE);
+
+        selectedTabPosition = sharedPreferences.getInt(SHARED_PREFERENCE_TAG, 1);
+        try {
+
+            //noinspection ConstantConditions
+            tabLayout.getTabAt(selectedTabPosition).select();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                SelectedTabPosition = tabLayout.getSelectedTabPosition();
+                selectedTabPosition = tabLayout.getSelectedTabPosition();
             }
 
             @Override
@@ -127,5 +135,13 @@ public class MainActivity extends AppCompatActivity {
                         System.exit(0);
                     }
                 }).show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+        sharedPreferencesEditor.putInt(SHARED_PREFERENCE_TAG, selectedTabPosition);
+        sharedPreferencesEditor.apply();
     }
 }
