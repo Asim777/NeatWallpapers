@@ -1,5 +1,6 @@
 package com.asimqasimzade.android.neatwallpapers;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -71,7 +73,9 @@ public class SingleImageActivity extends AppCompatActivity {
         ImageView singleImageView = (ImageView) findViewById(R.id.single_image_view);
         Glide.with(this).load(image_url).into(singleImageView);
 
+        //-----------------------------------------------------------------------------------------
         //Back button
+        //-----------------------------------------------------------------------------------------
         backButton = (Button) findViewById(R.id.single_image_back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,21 +86,30 @@ public class SingleImageActivity extends AppCompatActivity {
             }
         });
 
+
+        //-----------------------------------------------------------------------------------------
         //Favorite button
+        //-----------------------------------------------------------------------------------------
+
         favoriteButton = (Button) findViewById(R.id.single_image_favorite_button);
-        ImageIsFavoriteTask imageIsFavoriteTask = new ImageIsFavoriteTask();
-        imageIsFavoriteTask.execute();
+        new ImageIsFavoriteTask().execute();
 
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //When favorite button inside SingleImageActivity is clicked, we are adding this
                 //image to Favorites database and changing background of a button
-                AddOrRemoveFavoriteAsyncTask addOrRemoveFavoriteAsyncTask = new AddOrRemoveFavoriteAsyncTask();
-                addOrRemoveFavoriteAsyncTask.execute();
+                new AddOrRemoveFavoriteAsyncTask().execute();
+                //Sending back return intent to FavoritesFragment to update it's GridView with new data
+                Intent databaseIsChangedIntent = new Intent();
+                setResult(Activity.RESULT_OK, databaseIsChangedIntent);
             }
         });
 
+
+        //-----------------------------------------------------------------------------------------
+        //Set as wallpaper button
+        //-----------------------------------------------------------------------------------------
 
         setAsWallpaperButton = (Button) findViewById(R.id.set_as_wallpaper_button);
 
@@ -116,7 +129,27 @@ public class SingleImageActivity extends AppCompatActivity {
         });
 
 
+        //-----------------------------------------------------------------------------------------
         //Download button
+        //-----------------------------------------------------------------------------------------
+
+        downloadButton = (Button) findViewById(R.id.download_button);
+
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Downloading image
+                // if it already exists Toast message, saying that it does
+                operation = Operation.DOWNLOAD;
+                if (fileExists(imageFileForChecking)) {
+                    Toast.makeText(getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
+                } else {
+                    //if it doesn't exist, download it
+                    Glide.with(getApplicationContext()).load(image_url).asBitmap().into(target);
+                }
+            }
+        });
+
         target = new SimpleTarget<Bitmap>() {
 
             @Override
@@ -196,24 +229,6 @@ public class SingleImageActivity extends AppCompatActivity {
             }
         };
 
-        downloadButton = (Button) findViewById(R.id.download_button);
-
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Downloading image
-                // if it already exists Toast message, saying that it does
-                operation = Operation.DOWNLOAD;
-                if (fileExists(imageFileForChecking)) {
-                    Toast.makeText(getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
-                } else {
-                    //if it doesn't exist, download it
-                    Glide.with(getApplicationContext()).load(image_url).asBitmap().into(target);
-                }
-            }
-        });
-
-
     }
 
     private void setWallpaper(File imageFile) {
@@ -268,11 +283,11 @@ public class SingleImageActivity extends AppCompatActivity {
             FavoritesDBHelper dbHelper = new FavoritesDBHelper(SingleImageActivity.this);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             // Define 'where' part of query
-            String selection = FavoritesDBContract.FavoritesEntry.IMAGE_URL + " = ?";
+            String selection = FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " = ?";
 
             if(imageIsFavorite){
                 // Issue SQL statement
-                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[] {image_url});
+                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[] {image_name});
                 return null;
             } else {
                 //Create content values for new database entry
@@ -289,21 +304,7 @@ public class SingleImageActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(favoriteButton.getBackground() == ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite)){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
-                } else {
-                    //noinspection deprecation
-                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
-                }
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
-                } else {
-                    //noinspection deprecation
-                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
-                }
-            }
+           new ImageIsFavoriteTask().execute();
         }
     }
 
@@ -333,6 +334,13 @@ public class SingleImageActivity extends AppCompatActivity {
                 } else {
                     //noinspection deprecation
                     favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite_selected));
+                }
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    favoriteButton.setBackground(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
+                } else {
+                    //noinspection deprecation
+                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(SingleImageActivity.this, R.mipmap.ic_favorite));
                 }
             }
         }

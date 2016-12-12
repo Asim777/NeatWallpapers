@@ -1,6 +1,7 @@
 package com.asimqasimzade.android.neatwallpapers;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,7 +20,9 @@ public class FavoritesFragment extends Fragment{
 
     GridView mGridView;
     View rootView;
-    String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&order=popular&per_page=200";
+    ProgressBar mProgressBar;
+    public static final int REQUEST_CODE = 102;
+
     public FavoritesFragment() {
         // Required empty public constructor
     }
@@ -37,12 +40,10 @@ public class FavoritesFragment extends Fragment{
         rootView = inflater.inflate(R.layout.fragment_favorites, container, false);
         mGridView = (GridView) rootView.findViewById(R.id.gridView);
 
-        ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
 
-        //Start Download from database
-        new LoadImagesFromFavoritesDatabaseTask(getActivity(), rootView).execute();
-        mProgressBar.setVisibility(View.VISIBLE);
+        updateGridView();
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -57,10 +58,22 @@ public class FavoritesFragment extends Fragment{
                 intent.putExtra("name", item.getName());
 
                 //Start SingleImageActivity
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE);
             }
         });
         return rootView;
     }
 
+    private void updateGridView(){
+        //Start Download from database
+        new LoadImagesFromFavoritesDatabaseTask(getActivity(), rootView).execute();
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            updateGridView();
+        }
+    }
 }

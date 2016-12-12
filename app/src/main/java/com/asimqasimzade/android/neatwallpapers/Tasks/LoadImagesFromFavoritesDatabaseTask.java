@@ -57,7 +57,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
         FavoritesDBHelper dbHelper = new FavoritesDBHelper(mContext);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(
-                FavoritesEntry.TABLE_NAME, projection, null, null, null, null, null);
+                FavoritesEntry.TABLE_NAME, projection, null, null, null, null, "_id DESC");
         for(int i=0; i<cursor.getCount(); i++){
             try {
                 while (cursor.moveToNext()) {
