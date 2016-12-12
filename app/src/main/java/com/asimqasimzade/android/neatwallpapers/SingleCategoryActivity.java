@@ -23,6 +23,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
     View rootView;
     String categoryApiName;
     String categoryName;
+    String callingFragment;
 
 
     @Override
@@ -33,6 +34,8 @@ public class SingleCategoryActivity extends AppCompatActivity {
         //Get categoryApiName to use in URL and Category name to use in activity title from intent
         categoryApiName = getIntent().getStringExtra("categoryApiName");
         categoryName = getIntent().getStringExtra("categoryName");
+        callingFragment = getIntent().getStringExtra("id");
+
         //Set Category name as title
         setTitle(categoryName);
         //Set categoryApiName as URL extension
@@ -121,8 +124,18 @@ public class SingleCategoryActivity extends AppCompatActivity {
         });
     }
 
-    private void constructUrl(String order, String categoryApiName){
-        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&order=" + order +"&category=" + categoryApiName;
+    private void constructUrl(String order, String categoryApiName) {
+        switch (callingFragment) {
+            case "CategoriesFragment": {
+                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryApiName;
+                break;
+            }
+            case "ColorsFragment" : {
+                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&order=" + order +"&q=" + categoryName;
+                break;
+            }
+
+        }
     }
 
 }

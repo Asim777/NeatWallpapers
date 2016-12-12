@@ -82,8 +82,9 @@ public class ColorsFragment extends Fragment{
                 //Get an item position
                 Color color = (Color) parent.getItemAtPosition(position);
 
-                Intent openColorIntent = new Intent(getActivity(), SingleColorActivity.class);
-                openColorIntent.putExtra("colorName", color.getColorName());
+                Intent openColorIntent = new Intent(getActivity(), SingleCategoryActivity.class);
+                openColorIntent.putExtra("categoryName", color.getColorName());
+                openColorIntent.putExtra("id", "ColorsFragment");
                 startActivity(openColorIntent);
             }
         });

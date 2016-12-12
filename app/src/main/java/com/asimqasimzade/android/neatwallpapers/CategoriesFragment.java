@@ -105,6 +105,7 @@ public class CategoriesFragment extends Fragment {
                 Intent openCategoryIntent = new Intent(getActivity(), SingleCategoryActivity.class);
                 openCategoryIntent.putExtra("categoryApiName", category.getCategoryApiName());
                 openCategoryIntent.putExtra("categoryName", category.getCategoryName());
+                openCategoryIntent.putExtra("id", "CategoriesFragment");
                 startActivity(openCategoryIntent);
             }
         });

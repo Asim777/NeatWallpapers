@@ -2,6 +2,7 @@ package com.asimqasimzade.android.neatwallpapers.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,8 @@ public class CategoriesListViewAdapter extends ArrayAdapter<Category> {
 
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         View row = convertView;
         CategoriesListViewAdapter.ViewHolder holder;
@@ -51,7 +53,7 @@ public class CategoriesListViewAdapter extends ArrayAdapter<Category> {
         return row;
     }
 
-    static class ViewHolder {
+   private static class ViewHolder {
         TextView categoryNameTextView;
         ImageView categoryThumbnailImageView;
     }
