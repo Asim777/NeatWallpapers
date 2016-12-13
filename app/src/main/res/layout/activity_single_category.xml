@@ -17,8 +17,7 @@
         android:gravity="center"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
-        android:listSelector="@android:color/transparent"
-        android:layout_marginBottom="?attr/actionBarSize"/>
+        android:listSelector="@android:color/transparent" />
 
     <ProgressBar
         android:id="@+id/progressBar"

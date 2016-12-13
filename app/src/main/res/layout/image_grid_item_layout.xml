@@ -4,6 +4,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:contentDescription="@string/image_content_description"
         android:id="@+id/grid_item_image"
         android:layout_width="200dp"
         android:layout_height="200dp"

@@ -18,4 +18,5 @@
     <string name="categories_fragment_tag">CATEGORIES</string>
     <string name="colors_fragment_tag">COLORS</string>
     <string name="favorites_fragment_tag">FAVORITES</string>
+    <string name="image_content_description">image</string>
 </resources>

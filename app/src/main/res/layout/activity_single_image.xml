@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:contentDescription="@string/image_content_description"
         android:id="@+id/single_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,7 +21,7 @@
         android:layout_alignParentLeft="true"
         android:background="@mipmap/ic_left_arrow"
         android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart= "10dp"
         android:layout_marginTop="20dp"
         />
 
@@ -46,6 +47,7 @@
         android:layout_height="wrap_content"
         android:gravity="center">
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/set_as_wallpaper_button"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -57,6 +59,7 @@
             android:layout_marginEnd="5dp"
             />
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/download_button"
             android:layout_width="0dp"
             android:layout_weight="1"
