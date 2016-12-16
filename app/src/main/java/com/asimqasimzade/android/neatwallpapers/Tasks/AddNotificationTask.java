@@ -36,7 +36,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
     private static final String LOG_TAG = "AddNotificationTask";
     private Context context;
-    private String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&order=latest&per_page=3";
+    private String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&order=latest&per_page=3";
     private URL feed_url;
     private HttpURLConnection urlConnection;
     private Bitmap notificationBitmap;
@@ -102,7 +102,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
             e.printStackTrace();
         }
 
-        return null;
+        return result;
     }
 
     @Override

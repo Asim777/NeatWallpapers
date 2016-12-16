@@ -18,7 +18,7 @@ import com.asimqasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 public class RecentFragment extends Fragment{
     GridView mGridView;
     View rootView;
-    String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&order=latest&per_page=200";
+    String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&orientation=vertical&order=latest&per_page=200&min_width=450";
 
     public RecentFragment() {
         // Required empty public constructor

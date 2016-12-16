@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         //Setting pending intent
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) date.getTime(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime()+AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
 
     }
 
