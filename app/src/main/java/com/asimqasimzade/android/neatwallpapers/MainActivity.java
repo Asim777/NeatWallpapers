@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,8 +23,11 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.RemoteViews;
 
 import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private int selectedTabPosition;
     SharedPreferences sharedPreferences;
+
     private static final String SHARED_PREFERENCE_TAG = "tab position";
 
     @Override
@@ -132,9 +137,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
+
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
-
         ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
@@ -158,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
-    }
 
+    }
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -189,6 +194,19 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putInt(SHARED_PREFERENCE_TAG, selectedTabPosition);
         sharedPreferencesEditor.apply();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
     }
 }
 

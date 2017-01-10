@@ -19,4 +19,6 @@
     <string name="colors_fragment_tag">COLORS</string>
     <string name="favorites_fragment_tag">FAVORITES</string>
     <string name="image_content_description">image</string>
+    <string name="search_action_title">Search</string>
+    <string name="search_hint">Enter search value</string>
 </resources>
