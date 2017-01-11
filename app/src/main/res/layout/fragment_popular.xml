@@ -11,12 +11,11 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:columnWidth="150dp"
-        android:drawSelectorOnTop="true"
+
         android:focusable="true"
         android:gravity="center"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
-        android:listSelector="@android:color/transparent"
         android:layout_marginBottom="?attr/actionBarSize" />
 
     <ProgressBar
