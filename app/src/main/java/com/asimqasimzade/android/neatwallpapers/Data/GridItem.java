@@ -8,6 +8,15 @@ public class GridItem {
     private String image;
     private String name;
     private String author;
+    private String link;
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 
     public String getAuthor() {
         return author;

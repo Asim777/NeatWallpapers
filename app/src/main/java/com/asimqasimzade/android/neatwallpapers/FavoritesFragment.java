@@ -57,6 +57,7 @@ public class FavoritesFragment extends Fragment{
                 intent.putExtra("image", item.getImage());
                 intent.putExtra("name", item.getName());
                 intent.putExtra("author", item.getAuthor());
+                intent.putExtra("link", item.getLink());
 
                 //Start SingleImageActivity
                 startActivityForResult(intent, REQUEST_CODE);

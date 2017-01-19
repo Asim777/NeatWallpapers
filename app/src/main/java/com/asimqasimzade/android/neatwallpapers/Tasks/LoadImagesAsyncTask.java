@@ -154,6 +154,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                         item.setImage(image.getString("webformatURL"));
                         item.setName(image.getString("id"));
                         item.setAuthor(image.getString("user"));
+                        item.setLink(image.getString("pageURL"));
                     }
                 }
                 mGridData.add(item);

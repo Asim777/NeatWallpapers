@@ -22,4 +22,5 @@
     <string name="search_action_title">Search</string>
     <string name="search_hint">Enter search value</string>
     <string name="author_info">Author: %1$s</string>
+    <string name="pixabay_link">View on Pixabay</string>
 </resources>

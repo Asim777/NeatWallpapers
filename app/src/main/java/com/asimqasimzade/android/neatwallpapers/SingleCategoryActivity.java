@@ -118,6 +118,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
                 intent.putExtra("image", item.getImage());
                 intent.putExtra("name", item.getName());
                 intent.putExtra("author", item.getAuthor());
+                intent.putExtra("link", item.getLink());
 
                 //Start SingleImageActivity
                 startActivity(intent);

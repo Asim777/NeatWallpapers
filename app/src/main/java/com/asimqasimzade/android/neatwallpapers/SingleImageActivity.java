@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,8 +30,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,9 +44,10 @@ public class SingleImageActivity extends AppCompatActivity {
     Button backButton;
     Button setAsWallpaperButton;
     Button downloadButton;
-    String image_url;
-    String image_name;
+    String imageUrl;
+    String imageName;
     String authorInfo;
+    String imageLink;
     SimpleTarget<Bitmap> target;
     File imageFile;
     File imageFileForChecking;
@@ -68,24 +68,37 @@ public class SingleImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_image);
 
         //Loading image
-        image_url = getIntent().getStringExtra("image");
-        image_name = getIntent().getStringExtra("name");
+        imageUrl = getIntent().getStringExtra("image");
+        imageName = getIntent().getStringExtra("name");
         authorInfo = getIntent().getStringExtra("author");
+        imageLink = getIntent().getStringExtra("link");
 
         //We'll use this file to check if given image already exists on device and take corresponding
         //course of action depending on that
         //Specifying path to our app's directory
         File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
         //Creating imageFile using path to our custom album
-        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + image_name + ".jpg");
+        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
 
         ImageView singleImageView = (ImageView) findViewById(R.id.single_image_view);
-        Glide.with(this).load(image_url).into(singleImageView);
+        Glide.with(this).load(imageUrl).into(singleImageView);
 
         //Setting author info
         TextView authorInfoTextView = (TextView) findViewById(R.id.author_info_text_view);
         authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), authorInfo));
 
+        //Setting image link
+        TextView imageLinkTextView = (TextView) findViewById(R.id.image_link_text_view);
+        imageLinkTextView.setPaintFlags(imageLinkTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        imageLinkTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
+                openImageLinkIntent.setData(Uri.parse(imageLink));
+                startActivity(openImageLinkIntent);
+            }
+        });
         //-----------------------------------------------------------------------------------------
         //Back button
         //-----------------------------------------------------------------------------------------
@@ -133,7 +146,7 @@ public class SingleImageActivity extends AppCompatActivity {
                 //if image doesn't exist then download it first
                 operation = Operation.SET_AS_WALLPAPER;
                 if (!fileExists(imageFileForChecking)) {
-                    Glide.with(getApplicationContext()).load(image_url).asBitmap().into(target);
+                    Glide.with(getApplicationContext()).load(imageUrl).asBitmap().into(target);
                 } else {
                     //if it exists, just set it as wallpaper
                     setWallpaper(imageFileForChecking);
@@ -158,7 +171,7 @@ public class SingleImageActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
                 } else {
                     //if it doesn't exist, download it
-                    Glide.with(getApplicationContext()).load(image_url).asBitmap().into(target);
+                    Glide.with(getApplicationContext()).load(imageUrl).asBitmap().into(target);
                 }
             }
         });
@@ -183,7 +196,7 @@ public class SingleImageActivity extends AppCompatActivity {
                         //Specifying path to our app's directory
                         File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
                         //Creating imageFile using path to our custom album
-                        imageFile = new File(path, "NEATWALLPAPERS_" + image_name + ".jpg");
+                        imageFile = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
 
                         //Creating our custom album directory, if it's not created, logging error message
                         if (!path.mkdirs()) {
@@ -200,12 +213,12 @@ public class SingleImageActivity extends AppCompatActivity {
 
                                 while(jumpTime < totalProgressTime) {
                                     try {
-                                        sleep(200);
+                                        sleep(100);
                                         //publishing progress
                                         //after that onProgressUpdate will be called
                                         publishProgress(jumpTime);
                                         jumpTime += 5;
-                                        /*progressDialog.setProgress(jumpTime);*/
+
                                     }  catch (InterruptedException e){
                                         e.printStackTrace();
                                     }
@@ -288,6 +301,7 @@ public class SingleImageActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setIndeterminate(false);
         progressDialog.setMax(100);
+        progressDialog.setCancelable(false);
         progressDialog.setProgress(0);
         progressDialog.show();
     }
@@ -336,13 +350,13 @@ public class SingleImageActivity extends AppCompatActivity {
 
             if(imageIsFavorite){
                 // Issue SQL statement
-                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[] {image_name});
+                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[] {imageName});
                 return null;
             } else {
                 //Create content values for new database entry
                 ContentValues values = new ContentValues();
-                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_NAME, image_name);
-                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_URL, image_url);
+                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_NAME, imageName);
+                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_URL, imageUrl);
 
                 // Insert the new row using our values
                 db.insert(FavoritesDBContract.FavoritesEntry.TABLE_NAME, null, values);
@@ -372,7 +386,7 @@ public class SingleImageActivity extends AppCompatActivity {
                     + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
 
             try {
-                cursor = db.rawQuery(selectString, new String[] {image_name});
+                cursor = db.rawQuery(selectString, new String[] {imageName});
                 imageIsFavorite = cursor.moveToFirst();
             } finally {
                 cursor.close();
@@ -400,6 +414,10 @@ public class SingleImageActivity extends AppCompatActivity {
         }
     }
 
-
+    private void openPageOnBrowser(){
+        Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
+        openImageLinkIntent.setData(Uri.parse(imageLink));
+        startActivity(openImageLinkIntent);
+    }
 
 }
