@@ -1,6 +1,7 @@
 package com.asimqasimzade.android.neatwallpapers;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -31,6 +32,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static java.lang.Thread.sleep;
+
 
 public class SingleImageActivity extends AppCompatActivity {
     private static final String LOG_TAG = SingleImageActivity.class.getSimpleName();
@@ -51,6 +54,9 @@ public class SingleImageActivity extends AppCompatActivity {
     Cursor cursor;
     Operation operation;
     boolean imageIsFavorite;
+    // Progress Dialog
+    private ProgressDialog progressDialog;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,13 +154,23 @@ public class SingleImageActivity extends AppCompatActivity {
             }
         });
 
+
         target = new SimpleTarget<Bitmap>() {
 
             @Override
             public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
-                new AsyncTask<Void, Void, Boolean>() {
+                new AsyncTask<Void, Integer, Boolean>() {
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        showProgressDialog();
+                    }
+
+
                     @Override
                     protected Boolean doInBackground(Void... voids) {
+
+                        final int totalProgressTime = 100;
                         //Specifying path to our app's directory
                         File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
                         //Creating imageFile using path to our custom album
@@ -168,9 +184,24 @@ public class SingleImageActivity extends AppCompatActivity {
                         //We are checking if there is ExternalStorage mounted on device and is it
                         //readable
                         if (isExternalStorageWritable()) {
+                            int jumpTime = 5;
                             try {
                                 outputStream = new FileOutputStream(imageFile);
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+                                while(jumpTime < totalProgressTime) {
+                                    try {
+                                        sleep(200);
+                                        //publishing progress
+                                        //after that onProgressUpdate will be called
+                                        publishProgress(jumpTime);
+                                        jumpTime += 5;
+                                        /*progressDialog.setProgress(jumpTime);*/
+                                    }  catch (InterruptedException e){
+                                        e.printStackTrace();
+                                    }
+                                }
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } finally {
@@ -200,7 +231,20 @@ public class SingleImageActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    protected void onProgressUpdate(Integer... values) {
+                            super.onProgressUpdate(values);
+                            //Setting progress value
+                            /*progressDialog.setMax(100);*/
+                            progressDialog.setProgress(values[0]);
+                    }
+
+                    @Override
                     protected void onPostExecute(Boolean aBoolean) {
+                        //Dismiss the progress dialog
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+
                         //Checking the result and giving feedback to user about success
                         if(operation == Operation.DOWNLOAD) {
                             if (fileExists(imageFile)) {
@@ -229,6 +273,16 @@ public class SingleImageActivity extends AppCompatActivity {
 
     }
 
+    protected void showProgressDialog(){
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Downloading Image");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setMax(100);
+        progressDialog.setProgress(0);
+        progressDialog.show();
+    }
+
     private void setWallpaper(File imageFile) {
         Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
         Uri imageUri = Uri.fromFile(imageFile);
@@ -249,7 +303,7 @@ public class SingleImageActivity extends AppCompatActivity {
     }
 
     /**
-     * This method cheks if there is External Storage currently mounted in device. It returns boolean
+     * This method checks if there is External Storage currently mounted in device. It returns boolean
      *
      * @return boolean, true if External Storage is mounted, false if not
      */
@@ -258,6 +312,7 @@ public class SingleImageActivity extends AppCompatActivity {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
+
 
     public class AddOrRemoveFavoriteAsyncTask extends  AsyncTask<Void, Void, Void> {
 
