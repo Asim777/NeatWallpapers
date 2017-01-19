@@ -54,6 +54,7 @@ public class PopularFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("image", item.getImage());
                 intent.putExtra("name", item.getName());
+                intent.putExtra("author", item.getAuthor());
 
                 //Start SingleImageActivity
                 startActivity(intent);

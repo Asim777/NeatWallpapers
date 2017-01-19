@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
@@ -27,6 +28,8 @@ import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,6 +47,7 @@ public class SingleImageActivity extends AppCompatActivity {
     Button downloadButton;
     String image_url;
     String image_name;
+    String authorInfo;
     SimpleTarget<Bitmap> target;
     File imageFile;
     File imageFileForChecking;
@@ -66,6 +70,7 @@ public class SingleImageActivity extends AppCompatActivity {
         //Loading image
         image_url = getIntent().getStringExtra("image");
         image_name = getIntent().getStringExtra("name");
+        authorInfo = getIntent().getStringExtra("author");
 
         //We'll use this file to check if given image already exists on device and take corresponding
         //course of action depending on that
@@ -76,6 +81,10 @@ public class SingleImageActivity extends AppCompatActivity {
 
         ImageView singleImageView = (ImageView) findViewById(R.id.single_image_view);
         Glide.with(this).load(image_url).into(singleImageView);
+
+        //Setting author info
+        TextView authorInfoTextView = (TextView) findViewById(R.id.author_info_text_view);
+        authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), authorInfo));
 
         //-----------------------------------------------------------------------------------------
         //Back button

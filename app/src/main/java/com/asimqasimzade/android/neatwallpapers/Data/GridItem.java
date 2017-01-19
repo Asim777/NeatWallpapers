@@ -7,6 +7,15 @@ package com.asimqasimzade.android.neatwallpapers.Data;
 public class GridItem {
     private String image;
     private String name;
+    private String author;
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     public String getName() {
         return name;
