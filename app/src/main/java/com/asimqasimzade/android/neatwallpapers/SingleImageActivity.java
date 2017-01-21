@@ -414,10 +414,4 @@ public class SingleImageActivity extends AppCompatActivity {
         }
     }
 
-    private void openPageOnBrowser(){
-        Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
-        openImageLinkIntent.setData(Uri.parse(imageLink));
-        startActivity(openImageLinkIntent);
-    }
-
 }
