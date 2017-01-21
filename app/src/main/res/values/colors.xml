@@ -9,4 +9,5 @@
     <color name="white">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
     <color name="black">#000000</color>
+    <color name="splash_background">#FF6EB4EC</color>
 </resources>
