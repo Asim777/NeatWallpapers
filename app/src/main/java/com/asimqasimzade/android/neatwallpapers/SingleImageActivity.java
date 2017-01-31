@@ -3,6 +3,7 @@ package com.asimqasimzade.android.neatwallpapers;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,11 +17,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +67,10 @@ public class SingleImageActivity extends AppCompatActivity {
     // Progress Dialog
     private ProgressDialog progressDialog;
 
+    //Experimental scrolling
+    ViewPager singleImageViewPager;
+    SingleImageViewPagerAdapter singleImageViewPagerAdapter;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +83,12 @@ public class SingleImageActivity extends AppCompatActivity {
         authorInfo = getIntent().getStringExtra("author");
         imageLink = getIntent().getStringExtra("link");
 
+        singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(this);
+        singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
+        singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
+        // how many images to load into memory from the either side of current page
+        singleImageViewPager.setOffscreenPageLimit(1);
+
         //We'll use this file to check if given image already exists on device and take corresponding
         //course of action depending on that
         //Specifying path to our app's directory
@@ -80,8 +96,8 @@ public class SingleImageActivity extends AppCompatActivity {
         //Creating imageFile using path to our custom album
         imageFileForChecking = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
 
-        ImageView singleImageView = (ImageView) findViewById(R.id.single_image_view);
-        Glide.with(this).load(imageUrl).into(singleImageView);
+/*        ImageView singleImageView = (ImageView) findViewById(R.id.single_image_view);
+        Glide.with(this).load(imageUrl).into(singleImageView);*/
 
         //Setting author info
         TextView authorInfoTextView = (TextView) findViewById(R.id.author_info_text_view);
@@ -293,6 +309,42 @@ public class SingleImageActivity extends AppCompatActivity {
             }
         };
 
+    }
+
+    class SingleImageViewPagerAdapter extends PagerAdapter {
+
+        Context mContext;
+        LayoutInflater mInflater;
+
+        public SingleImageViewPagerAdapter(Context context){
+            mContext = context;
+            mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, final int position) {
+            View itemView = mInflater.inflate(R.layout.single_image_viewpager_item, container, false);
+            container.addView(itemView);
+            final ImageView imageView = (ImageView) itemView.findViewById(R.id.single_image_view);
+            Glide.with(mContext).load(imageUrl).into(imageView);
+            return itemView;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((LinearLayout) object);
+        }
     }
 
     protected void showProgressDialog(){

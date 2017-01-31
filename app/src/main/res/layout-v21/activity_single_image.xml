@@ -4,13 +4,11 @@
     android:layout_height="match_parent"
     android:background="@color/textColorPrimary">
 
-    <ImageView
-        android:id="@+id/single_image_view"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/single_image_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:contentDescription="@string/image_content_description"
-        android:scaleType="centerCrop" />
+        android:layout_height="match_parent">
+    </android.support.v4.view.ViewPager>
 
     <Button
         android:id="@+id/single_image_back_button"
