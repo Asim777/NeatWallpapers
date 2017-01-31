@@ -55,6 +55,7 @@ public class RecentFragment extends Fragment{
                 intent.putExtra("name", item.getName());
                 intent.putExtra("author", item.getAuthor());
                 intent.putExtra("link", item.getLink());
+                intent.putExtra("number", item.getNumber());
 
                 //Start SingleImageActivity
                 startActivity(intent);

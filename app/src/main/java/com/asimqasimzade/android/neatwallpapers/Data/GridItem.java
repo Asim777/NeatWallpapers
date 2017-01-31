@@ -9,6 +9,8 @@ public class GridItem {
     private String name;
     private String author;
     private String link;
+    private int number;
+
 
     public String getLink() {
         return link;
@@ -40,5 +42,13 @@ public class GridItem {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 }

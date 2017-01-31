@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
 import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
+import com.asimqasimzade.android.neatwallpapers.Data.ImagesDataClass;
 import com.asimqasimzade.android.neatwallpapers.PopularFragment;
 import com.asimqasimzade.android.neatwallpapers.R;
 
@@ -155,10 +156,14 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                         item.setName(image.getString("id"));
                         item.setAuthor(image.getString("user"));
                         item.setLink(image.getString("pageURL"));
+                        item.setNumber(i);
                     }
                 }
                 mGridData.add(item);
             }
+            //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
+            // other images from SingleImageActivity
+            ImagesDataClass.imageslist = mGridData;
         } catch (JSONException e) {
             e.printStackTrace();
         }

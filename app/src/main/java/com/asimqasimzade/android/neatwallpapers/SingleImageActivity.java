@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asimqasimzade.android.neatwallpapers.Data.ImagesDataClass;
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
 import com.bumptech.glide.Glide;
@@ -54,6 +55,7 @@ public class SingleImageActivity extends AppCompatActivity {
     String imageName;
     String authorInfo;
     String imageLink;
+    int imageNumber;
     SimpleTarget<Bitmap> target;
     File imageFile;
     File imageFileForChecking;
@@ -82,12 +84,13 @@ public class SingleImageActivity extends AppCompatActivity {
         imageName = getIntent().getStringExtra("name");
         authorInfo = getIntent().getStringExtra("author");
         imageLink = getIntent().getStringExtra("link");
+        imageNumber = getIntent().getIntExtra("number", 0);
 
         singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(this);
         singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
         singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
         // how many images to load into memory from the either side of current page
-        singleImageViewPager.setOffscreenPageLimit(1);
+        singleImageViewPager.setOffscreenPageLimit(5);
 
         //We'll use this file to check if given image already exists on device and take corresponding
         //course of action depending on that
@@ -321,10 +324,10 @@ public class SingleImageActivity extends AppCompatActivity {
             mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
-
         @Override
         public int getCount() {
-            return 3;
+            //TODO: put search results from JSON here
+            return 200;
         }
 
         @Override
@@ -334,10 +337,13 @@ public class SingleImageActivity extends AppCompatActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
+            //Geting url of current selected image from ImagesDataClass using imageNumber from
+            // intent and ViewPager page position
+            String currentImageUrl = ImagesDataClass.imageslist.get(imageNumber+position).getImage();
             View itemView = mInflater.inflate(R.layout.single_image_viewpager_item, container, false);
             container.addView(itemView);
             final ImageView imageView = (ImageView) itemView.findViewById(R.id.single_image_view);
-            Glide.with(mContext).load(imageUrl).into(imageView);
+            Glide.with(mContext).load(currentImageUrl).into(imageView);
             return itemView;
         }
 
