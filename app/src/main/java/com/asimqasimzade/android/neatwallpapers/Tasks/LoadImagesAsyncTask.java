@@ -66,7 +66,6 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     protected Integer doInBackground(String... params) {
         Integer result = 0;
 
-
         //Loop through pages
         for (int i = 0; i < numberOfPages; i++) {
             try {
@@ -97,6 +96,9 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 urlConnection.disconnect();
             }
         }
+        //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
+        // other images from SingleImageActivity
+        /*ImagesDataClass.imageslist = mGridData;*/
         return result;
     }
 
@@ -161,9 +163,8 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 }
                 mGridData.add(item);
             }
-            //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
-            // other images from SingleImageActivity
-            ImagesDataClass.imageslist = mGridData;
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

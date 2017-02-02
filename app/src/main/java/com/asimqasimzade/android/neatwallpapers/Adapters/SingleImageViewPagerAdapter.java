@@ -72,9 +72,4 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return 200;
     }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView((RelativeLayout) object);
-    }
 }
