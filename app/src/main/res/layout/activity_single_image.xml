@@ -9,16 +9,4 @@
         android:layout_height="match_parent">
     </android.support.v4.view.ViewPager>
 
-    <Button
-        android:id="@+id/single_image_back_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
-        android:background="@mipmap/ic_left_arrow" />
-
 </RelativeLayout>
