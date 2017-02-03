@@ -82,16 +82,19 @@ public class SingleImageFragment extends Fragment {
 
         Bundle bundle = getArguments();
         currentPosition = bundle.getInt("image_number");
-/*        if(currentPosition > 596){
-            currentPosition = 596;
-        }*/
-
+        //We need to make this check so that ViewPager doesn't create next Fragment with
+        // currentPosition = 600 when we enter 599th, because when it does, there is no 600th
+        // element in ImageDataClass.imagelist and it causes IndexOutOfBoundsException. That's why,
+        // when we are at second to last page, and swipe write, activity closes. And we can't enter
+        // the last item from the list either.
+        if(currentPosition > 599){
+            getActivity().finish();
+        } else {
             currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
             currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
             currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
             currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
-
-
+        }
     }
 
     @Nullable

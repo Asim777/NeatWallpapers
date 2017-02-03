@@ -122,8 +122,6 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
         // other images from SingleImageActivity
         ImagesDataClass.imageslist = mGridData;
-        GridItem[] endOfList = {new GridItem(), new GridItem(), new GridItem()};
-        ImagesDataClass.imageslist.addAll(Arrays.asList(endOfList));
         mProgressBar.setVisibility(View.GONE);
     }
 
