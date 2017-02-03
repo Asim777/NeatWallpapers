@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +53,11 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
         mContext = context;
         mImageNumber = imageNumber;
+    }
 
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        return super.instantiateItem(container, position);
     }
 
     @Override
@@ -70,6 +75,6 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 200;
+        return ImagesDataClass.imageslist.size();
     }
 }

@@ -8,8 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.asimqasimzade.android.neatwallpapers.Adapters.SingleImageViewPagerAdapter;
 
-import java.io.File;
-
 
 public class SingleImageActivity extends AppCompatActivity {
 
@@ -33,16 +31,10 @@ public class SingleImageActivity extends AppCompatActivity {
         singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
         singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
         // how many images to load into memory from the either side of current page
+        singleImageViewPager.setOffscreenPageLimit(3);
+
 
     }
 
-
-
-
-
-
-
-
-
-
 }
+

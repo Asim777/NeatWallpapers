@@ -28,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 //Downloading data asynchronously
@@ -81,7 +82,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                     if(i == 0) {
                         numberOfPages = getNumberOfPages(response);
                     }
-                    parseResult(response);
+                    parseResult(response, i);
                     result = 1; //Successful
                 } else {
                     result = 0; //Failed
@@ -96,9 +97,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 urlConnection.disconnect();
             }
         }
-        //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
-        // other images from SingleImageActivity
-        /*ImagesDataClass.imageslist = mGridData;*/
+
         return result;
     }
 
@@ -120,6 +119,11 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 Log.e(LOG_TAG, "Can't check if network info isConnectedOrConnecting");
             }
         }
+        //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
+        // other images from SingleImageActivity
+        ImagesDataClass.imageslist = mGridData;
+        GridItem[] endOfList = {new GridItem(), new GridItem(), new GridItem()};
+        ImagesDataClass.imageslist.addAll(Arrays.asList(endOfList));
         mProgressBar.setVisibility(View.GONE);
     }
 
@@ -141,7 +145,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
      *
      * @param result is result String we got from InputStreamReader
      */
-    private void parseResult(String result) {
+    private void parseResult(String result, int pageNumber) {
         try {
             JSONObject rootJson = new JSONObject(result);
             JSONArray hits = rootJson.optJSONArray("hits");
@@ -158,7 +162,23 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                         item.setName(image.getString("id"));
                         item.setAuthor(image.getString("user"));
                         item.setLink(image.getString("pageURL"));
-                        item.setNumber(i);
+                        switch (pageNumber) {
+                            case 0:
+                                item.setNumber(i);
+                                break;
+                            case 1:
+                                item.setNumber(i + 200);
+                                break;
+                            case 2:
+                                item.setNumber(i + 400);
+                                break;
+                            case 3:
+                                item.setNumber(i + 600);
+                                break;
+                            case 4:
+                                item.setNumber(i + 800);
+                                break;
+                        }
                     }
                 }
                 mGridData.add(item);
