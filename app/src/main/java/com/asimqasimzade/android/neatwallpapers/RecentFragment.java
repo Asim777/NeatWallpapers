@@ -39,7 +39,7 @@ public class RecentFragment extends Fragment{
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
         //Start Download
-        new LoadImagesAsyncTask(getActivity(), rootView, url).execute();
+        new LoadImagesAsyncTask(getActivity(), rootView, url, "recent").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
@@ -51,12 +51,8 @@ public class RecentFragment extends Fragment{
 
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
-                intent.putExtra("image", item.getImage());
-                intent.putExtra("name", item.getName());
-                intent.putExtra("author", item.getAuthor());
-                intent.putExtra("link", item.getLink());
                 intent.putExtra("number", item.getNumber());
-
+                intent.putExtra("source", "recent");
                 //Start SingleImageActivity
                 startActivity(intent);
             }

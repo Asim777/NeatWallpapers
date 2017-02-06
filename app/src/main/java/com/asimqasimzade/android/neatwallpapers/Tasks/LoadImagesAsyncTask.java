@@ -44,13 +44,14 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private Context mContext;
     private View mRootView;
     private String mUrl;
+    private String mSource;
     private int numberOfPages = 1;
 
-
-    public LoadImagesAsyncTask(Context context, View rootView, String url) {
+    public LoadImagesAsyncTask(Context context, View rootView, String url, String source) {
         mContext = context;
         mRootView = rootView;
         mUrl = url;
+        mSource = source;
     }
 
     @Override
@@ -121,7 +122,21 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         }
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
         // other images from SingleImageActivity
-        ImagesDataClass.imageslist = mGridData;
+        switch (mSource){
+            case "popular" : {
+                ImagesDataClass.popularImagesList = mGridData;
+                ImagesDataClass.imageslist = mGridData;
+            }
+                break;
+            case "recent" : {
+                ImagesDataClass.recentImagesList = mGridData;
+            }
+                break;
+            case "default" : {
+                ImagesDataClass.imageslist = mGridData;
+            }
+
+        }
         mProgressBar.setVisibility(View.GONE);
     }
 

@@ -44,20 +44,26 @@ import static java.lang.Thread.sleep;
 
 public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    Context mContext;
     int mImageNumber;
+    String mSource;
     final String IMAGE_NUMBER = "image_number";
+    final String IMAGE_SOURCE = "image_source";
 
 
-    public SingleImageViewPagerAdapter (FragmentManager fm, Context context, int imageNumber) {
+    public SingleImageViewPagerAdapter (FragmentManager fm, int imageNumber, String source) {
         super(fm);
-        mContext = context;
         mImageNumber = imageNumber;
+        mSource = source;
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         return super.instantiateItem(container, position);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     @Override
@@ -67,9 +73,9 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
         int currentPosition = mImageNumber + position;
         Bundle b = new Bundle();
         b.putInt(IMAGE_NUMBER, currentPosition);
+        b.putString(IMAGE_SOURCE, mSource);
         SingleImageFragment singleImageFragment = new SingleImageFragment();
         singleImageFragment.setArguments(b);
-
         return singleImageFragment;
     }
 

@@ -114,7 +114,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
-        new LoadImagesAsyncTask(this, rootView, url).execute();
+        new LoadImagesAsyncTask(this, rootView, url, "default").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
@@ -126,11 +126,8 @@ public class SearchResultsActivity extends AppCompatActivity {
 
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(SearchResultsActivity.this, SingleImageActivity.class);
-                intent.putExtra("image", item.getImage());
-                intent.putExtra("name", item.getName());
-                intent.putExtra("author", item.getAuthor());
-                intent.putExtra("link", item.getLink());
                 intent.putExtra("number", item.getNumber());
+                intent.putExtra("source", "default");
 
                 //Start SingleImageActivity
                 startActivity(intent);

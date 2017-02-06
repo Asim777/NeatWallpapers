@@ -40,7 +40,7 @@ public class PopularFragment extends Fragment {
 
 
         //Start Download
-        new LoadImagesAsyncTask(getActivity(), rootView, url).execute();
+        new LoadImagesAsyncTask(getActivity(), rootView, url, "popular").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
@@ -53,7 +53,7 @@ public class PopularFragment extends Fragment {
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-
+                intent.putExtra("source", "popular");
                 //Start SingleImageActivity
                 startActivity(intent);
             }

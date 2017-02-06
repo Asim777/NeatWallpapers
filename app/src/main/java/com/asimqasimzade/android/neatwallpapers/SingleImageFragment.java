@@ -58,43 +58,83 @@ public class SingleImageFragment extends Fragment {
     String currentAuthorInfo;
     String currentImageLink;
     String currentImageName;
+    String source;
     int currentPosition;
     // Progress Dialog
     private ProgressDialog progressDialog;
     View rootView;
     Cursor cursor;
+
     public enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER
     }
+
     Operation operation;
     boolean imageIsFavorite;
 
-    private static final String LOG_TAG = SingleImageFragment.class.getSimpleName();
+    private static final String LOG_TAG = "asim" /*SingleImageFragment.class.getSimpleName()*/;
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.v(LOG_TAG, "we are in Fragment");
 
         //Getting url of current selected image from ImagesDataClass using imageNumber from
         // intent and ViewPager page position
-
         Bundle bundle = getArguments();
         currentPosition = bundle.getInt("image_number");
+        source = bundle.getString("image_source");
         //We need to make this check so that ViewPager doesn't create next Fragment with
         // currentPosition = 600 when we enter 599th, because when it does, there is no 600th
         // element in ImageDataClass.imagelist and it causes IndexOutOfBoundsException. That's why,
         // when we are at second to last page, and swipe write, activity closes. And we can't enter
         // the last item from the list either.
-        if(currentPosition > 599){
+
+/*        if (currentPosition > ImagesDataClass.imageslist.size() - 1) {
             getActivity().finish();
         } else {
             currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
             currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
             currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
             currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
+        }*/
+
+        switch (source) {
+            case "popular": {
+                if (currentPosition > ImagesDataClass.popularImagesList.size() - 1) {
+                    getActivity().finish();
+                } else {
+                    currentImageUrl = ImagesDataClass.popularImagesList.get(currentPosition).getImage();
+                    currentAuthorInfo = ImagesDataClass.popularImagesList.get(currentPosition).getAuthor();
+                    currentImageLink = ImagesDataClass.popularImagesList.get(currentPosition).getLink();
+                    currentImageName = ImagesDataClass.popularImagesList.get(currentPosition).getName();
+                }
+            }
+            break;
+            case "recent": {
+                if (currentPosition > ImagesDataClass.recentImagesList.size() - 1) {
+                    getActivity().finish();
+                } else {
+                    currentImageUrl = ImagesDataClass.recentImagesList.get(currentPosition).getImage();
+                    currentAuthorInfo = ImagesDataClass.recentImagesList.get(currentPosition).getAuthor();
+                    currentImageLink = ImagesDataClass.recentImagesList.get(currentPosition).getLink();
+                    currentImageName = ImagesDataClass.recentImagesList.get(currentPosition).getName();
+                }
+            }
+            break;
+            case "default": {
+                if (currentPosition > ImagesDataClass.imageslist.size() - 1) {
+                    getActivity().finish();
+                } else {
+                    currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
+                    currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
+                    currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
+                    currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
+                }
+            }
         }
+
     }
 
     @Nullable
@@ -102,7 +142,7 @@ public class SingleImageFragment extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        if(currentPosition < 600) {
+        if (currentPosition < ImagesDataClass.imageslist.size()) {
 
             // Inflate the layout for this fragment
             rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
@@ -331,7 +371,7 @@ public class SingleImageFragment extends Fragment {
         return rootView;
     }
 
-    class ImageIsFavoriteTask extends  AsyncTask<Void, Void, Void>  {
+    class ImageIsFavoriteTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             //Check if this entry exists in database
@@ -341,7 +381,7 @@ public class SingleImageFragment extends Fragment {
                     + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
 
             try {
-                cursor = db.rawQuery(selectString, new String[] {currentImageName});
+                cursor = db.rawQuery(selectString, new String[]{currentImageName});
                 imageIsFavorite = cursor.moveToFirst();
             } finally {
                 cursor.close();
@@ -351,7 +391,7 @@ public class SingleImageFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(imageIsFavorite){
+            if (imageIsFavorite) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     favoriteButton.setBackground(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite_selected));
                 } else {
@@ -369,7 +409,7 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
-    public class AddOrRemoveFavoriteAsyncTask extends  AsyncTask<Void, Void, Void> {
+    public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -379,9 +419,9 @@ public class SingleImageFragment extends Fragment {
             // Define 'where' part of query
             String selection = FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " = ?";
 
-            if(imageIsFavorite){
+            if (imageIsFavorite) {
                 // Issue SQL statement
-                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[] {currentImageName});
+                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[]{currentImageName});
                 return null;
             } else {
                 //Create content values for new database entry
@@ -398,7 +438,7 @@ public class SingleImageFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(!imageIsFavorite){
+            if (!imageIsFavorite) {
                 Toast.makeText(getActivity(), "Image is added to Favorites", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), "Image is removed from Favorites", Toast.LENGTH_SHORT).show();
@@ -407,7 +447,7 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
-    protected void showProgressDialog(){
+    protected void showProgressDialog() {
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage("Downloading Image");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
