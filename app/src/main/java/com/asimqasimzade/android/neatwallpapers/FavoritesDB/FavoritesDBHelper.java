@@ -26,12 +26,16 @@ public class FavoritesDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        //Create a table to hold favorite images. Image entry consists of ID, IMAGE_URL and IMAGE_NAME
+        //Create a table to hold favorite images. Image entry consists of ID, IMAGE_URL, IMAGE_NAME,
+        //IMAGE_AUTHOR and IMAGE_LINK
          String SQL_CREATE_FAVORITES_TABLE = "CREATE TABLE " +
-                FavoritesEntry.TABLE_NAME + " ( " +
-                FavoritesEntry._ID + " INTEGER PRIMARY KEY," +
-                FavoritesEntry.IMAGE_URL + " TEXT UNIQUE NOT NULL, " +
-                FavoritesEntry.IMAGE_NAME + " TEXT NOT NULL " + ");";
+                 FavoritesEntry.TABLE_NAME + " ( " +
+                 FavoritesEntry._ID + " INTEGER PRIMARY KEY," +
+                 FavoritesEntry.IMAGE_NAME + " TEXT NOT NULL, " +
+                 FavoritesEntry.IMAGE_URL + " TEXT UNIQUE NOT NULL, " +
+                 FavoritesEntry.IMAGE_AUTHOR + " TEXT NOT NULL, " +
+                 FavoritesEntry.IMAGE_LINK + " TEXT NOT NULL " + ");";
+
 
         SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + FavoritesEntry.TABLE_NAME;
 

@@ -126,6 +126,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             case "popular" : {
                 ImagesDataClass.popularImagesList = mGridData;
                 ImagesDataClass.imageslist = mGridData;
+                ImagesDataClass.favoriteImagesList = mGridData;
             }
                 break;
             case "recent" : {

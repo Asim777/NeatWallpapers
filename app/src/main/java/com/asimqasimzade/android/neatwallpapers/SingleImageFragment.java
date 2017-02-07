@@ -78,7 +78,6 @@ public class SingleImageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(LOG_TAG, "we are in Fragment");
 
         //Getting url of current selected image from ImagesDataClass using imageNumber from
         // intent and ViewPager page position
@@ -91,47 +90,37 @@ public class SingleImageFragment extends Fragment {
         // when we are at second to last page, and swipe write, activity closes. And we can't enter
         // the last item from the list either.
 
-/*        if (currentPosition > ImagesDataClass.imageslist.size() - 1) {
-            getActivity().finish();
-        } else {
-            currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
-            currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
-            currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
-            currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
-        }*/
-
         switch (source) {
             case "popular": {
-                if (currentPosition > ImagesDataClass.popularImagesList.size() - 1) {
-                    getActivity().finish();
-                } else {
-                    currentImageUrl = ImagesDataClass.popularImagesList.get(currentPosition).getImage();
-                    currentAuthorInfo = ImagesDataClass.popularImagesList.get(currentPosition).getAuthor();
-                    currentImageLink = ImagesDataClass.popularImagesList.get(currentPosition).getLink();
-                    currentImageName = ImagesDataClass.popularImagesList.get(currentPosition).getName();
-                }
+                currentImageUrl = ImagesDataClass.popularImagesList.get(currentPosition).getImage();
+                currentAuthorInfo = ImagesDataClass.popularImagesList.get(currentPosition).getAuthor();
+                currentImageLink = ImagesDataClass.popularImagesList.get(currentPosition).getLink();
+                currentImageName = ImagesDataClass.popularImagesList.get(currentPosition).getName();
             }
             break;
             case "recent": {
-                if (currentPosition > ImagesDataClass.recentImagesList.size() - 1) {
-                    getActivity().finish();
-                } else {
-                    currentImageUrl = ImagesDataClass.recentImagesList.get(currentPosition).getImage();
-                    currentAuthorInfo = ImagesDataClass.recentImagesList.get(currentPosition).getAuthor();
-                    currentImageLink = ImagesDataClass.recentImagesList.get(currentPosition).getLink();
-                    currentImageName = ImagesDataClass.recentImagesList.get(currentPosition).getName();
-                }
+                currentImageUrl = ImagesDataClass.recentImagesList.get(currentPosition).getImage();
+                currentAuthorInfo = ImagesDataClass.recentImagesList.get(currentPosition).getAuthor();
+                currentImageLink = ImagesDataClass.recentImagesList.get(currentPosition).getLink();
+                currentImageName = ImagesDataClass.recentImagesList.get(currentPosition).getName();
             }
             break;
-            case "default": {
-                if (currentPosition > ImagesDataClass.imageslist.size() - 1) {
+            case "favorites": {
+               /* if (currentPosition > ImagesDataClass.favoriteImagesList.size() - 1) {
                     getActivity().finish();
-                } else {
-                    currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
-                    currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
-                    currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
-                    currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
+                } else {*/
+                    currentImageUrl = ImagesDataClass.favoriteImagesList.get(currentPosition).getImage();
+                    currentAuthorInfo = ImagesDataClass.favoriteImagesList.get(currentPosition).getAuthor();
+                    currentImageLink = ImagesDataClass.favoriteImagesList.get(currentPosition).getLink();
+                    currentImageName = ImagesDataClass.favoriteImagesList.get(currentPosition).getName();
                 }
+            /*}*/
+            break;
+            case "default": {
+                currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
+                currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
+                currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
+                currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
             }
         }
 
@@ -263,7 +252,6 @@ public class SingleImageFragment extends Fragment {
                             showProgressDialog();
                         }
 
-
                         @Override
                         protected Boolean doInBackground(Void... voids) {
 
@@ -374,18 +362,22 @@ public class SingleImageFragment extends Fragment {
     class ImageIsFavoriteTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
-            //Check if this entry exists in database
-            FavoritesDBHelper dbHelper = new FavoritesDBHelper(getActivity());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String selectString = "SELECT * FROM " + FavoritesDBContract.FavoritesEntry.TABLE_NAME
-                    + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
+            /*if (source.equals("favorites") && currentPosition == ImagesDataClass.favoriteImagesList.size()) {
+                //do nothing
+            } else {*/
+                //Check if this entry exists in database
+                FavoritesDBHelper dbHelper = new FavoritesDBHelper(getActivity());
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                String selectString = "SELECT * FROM " + FavoritesDBContract.FavoritesEntry.TABLE_NAME
+                        + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
 
-            try {
-                cursor = db.rawQuery(selectString, new String[]{currentImageName});
-                imageIsFavorite = cursor.moveToFirst();
-            } finally {
-                cursor.close();
-            }
+                try {
+                    cursor = db.rawQuery(selectString, new String[]{currentImageName});
+                    imageIsFavorite = cursor.moveToFirst();
+                } finally {
+                    cursor.close();
+                }
+            /*}*/
             return null;
         }
 
@@ -428,6 +420,8 @@ public class SingleImageFragment extends Fragment {
                 ContentValues values = new ContentValues();
                 values.put(FavoritesDBContract.FavoritesEntry.IMAGE_NAME, currentImageName);
                 values.put(FavoritesDBContract.FavoritesEntry.IMAGE_URL, currentImageUrl);
+                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_AUTHOR, currentAuthorInfo);
+                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_LINK, currentImageLink);
 
                 // Insert the new row using our values
                 db.insert(FavoritesDBContract.FavoritesEntry.TABLE_NAME, null, values);

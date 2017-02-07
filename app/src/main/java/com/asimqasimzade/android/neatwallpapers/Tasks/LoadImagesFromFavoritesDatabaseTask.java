@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+
+import com.asimqasimzade.android.neatwallpapers.Data.ImagesDataClass;
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract.FavoritesEntry;
 
 
@@ -33,8 +35,10 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
     // Define a projection that specifies which columns from the database we will use
     private String[] projection = {
             FavoritesEntry._ID,
+            FavoritesEntry.IMAGE_NAME,
             FavoritesEntry.IMAGE_URL,
-            FavoritesEntry.IMAGE_NAME
+            FavoritesEntry.IMAGE_AUTHOR,
+            FavoritesEntry.IMAGE_LINK
     };
 
     public LoadImagesFromFavoritesDatabaseTask(Context context, View rootView){
@@ -59,24 +63,29 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(
                 FavoritesEntry.TABLE_NAME, projection, null, null, null, null, "_id DESC");
-        for(int i=0; i<cursor.getCount(); i++){
+        int i = 0;
             try {
                 while (cursor.moveToNext()) {
                     GridItem item = new GridItem();
-                    item.setImage(cursor.getString(1));
-                    item.setName(cursor.getString(2));
+                    item.setName(cursor.getString(1));
+                    item.setImage(cursor.getString(2));
+                    item.setNumber(i);
+                    item.setAuthor(cursor.getString(3));
+                    item.setLink(cursor.getString(4));
                     mGridData.add(item);
+                    i++;
                 }
             } finally {
                 cursor.close();
             }
-        }
+
         return null;
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         mGridAdapter.setGridData(mGridData);
+        ImagesDataClass.favoriteImagesList = mGridData;
         mProgressBar.setVisibility(View.GONE);
     }
 }

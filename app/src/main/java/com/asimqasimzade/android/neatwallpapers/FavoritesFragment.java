@@ -52,12 +52,10 @@ public class FavoritesFragment extends Fragment{
                 //Get an item position
                 GridItem item = (GridItem) parent.getItemAtPosition(position);
 
-                //Pass image url to x`SingleImageActivity
+                //Pass image url and source to SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
-                intent.putExtra("image", item.getImage());
-                intent.putExtra("name", item.getName());
-                intent.putExtra("author", item.getAuthor());
-                intent.putExtra("link", item.getLink());
+                intent.putExtra("number", item.getNumber());
+                intent.putExtra("source", "favorites");
 
                 //Start SingleImageActivity
                 startActivityForResult(intent, REQUEST_CODE);
