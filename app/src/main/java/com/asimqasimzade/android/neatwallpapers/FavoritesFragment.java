@@ -64,7 +64,7 @@ public class FavoritesFragment extends Fragment{
         return rootView;
     }
 
-    private void updateGridView(){
+    public void updateGridView(){
         //Start Download from database
         new LoadImagesFromFavoritesDatabaseTask(getActivity(), rootView).execute();
         mProgressBar.setVisibility(View.VISIBLE);

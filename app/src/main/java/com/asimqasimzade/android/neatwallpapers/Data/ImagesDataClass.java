@@ -1,6 +1,9 @@
 package com.asimqasimzade.android.neatwallpapers.Data;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
+
 
 /**
  * This class is used to save GridItems' information retrieved by LoadImagesAsyncTask to
@@ -8,6 +11,7 @@ import java.util.ArrayList;
  */
 
 public class ImagesDataClass {
+
     public static ArrayList<GridItem> imageslist = new ArrayList<>();
     public static ArrayList<GridItem> popularImagesList = new ArrayList<>();
     public static ArrayList<GridItem> recentImagesList = new ArrayList<>();

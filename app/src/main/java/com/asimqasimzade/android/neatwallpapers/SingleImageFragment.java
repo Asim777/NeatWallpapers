@@ -106,15 +106,11 @@ public class SingleImageFragment extends Fragment {
             }
             break;
             case "favorites": {
-               /* if (currentPosition > ImagesDataClass.favoriteImagesList.size() - 1) {
-                    getActivity().finish();
-                } else {*/
-                    currentImageUrl = ImagesDataClass.favoriteImagesList.get(currentPosition).getImage();
-                    currentAuthorInfo = ImagesDataClass.favoriteImagesList.get(currentPosition).getAuthor();
-                    currentImageLink = ImagesDataClass.favoriteImagesList.get(currentPosition).getLink();
-                    currentImageName = ImagesDataClass.favoriteImagesList.get(currentPosition).getName();
-                }
-            /*}*/
+                currentImageUrl = ImagesDataClass.favoriteImagesList.get(currentPosition).getImage();
+                currentAuthorInfo = ImagesDataClass.favoriteImagesList.get(currentPosition).getAuthor();
+                currentImageLink = ImagesDataClass.favoriteImagesList.get(currentPosition).getLink();
+                currentImageName = ImagesDataClass.favoriteImagesList.get(currentPosition).getName();
+            }
             break;
             case "default": {
                 currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
@@ -126,9 +122,13 @@ public class SingleImageFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
     @Nullable
     @Override
-
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         if (currentPosition < ImagesDataClass.imageslist.size()) {
@@ -362,22 +362,19 @@ public class SingleImageFragment extends Fragment {
     class ImageIsFavoriteTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
-            /*if (source.equals("favorites") && currentPosition == ImagesDataClass.favoriteImagesList.size()) {
-                //do nothing
-            } else {*/
-                //Check if this entry exists in database
-                FavoritesDBHelper dbHelper = new FavoritesDBHelper(getActivity());
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
-                String selectString = "SELECT * FROM " + FavoritesDBContract.FavoritesEntry.TABLE_NAME
-                        + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
 
-                try {
-                    cursor = db.rawQuery(selectString, new String[]{currentImageName});
-                    imageIsFavorite = cursor.moveToFirst();
-                } finally {
-                    cursor.close();
-                }
-            /*}*/
+            FavoritesDBHelper dbHelper = new FavoritesDBHelper(getActivity());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String selectString = "SELECT * FROM " + FavoritesDBContract.FavoritesEntry.TABLE_NAME
+                    + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
+
+            try {
+                cursor = db.rawQuery(selectString, new String[]{currentImageName});
+                imageIsFavorite = cursor.moveToFirst();
+            } finally {
+                cursor.close();
+            }
+
             return null;
         }
 
