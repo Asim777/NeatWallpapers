@@ -22,10 +22,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
-import com.asimqasimzade.android.neatwallpapers.Data.ImagesDataClass;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -99,26 +95,10 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) date.getTime(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
-/*
-        try {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            String favoritesGridDataString = sharedPreferences.getString("favoritesGridData", "0");
-            if (favoritesGridDataString != null) {
-                JSONObject favoritesGridDataJson = new JSONObject(favoritesGridDataString);
-                ArrayList<GridItem> favoritesGridData = favoritesGridDataJson.get()
-            }
-        } catch (JSONException e){
-            e.printStackTrace();
-        }*/
 
-/*        ArrayList<GridItem> favoritesGridData =
-                (ArrayList<GridItem>) favoritesGridDataGson.fromJson(LoadImagesFromFavoritesDatabaseTask.json, ArrayList.class);
-        */
-        /*TypeToken<ArrayList<GridItem>> favoritesImagesListTypeToken = new TypeToken<ArrayList<GridItem>>() {
-        };*/
 
-        String favoritesGridDataString = sharedPreferences.getString(FAVORITES_SHARED_PREFERENCE_TAG, "");
-        ImagesDataClass.favoriteImagesList = new Gson().fromJson(favoritesGridDataString, ArrayList.class);
+/*        String favoritesGridDataString = sharedPreferences.getString(FAVORITES_SHARED_PREFERENCE_TAG, "");
+        ImagesDataClass.favoriteImagesList = new Gson().fromJson(favoritesGridDataString, ArrayList.class);*/
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -191,15 +171,6 @@ public class MainActivity extends AppCompatActivity {
         //in next launch
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putInt(TAB_SHARED_PREFERENCE_TAG, selectedTabPosition);
-
-        //When leaving the Activity, save favoritesImageList to SharedPreferences as a ArrayList
-        // serialized to String using gson to retrieve it back in MainActivity. Because otherwise,
-        // if use enters app in FavoritesFragment SingleImageFragments won't load image, because
-        // ImagesDataClass.favoriteImagesList would be empty
-        Gson favoritesGridDataGson = new Gson();
-        String json = favoritesGridDataGson.toJson(ImagesDataClass.favoriteImagesList);
-        sharedPreferencesEditor.putString(FAVORITES_SHARED_PREFERENCE_TAG, json);
-        sharedPreferencesEditor.apply();
     }
 
     @Override

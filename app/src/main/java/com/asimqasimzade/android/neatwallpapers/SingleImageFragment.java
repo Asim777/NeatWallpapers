@@ -122,16 +122,12 @@ public class SingleImageFragment extends Fragment {
 
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
     @Nullable
     @Override
+
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        if (currentPosition < ImagesDataClass.imageslist.size()) {
+
 
             // Inflate the layout for this fragment
             rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
@@ -355,7 +351,7 @@ public class SingleImageFragment extends Fragment {
                     }.execute();
                 }
             };
-        }
+
         return rootView;
     }
 
