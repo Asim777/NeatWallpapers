@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightBackground"
-    tools:context="com.asimqasimzade.android.neatwallpapers.FavoritesFragment">
+    tools:context="com.asimgasimzade.android.neatwallpapers.us.asimgasimzade.android.neatwallpapers.FavoritesFragment">
 
     <GridView
         android:id="@+id/gridView"

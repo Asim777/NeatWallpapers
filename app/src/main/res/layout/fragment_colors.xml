@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/darkBackground"
-    tools:context="com.asimqasimzade.android.neatwallpapers.ColorsFragment">
+    tools:context="com.asimgasimzade.android.neatwallpapers.us.asimgasimzade.android.neatwallpapers.ColorsFragment">
 
     <ListView
         android:id="@+id/colors_listView"

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:background="@color/lightBackground"
     android:layout_height="match_parent"
-    tools:context="com.asimqasimzade.android.neatwallpapers.CategoriesFragment">
+    tools:context="com.asimgasimzade.android.neatwallpapers.us.asimgasimzade.android.neatwallpapers.CategoriesFragment">
 
     <ListView
         android:id="@+id/categories_listView"
