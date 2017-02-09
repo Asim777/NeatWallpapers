@@ -29,7 +29,7 @@ public class SingleImageActivity extends AppCompatActivity {
         singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
         singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
         // how many images to load into memory from the either side of current page
-        singleImageViewPager.setOffscreenPageLimit(1);
+        singleImageViewPager.setOffscreenPageLimit(3);
         singleImageViewPager.setCurrentItem(imageNumber);
 
     }

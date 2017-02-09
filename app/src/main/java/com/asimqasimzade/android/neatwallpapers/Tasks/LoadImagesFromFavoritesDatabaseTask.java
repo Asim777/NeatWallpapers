@@ -1,24 +1,19 @@
 package com.asimqasimzade.android.neatwallpapers.Tasks;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
-import com.asimqasimzade.android.neatwallpapers.Data.ImagesDataClass;
-import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract.FavoritesEntry;
-
-
 import com.asimqasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
 import com.asimqasimzade.android.neatwallpapers.Data.GridItem;
+import com.asimqasimzade.android.neatwallpapers.Data.ImagesDataClass;
+import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract.FavoritesEntry;
 import com.asimqasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
 import com.asimqasimzade.android.neatwallpapers.R;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
