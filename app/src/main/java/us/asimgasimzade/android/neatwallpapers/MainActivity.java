@@ -22,6 +22,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
 
     private static final String TAB_SHARED_PREFERENCE_TAG = "tab position";
-    private static final String FAVORITES_SHARED_PREFERENCE_TAG = "favoritesGridData";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Initializing the Google Mobile Ads SDK
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-5015291550861860~9287306639");
+
+        AdView mAdView = (AdView) findViewById(R.id.main_adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
+                .build();
+        mAdView.loadAd(adRequest);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -52,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
 
         //We need this sharedPreference in order to automatically select the tab that was selected
         // before exiting app last time
@@ -96,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
 
 
-/*        String favoritesGridDataString = sharedPreferences.getString(FAVORITES_SHARED_PREFERENCE_TAG, "");
-        ImagesDataClass.favoriteImagesList = new Gson().fromJson(favoritesGridDataString, ArrayList.class);*/
     }
 
     private void setupViewPager(ViewPager viewPager) {

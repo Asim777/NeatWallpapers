@@ -14,6 +14,10 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
@@ -25,11 +29,20 @@ public class SingleCategoryActivity extends AppCompatActivity {
     String categoryName;
     String callingFragment;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_category);
+
+        //Initializing the Google Mobile Ads SDK
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-5015291550861860~9287306639");
+
+        AdView mAdView = (AdView) findViewById(R.id.categories_adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
+                .build();
+        mAdView.loadAd(adRequest);
 
         //Get categoryApiName to use in URL and Category name to use in activity title from intent
         categoryApiName = getIntent().getStringExtra("categoryApiName");
@@ -43,10 +56,8 @@ public class SingleCategoryActivity extends AppCompatActivity {
         // Inflate the layout for this fragment
         rootView = findViewById(R.id.rootView);
 
-
         //Start Download
         loadImages();
-
     }
 
     @Override

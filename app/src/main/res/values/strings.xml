@@ -23,4 +23,8 @@
     <string name="search_hint">Enter search value</string>
     <string name="author_info">Author: %1$s</string>
     <string name="pixabay_link">View on Pixabay</string>
+    <string name="main_banner_ad_unit_id">ca-app-pub-5015291550861860/457790543</string>
+    <string name="categories_banner_ad_unit_id">ca-app-pub-5015291550861860/4485017037</string>
+    <!--<string name="test_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>-->
+
 </resources>

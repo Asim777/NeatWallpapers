@@ -2,8 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:background="@color/lightBackground"
-    tools:context="com.asimgasimzade.android.neatwallpapers.us.asimgasimzade.android.neatwallpapers.PopularFragment">
+    tools:context="us.asimgasimzade.android.neatwallpapers.PopularFragment">
 
     <GridView
         android:id="@+id/gridView"
@@ -24,5 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone" />
+
+
+
 
 </RelativeLayout>

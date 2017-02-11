@@ -10,6 +10,10 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
@@ -18,6 +22,7 @@ public class PopularFragment extends Fragment {
     GridView mGridView;
     View rootView;
     String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&orientation=vertical&order=popular&per_page=200&min_width=450";
+
     public PopularFragment() {
         // Required empty public constructor
     }
