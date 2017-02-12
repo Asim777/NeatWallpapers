@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NeatWallpapers</string>
+    <string name="app_name">Neat Wallpapers</string>
     <string name="popular">Popular Fragment</string>
     <string name="recent">Recent Fragment</string>
     <string name="random">Random Fragment</string>
@@ -25,6 +25,18 @@
     <string name="pixabay_link">View on Pixabay</string>
     <string name="main_banner_ad_unit_id">ca-app-pub-5015291550861860/457790543</string>
     <string name="categories_banner_ad_unit_id">ca-app-pub-5015291550861860/4485017037</string>
+    <string name="log_image_successfully_saved">Image successfully saved</string>
+    <string name="toast_image_successfully_saved">Image is successfully saved!</string>
+    <string name="log_problem_downloading_image">Problem while downloading image, please try again</string>
+    <string name="log_wallpaper_set_successfully">Wallpaper Set successfully</string>
+    <string name="log_problem_while_setting_wallpaper">Problem while setting wallpaper</string>
+    <string name="log_image_added_to_favorites">Image is added to Favorites</string>
+    <string name="log_image_removed_from_favorites">Image is removed from Favorites</string>
+    <string name="message_downloading_image">Downloading Image</string>
+    <string name="category_image">Category image</string>
+    <string name="category_icon">category_icon</string>
+    <string name="color_image">color image</string>
+    <string name="color_icon">color_icon</string>
     <!--<string name="test_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>-->
 
 </resources>

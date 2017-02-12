@@ -21,6 +21,9 @@ import com.google.android.gms.ads.MobileAds;
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
+/**
+ * This Activity holds GridView of single category images
+ */
 
 public class SingleCategoryActivity extends AppCompatActivity {
     String url;

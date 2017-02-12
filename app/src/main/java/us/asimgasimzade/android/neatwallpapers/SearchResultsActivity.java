@@ -19,14 +19,13 @@ import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
 /**
- * This activity shows search result
+ * This Activity shows search result as gridView
  */
 
 public class SearchResultsActivity extends AppCompatActivity {
     String url;
     View rootView;
     String searchQuery;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

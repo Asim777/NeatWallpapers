@@ -89,6 +89,7 @@ public class SingleImageFragment extends Fragment {
         // when we are at second to last page, and swipe write, activity closes. And we can't enter
         // the last item from the list either.
 
+        assert source != null;
         switch (source) {
             case "popular": {
                 currentImageUrl = ImagesDataClass.popularImagesList.get(currentPosition).getImage();
@@ -230,7 +231,7 @@ public class SingleImageFragment extends Fragment {
                         Toast.makeText(getActivity().getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
                     } else {
                         //if it doesn't exist, download it
-                        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
+                       Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
                     }
                 }
             });
@@ -286,8 +287,10 @@ public class SingleImageFragment extends Fragment {
                                     e.printStackTrace();
                                 } finally {
                                     try {
-                                        outputStream.flush();
-                                        outputStream.close();
+                                        if(outputStream != null) {
+                                            outputStream.flush();
+                                            outputStream.close();
+                                        }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -321,29 +324,29 @@ public class SingleImageFragment extends Fragment {
                         @Override
                         protected void onPostExecute(Boolean aBoolean) {
                             //Dismiss the progress dialog
-                            if (progressDialog.isShowing()) {
+                            if (progressDialog != null) {
                                 progressDialog.dismiss();
                             }
 
                             //Checking the result and giving feedback to user about success
                             if (operation == Operation.DOWNLOAD) {
                                 if (fileExists(imageFile)) {
-                                    Log.e(LOG_TAG, "Image successfully saved");
-                                    Toast.makeText(getActivity().getApplicationContext(), "Image is successfully saved!",
+                                    Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
+                                    Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
                                             Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Log.e(LOG_TAG, "Problem while downloading image");
+                                    Log.e(LOG_TAG, getString(R.string.log_problem_downloading_image));
                                     Toast.makeText(getActivity(),
-                                            "Problem while downloading image, please try again",
+                                            R.string.log_problem_downloading_image,
                                             Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 //Checking the result and giving feedback to user about success
                                 if (fileExists(imageFile)) {
                                     setWallpaper(imageFile);
-                                    Log.e(LOG_TAG, "Wallpaper Set successfully");
+                                    Log.e(LOG_TAG, getString(R.string.log_wallpaper_set_successfully));
                                 } else {
-                                    Log.e(LOG_TAG, "Problem while setting wallpaper");
+                                    Log.e(LOG_TAG, getString(R.string.log_problem_while_setting_wallpaper));
                                 }
                             }
                         }
@@ -425,9 +428,9 @@ public class SingleImageFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             if (!imageIsFavorite) {
-                Toast.makeText(getActivity(), "Image is added to Favorites", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.log_image_added_to_favorites, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getActivity(), "Image is removed from Favorites", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.log_image_removed_from_favorites, Toast.LENGTH_SHORT).show();
             }
             new ImageIsFavoriteTask().execute();
         }
@@ -435,7 +438,7 @@ public class SingleImageFragment extends Fragment {
 
     protected void showProgressDialog() {
         progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Downloading Image");
+        progressDialog.setMessage(getString(R.string.message_downloading_image));
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setIndeterminate(false);
         progressDialog.setMax(100);
@@ -472,5 +475,14 @@ public class SingleImageFragment extends Fragment {
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if(progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 }

@@ -30,6 +30,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This is MainActivity, it holds ViewPager of populated by 5 fragments
+ * Popular, Recent, Categories, Colors and Favorites
+ */
 public class MainActivity extends AppCompatActivity {
 
 
@@ -73,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
         selectedTabPosition = sharedPreferences.getInt(TAB_SHARED_PREFERENCE_TAG, 1);
 
         try {
-            //noinspection ConstantConditions
             //When creating Activity we preserve tab position from last session
-            tabLayout.getTabAt(selectedTabPosition).select();
+            if(tabLayout.getTabCount() != 0) {
+                //noinspection ConstantConditions
+                tabLayout.getTabAt(selectedTabPosition).select();
+            }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -101,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         //Getting current date
         Date date = new Date(System.currentTimeMillis());
         //Setting AlarmManager
-        AlarmManager alarmManager = (AlarmManager) getApplicationContext().getSystemService(getApplicationContext().ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) getApplicationContext().getSystemService(ALARM_SERVICE);
         //Setting intent to fire NotificationReceiver which will create the notification
         Intent intent = new Intent(this, NotificationReceiver.class);
         //Setting pending intent
@@ -180,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
         //in next launch
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putInt(TAB_SHARED_PREFERENCE_TAG, selectedTabPosition);
+        sharedPreferencesEditor.apply();
     }
 
     @Override
@@ -194,5 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
         return true;
     }
+
+
 }
 

@@ -15,6 +15,9 @@ import us.asimgasimzade.android.neatwallpapers.Data.Category;
 
 import java.util.ArrayList;
 
+/**
+ * This fragment holds categories list
+ */
 
 public class CategoriesFragment extends Fragment {
 

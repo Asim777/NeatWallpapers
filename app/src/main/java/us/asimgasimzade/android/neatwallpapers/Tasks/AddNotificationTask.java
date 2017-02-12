@@ -30,7 +30,7 @@ import java.net.URL;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
- * This task instantiates new notifications if user hasn't entered the app for on week
+ * This task instantiates new notifications if user hasn't entered the app for a day
  */
 
 public class AddNotificationTask extends AsyncTask<String, Void, Integer> {

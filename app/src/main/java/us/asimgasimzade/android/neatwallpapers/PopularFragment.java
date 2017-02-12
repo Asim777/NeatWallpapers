@@ -17,6 +17,9 @@ import com.google.android.gms.ads.MobileAds;
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
+/**
+ * This Fragment holds GridView of popular images
+ */
 
 public class PopularFragment extends Fragment {
     GridView mGridView;

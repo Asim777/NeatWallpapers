@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import us.asimgasimzade.android.neatwallpapers.Adapters.SingleImageViewPagerAdapter;
 
+/**
+ * This Activity holds single image ViewPager
+ */
 
 public class SingleImageActivity extends AppCompatActivity {
 
@@ -25,7 +28,7 @@ public class SingleImageActivity extends AppCompatActivity {
         //Loading image
         imageNumber = getIntent().getIntExtra("number", 0);
         source = getIntent().getStringExtra("source");
-        singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(getSupportFragmentManager(), imageNumber, source);
+        singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(getSupportFragmentManager(), source);
         singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
         singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
         // how many images to load into memory from the either side of current page

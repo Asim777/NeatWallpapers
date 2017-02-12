@@ -29,6 +29,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * This task is called from MainActivity, SingleCategoryActivity and SearchResultActivity to load
+ * images from online database and pass them to adapter
+ */
 
 //Downloading data asynchronously
 public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {

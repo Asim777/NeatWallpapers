@@ -14,6 +14,9 @@ import android.widget.ProgressBar;
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
 
+/**
+ * This Fragment holds GridView of recent images
+ */
 
 public class RecentFragment extends Fragment{
     GridView mGridView;

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <ImageView
+        android:contentDescription="@string/category_image"
         android:id="@+id/category_thumbnail_image_view"
         android:layout_width="0dp"
         android:layout_height="65dp"
@@ -18,10 +20,13 @@
         android:layout_weight="4"
         android:gravity="center_vertical"
         android:paddingLeft="30dp"
+        android:paddingStart="30dp"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:ignore="RtlSymmetry" />
 
     <ImageView
+        android:contentDescription="@string/category_icon"
         android:id="@+id/category_icon_image_view"
         android:layout_width="0dp"
         android:layout_height="25dp"

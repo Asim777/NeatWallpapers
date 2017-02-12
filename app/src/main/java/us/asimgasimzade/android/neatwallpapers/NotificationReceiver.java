@@ -11,7 +11,7 @@ import java.net.URL;
 import us.asimgasimzade.android.neatwallpapers.Tasks.AddNotificationTask;
 
 /**
- * BroadcastReceiver
+ * BroadcastReceiver for handling notifications
  */
 
 public class  NotificationReceiver extends BroadcastReceiver {
