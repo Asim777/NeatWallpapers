@@ -1,9 +1,12 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -14,9 +17,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +35,7 @@ import android.widget.Toast;
 import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
 import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -37,6 +44,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static java.lang.Thread.sleep;
 
 /**
@@ -45,6 +53,7 @@ import static java.lang.Thread.sleep;
 
 public class SingleImageFragment extends Fragment {
 
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     Button favoriteButton;
     Button setAsWallpaperButton;
     Button downloadButton;
@@ -127,234 +136,296 @@ public class SingleImageFragment extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        // Inflate the layout for this fragment
+        rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
+
+        //Downloading and setting image
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
+        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).into(imageView);
+
+        //Setting author info
+        TextView authorInfoTextView = (TextView) rootView.findViewById(R.id.author_info_text_view);
+        authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), currentAuthorInfo));
+
+        //Setting image link
+        TextView imageLinkTextView = (TextView) rootView.findViewById(R.id.image_link_text_view);
+        imageLinkTextView.setPaintFlags(imageLinkTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        imageLinkTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
+                openImageLinkIntent.setData(Uri.parse(currentImageLink));
+                startActivity(openImageLinkIntent);
+            }
+        });
 
 
-            // Inflate the layout for this fragment
-            rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
+        //We'll use this file to check if given image already exists on device and take corresponding
+        //course of action depending on that
+        //Specifying path to our app's directory
+        File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
+        //Creating imageFile using path to our custom album
+        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
 
-            //Downloading and setting image
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
-            Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).into(imageView);
+        //-----------------------------------------------------------------------------------------
+        //Back button
+        //-----------------------------------------------------------------------------------------
+        backButton = (Button) rootView.findViewById(R.id.single_image_back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //When back button inside SingleImageActivity is clicked, we are finishing this
+                //activity and automatically going back to the previous activity
+                getActivity().finish();
+            }
+        });
 
-            //Setting author info
-            TextView authorInfoTextView = (TextView) rootView.findViewById(R.id.author_info_text_view);
-            authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), currentAuthorInfo));
+        //-----------------------------------------------------------------------------------------
+        // Favorite button
+        //-----------------------------------------------------------------------------------------
 
-            //Setting image link
-            TextView imageLinkTextView = (TextView) rootView.findViewById(R.id.image_link_text_view);
-            imageLinkTextView.setPaintFlags(imageLinkTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
+        new SingleImageFragment.ImageIsFavoriteTask().execute();
 
-            imageLinkTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
-                    openImageLinkIntent.setData(Uri.parse(currentImageLink));
-                    startActivity(openImageLinkIntent);
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //When favorite button inside SingleImageActivity is clicked, we are adding this
+                //image to Favorites database and changing background of a button
+                new SingleImageFragment.AddOrRemoveFavoriteAsyncTask().execute();
+                //Sending back return intent to FavoritesFragment to update it's GridView with new data
+                Intent databaseIsChangedIntent = new Intent();
+                getActivity().setResult(Activity.RESULT_OK, databaseIsChangedIntent);
+            }
+        });
+
+        //-----------------------------------------------------------------------------------------
+        // Set as wallpaper button
+        //-----------------------------------------------------------------------------------------
+
+        setAsWallpaperButton = (Button) rootView.findViewById(R.id.set_as_wallpaper_button);
+
+        setAsWallpaperButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Change the current Wallpaper:
+                //if image doesn't exist then download it first
+                operation = Operation.SET_AS_WALLPAPER;
+                if (!fileExists(imageFileForChecking)) {
+                    downloadImageIfPermitted();                } else {
+                    //if it exists, just set it as wallpaper
+                    setWallpaper(imageFileForChecking);
                 }
-            });
+            }
+        });
 
 
-            //We'll use this file to check if given image already exists on device and take corresponding
-            //course of action depending on that
-            //Specifying path to our app's directory
-            File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
-            //Creating imageFile using path to our custom album
-            imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
+        //-----------------------------------------------------------------------------------------
+        // Download button
+        //-----------------------------------------------------------------------------------------
 
-            //-----------------------------------------------------------------------------------------
-            //Back button
-            //-----------------------------------------------------------------------------------------
-            backButton = (Button) rootView.findViewById(R.id.single_image_back_button);
-            backButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //When back button inside SingleImageActivity is clicked, we are finishing this
-                    //activity and automatically going back to the previous activity
-                    getActivity().finish();
+        downloadButton = (Button) rootView.findViewById(R.id.download_button);
+
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Downloading image
+                // if it already exists Toast message, saying that it does
+                operation = Operation.DOWNLOAD;
+                if (fileExists(imageFileForChecking)) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
+                } else {
+                    //If it doesn't exist, download it, but first check if we have permission to do it
+                    downloadImageIfPermitted();
                 }
-            });
+            }
+        });
 
-            //-----------------------------------------------------------------------------------------
-            // Favorite button
-            //-----------------------------------------------------------------------------------------
 
-            favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
-            new SingleImageFragment.ImageIsFavoriteTask().execute();
+        target = new SimpleTarget<Bitmap>() {
 
-            favoriteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //When favorite button inside SingleImageActivity is clicked, we are adding this
-                    //image to Favorites database and changing background of a button
-                    new SingleImageFragment.AddOrRemoveFavoriteAsyncTask().execute();
-                    //Sending back return intent to FavoritesFragment to update it's GridView with new data
-                    Intent databaseIsChangedIntent = new Intent();
-                    getActivity().setResult(Activity.RESULT_OK, databaseIsChangedIntent);
-                }
-            });
-
-            //-----------------------------------------------------------------------------------------
-            // Set as wallpaper button
-            //-----------------------------------------------------------------------------------------
-
-            setAsWallpaperButton = (Button) rootView.findViewById(R.id.set_as_wallpaper_button);
-
-            setAsWallpaperButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Change the current Wallpaper:
-                    //if image doesn't exist then download it first
-                    operation = Operation.SET_AS_WALLPAPER;
-                    if (!fileExists(imageFileForChecking)) {
-                        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
-                    } else {
-                        //if it exists, just set it as wallpaper
-                        setWallpaper(imageFileForChecking);
+            @Override
+            public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
+                new AsyncTask<Void, Integer, Boolean>() {
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        showProgressDialog();
                     }
-                }
-            });
 
+                    @Override
+                    protected Boolean doInBackground(Void... voids) {
 
-            //-----------------------------------------------------------------------------------------
-            // Download button
-            //-----------------------------------------------------------------------------------------
+                        final int totalProgressTime = 100;
+                        //Specifying path to our app's directory
+                        File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
+                        //Creating imageFile using path to our custom album
+                        imageFile = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
 
-            downloadButton = (Button) rootView.findViewById(R.id.download_button);
-
-            downloadButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Downloading image
-                    // if it already exists Toast message, saying that it does
-                    operation = Operation.DOWNLOAD;
-                    if (fileExists(imageFileForChecking)) {
-                        Toast.makeText(getActivity().getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        //if it doesn't exist, download it
-                       Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
-                    }
-                }
-            });
-
-
-            target = new SimpleTarget<Bitmap>() {
-
-                @Override
-                public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
-                    new AsyncTask<Void, Integer, Boolean>() {
-                        @Override
-                        protected void onPreExecute() {
-                            super.onPreExecute();
-                            showProgressDialog();
+                        //Creating our custom album directory, if it's not created, logging error message
+                        if (!path.mkdirs()) {
+                            Log.e(LOG_TAG, "Directory not created");
                         }
 
-                        @Override
-                        protected Boolean doInBackground(Void... voids) {
+                        //We are checking if there is ExternalStorage mounted on device and is it
+                        //readable
+                        if (isExternalStorageWritable()) {
+                            int jumpTime = 5;
+                            try {
+                                outputStream = new FileOutputStream(imageFile);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
-                            final int totalProgressTime = 100;
-                            //Specifying path to our app's directory
-                            File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
-                            //Creating imageFile using path to our custom album
-                            imageFile = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
-
-                            //Creating our custom album directory, if it's not created, logging error message
-                            if (!path.mkdirs()) {
-                                Log.e(LOG_TAG, "Directory not created");
-                            }
-
-                            //We are checking if there is ExternalStorage mounted on device and is it
-                            //readable
-                            if (isExternalStorageWritable()) {
-                                int jumpTime = 5;
-                                try {
-                                    outputStream = new FileOutputStream(imageFile);
-                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-
-                                    while (jumpTime < totalProgressTime) {
-                                        try {
-                                            sleep(100);
-                                            //publishing progress
-                                            //after that onProgressUpdate will be called
-                                            publishProgress(jumpTime);
-                                            jumpTime += 5;
-
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } finally {
+                                while (jumpTime < totalProgressTime) {
                                     try {
-                                        if(outputStream != null) {
-                                            outputStream.flush();
-                                            outputStream.close();
-                                        }
-                                    } catch (IOException e) {
+                                        sleep(70);
+                                        //publishing progress
+                                        //after that onProgressUpdate will be called
+                                        publishProgress(jumpTime);
+                                        jumpTime += 5;
+
+                                    } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
                                 }
-                                // Tell the media scanner about the new file so that it is
-                                // immediately available to the user.
-                                MediaScannerConnection.scanFile(getActivity().getApplicationContext(),
-                                        new String[]{imageFile.getAbsolutePath()},
-                                        null,
-                                        new MediaScannerConnection.OnScanCompletedListener() {
-                                            public void onScanCompleted(String path, Uri uri) {
-                                                Log.i("ExternalStorage", "Scanned " + path + ":");
-                                                Log.i("ExternalStorage", "-> uri=" + uri);
-                                            }
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                try {
+                                    if (outputStream != null) {
+                                        outputStream.flush();
+                                        outputStream.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            // Tell the media scanner about the new file so that it is
+                            // immediately available to the user.
+                            MediaScannerConnection.scanFile(getActivity().getApplicationContext(),
+                                    new String[]{imageFile.getAbsolutePath()},
+                                    null,
+                                    new MediaScannerConnection.OnScanCompletedListener() {
+                                        public void onScanCompleted(String path, Uri uri) {
+                                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                                            Log.i("ExternalStorage", "-> uri=" + uri);
                                         }
-                                );
-                            } else {
-                                Log.e(LOG_TAG, "External memory is not available to write");
-                            }
-                            return null;
+                                    }
+                            );
+                        } else {
+                            Log.e(LOG_TAG, "External memory is not available to write");
                         }
+                        return null;
+                    }
 
-                        @Override
-                        protected void onProgressUpdate(Integer... values) {
-                            super.onProgressUpdate(values);
-                            //Setting progress value
+                    @Override
+                    protected void onProgressUpdate(Integer... values) {
+                        super.onProgressUpdate(values);
+                        //Setting progress value
                             /*progressDialog.setMax(100);*/
-                            progressDialog.setProgress(values[0]);
+                        progressDialog.setProgress(values[0]);
+                    }
+
+                    @Override
+                    protected void onPostExecute(Boolean aBoolean) {
+                        //Dismiss the progress dialog
+                        if (progressDialog != null) {
+                            progressDialog.dismiss();
                         }
 
-                        @Override
-                        protected void onPostExecute(Boolean aBoolean) {
-                            //Dismiss the progress dialog
-                            if (progressDialog != null) {
-                                progressDialog.dismiss();
-                            }
-
-                            //Checking the result and giving feedback to user about success
-                            if (operation == Operation.DOWNLOAD) {
-                                if (fileExists(imageFile)) {
-                                    Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Log.e(LOG_TAG, getString(R.string.log_problem_downloading_image));
-                                    Toast.makeText(getActivity(),
-                                            R.string.log_problem_downloading_image,
-                                            Toast.LENGTH_SHORT).show();
-                                }
+                        //Checking the result and giving feedback to user about success
+                        if (operation == Operation.DOWNLOAD) {
+                            if (fileExists(imageFile)) {
+                                Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
+                                Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
+                                        Toast.LENGTH_SHORT).show();
                             } else {
-                                //Checking the result and giving feedback to user about success
-                                if (fileExists(imageFile)) {
-                                    setWallpaper(imageFile);
-                                    Log.e(LOG_TAG, getString(R.string.log_wallpaper_set_successfully));
-                                } else {
-                                    Log.e(LOG_TAG, getString(R.string.log_problem_while_setting_wallpaper));
-                                }
+                                Log.e(LOG_TAG, getString(R.string.log_problem_downloading_image));
+                                Toast.makeText(getActivity(),
+                                        R.string.log_problem_downloading_image,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            //Checking the result and giving feedback to user about success
+                            if (fileExists(imageFile)) {
+                                setWallpaper(imageFile);
+                                Log.e(LOG_TAG, getString(R.string.log_wallpaper_set_successfully));
+                            } else {
+                                Log.e(LOG_TAG, getString(R.string.log_problem_while_setting_wallpaper));
                             }
                         }
-                    }.execute();
-                }
-            };
+                    }
+                }.execute();
+            }
+        };
 
         return rootView;
+    }
+
+    private void downloadImageIfPermitted() {
+        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
+        if (isPermissionWriteToExternalStorageGranted()) {
+            //We have permission, so we can download the image
+            Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
+        } else {
+            // If it's not granted, should we show an explanation before requesting?
+            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                showMessageOKCancel("You need to allow access to download the image",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                            }
+                        });
+                return;
+            } else {
+                //If no explanation is needed, we can simply request the permission
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+        }
+    }
+
+    private boolean isPermissionWriteToExternalStorageGranted(){
+        return (checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    Toast.makeText(getActivity().getApplicationContext(), "Permission is granted", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(getContext())
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 
     class ImageIsFavoriteTask extends AsyncTask<Void, Void, Void> {
@@ -455,6 +526,7 @@ public class SingleImageFragment extends Fragment {
         startActivityForResult(Intent.createChooser(setAsIntent, getString(R.string.set_as)), REQUEST_ID_SET_AS_WALLPAPER);
     }
 
+
     /**
      * *This method checks if downloading image was successful so we can show according feedback to
      * the user
@@ -481,8 +553,10 @@ public class SingleImageFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        if(progressDialog != null) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
+
+
 }
