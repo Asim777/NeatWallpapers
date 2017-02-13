@@ -37,6 +37,9 @@
     <string name="category_icon">category_icon</string>
     <string name="color_image">color image</string>
     <string name="color_icon">color_icon</string>
+    <string name="permission_message">You need to allow access to download the image</string>
+    <string name="image_already_exists_message">Image already exists. Check your Gallery.</string>
+    <string name="permission_granted_message">Permission is granted</string>
     <!--<string name="test_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>-->
 
 </resources>

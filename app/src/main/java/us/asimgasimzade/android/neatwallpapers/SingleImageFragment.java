@@ -53,7 +53,6 @@ import static java.lang.Thread.sleep;
 
 public class SingleImageFragment extends Fragment {
 
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     Button favoriteButton;
     Button setAsWallpaperButton;
     Button downloadButton;
@@ -73,15 +72,18 @@ public class SingleImageFragment extends Fragment {
     View rootView;
     Cursor cursor;
 
+
     public enum Operation {
-        DOWNLOAD, SET_AS_WALLPAPER
+        DOWNLOAD, SET_AS_WALLPAPER;
     }
 
     Operation operation;
-    boolean imageIsFavorite;
 
+    boolean imageIsFavorite;
     private static final String LOG_TAG = "asim" /*SingleImageFragment.class.getSimpleName()*/;
+
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -213,7 +215,8 @@ public class SingleImageFragment extends Fragment {
                 //if image doesn't exist then download it first
                 operation = Operation.SET_AS_WALLPAPER;
                 if (!fileExists(imageFileForChecking)) {
-                    downloadImageIfPermitted();                } else {
+                    downloadImageIfPermitted();
+                } else {
                     //if it exists, just set it as wallpaper
                     setWallpaper(imageFileForChecking);
                 }
@@ -234,7 +237,7 @@ public class SingleImageFragment extends Fragment {
                 // if it already exists Toast message, saying that it does
                 operation = Operation.DOWNLOAD;
                 if (fileExists(imageFileForChecking)) {
-                    Toast.makeText(getActivity().getApplicationContext(), "Image already exists. Check your Gallery.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.image_already_exists_message, Toast.LENGTH_SHORT).show();
                 } else {
                     //If it doesn't exist, download it, but first check if we have permission to do it
                     downloadImageIfPermitted();
@@ -349,6 +352,9 @@ public class SingleImageFragment extends Fragment {
                         } else {
                             //Checking the result and giving feedback to user about success
                             if (fileExists(imageFile)) {
+                                Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
+                                Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
+                                        Toast.LENGTH_SHORT).show();
                                 setWallpaper(imageFile);
                                 Log.e(LOG_TAG, getString(R.string.log_wallpaper_set_successfully));
                             } else {
@@ -366,23 +372,22 @@ public class SingleImageFragment extends Fragment {
     private void downloadImageIfPermitted() {
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionWriteToExternalStorageGranted()) {
-            //We have permission, so we can download the image
-            Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
+            downloadImage();
+
         } else {
             // If it's not granted, should we show an explanation before requesting?
             if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                showMessageOKCancel("You need to allow access to download the image",
+                showMessageOKCancel(getString(R.string.permission_message),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
                             }
                         });
-                return;
             } else {
                 //If no explanation is needed, we can simply request the permission
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -391,7 +396,12 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
-    private boolean isPermissionWriteToExternalStorageGranted(){
+    private void downloadImage() {
+        //We have permission, so we can download the image
+        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
+    }
+
+    private boolean isPermissionWriteToExternalStorageGranted() {
         return (checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED);
     }
@@ -404,13 +414,12 @@ public class SingleImageFragment extends Fragment {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    Toast.makeText(getActivity().getApplicationContext(), "Permission is granted", Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.permission_granted_message, Toast.LENGTH_SHORT).show();
+                    downloadImage();
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // permission denied, boo! Disable the functionality that depends on this permission.
+                    //TODO: do something here, maybe snackbar instead of buttons..
                 }
-                return;
             }
 
             // other 'case' lines to check for other
