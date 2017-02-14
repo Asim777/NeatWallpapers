@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private int selectedTabPosition;
     SharedPreferences sharedPreferences;
 
+    private static final String NOTIFICATION_ID_KEY = "Notification Key";
     private static final String TAB_SHARED_PREFERENCE_TAG = "tab position";
 
     @Override
@@ -76,12 +77,22 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getPreferences(MODE_PRIVATE);
         selectedTabPosition = sharedPreferences.getInt(TAB_SHARED_PREFERENCE_TAG, 1);
 
+        Intent notificationIntent = this.getIntent();
         try {
-            //When creating Activity we preserve tab position from last session
-            if(tabLayout.getTabCount() != 0) {
+            //If app opened from Notification intent, set tab to Recent
+            if(notificationIntent != null && notificationIntent.getExtras() != null &&
+                    notificationIntent.getExtras().containsKey(NOTIFICATION_ID_KEY) &&
+                    getIntent().getExtras().getInt(NOTIFICATION_ID_KEY) == 42){
                 //noinspection ConstantConditions
-                tabLayout.getTabAt(selectedTabPosition).select();
+                tabLayout.getTabAt(1).select();
+            } else {
+                //When creating Activity we get preserved tab position from last session
+                if(tabLayout.getTabCount() != 0) {
+                    //noinspection ConstantConditions
+                    tabLayout.getTabAt(selectedTabPosition).select();
+                }
             }
+
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers.Tasks;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.util.Log;
 
 import us.asimgasimzade.android.neatwallpapers.MainActivity;
 import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.RecentFragment;
 
 import com.bumptech.glide.Glide;
 
@@ -36,6 +38,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
     private static final String LOG_TAG = "AddNotificationTask";
+    private static final String NOTIFICATION_ID_KEY = "Notification Key";
     private Context context;
     private String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&order=latest&per_page=3";
     private URL feed_url;
@@ -134,6 +137,9 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
             builder.setStyle(bigPictureStyle);
             //Set intent to open the app when clicking on notification
             Intent notificationIntent = new Intent(context, MainActivity.class);
+            //Put extra so that Main activity knows that app is opened from notification and opens
+            //app on Recent tab
+            notificationIntent.putExtra(NOTIFICATION_ID_KEY, 42);
 
             // This ensures that the back button follows the recommended convention for the back key.
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
@@ -147,12 +153,14 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
                     PendingIntent.FLAG_UPDATE_CURRENT);
             //Set pending intent to notification builder
             builder.setContentIntent(contentIntent);
+            //To close notification after clicking it
+            builder.setAutoCancel(true);
 
             //Launch notification
             NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
             manager.notify(0, builder.build());
         } else {
-            Log.e(LOG_TAG, "Wasn't able to load notification, network error");
+            Log.e(LOG_TAG, context.getString(R.string.notification_loading_error_message));
         }
     }
 

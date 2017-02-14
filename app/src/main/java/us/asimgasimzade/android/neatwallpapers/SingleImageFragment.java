@@ -11,12 +11,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
+import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -32,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
 import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
@@ -43,6 +46,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static java.lang.Thread.sleep;
@@ -61,6 +65,8 @@ public class SingleImageFragment extends Fragment {
     File imageFile;
     File imageFileForChecking;
     FileOutputStream outputStream;
+    GridItem currentItem;
+    ArrayList<GridItem> currentImagesList;
     String currentImageUrl;
     String currentAuthorInfo;
     String currentImageLink;
@@ -71,19 +77,19 @@ public class SingleImageFragment extends Fragment {
     private ProgressDialog progressDialog;
     View rootView;
     Cursor cursor;
-
-
     public enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER;
-    }
 
+
+    }
     Operation operation;
 
     boolean imageIsFavorite;
-    private static final String LOG_TAG = "asim" /*SingleImageFragment.class.getSimpleName()*/;
 
+    private static final String LOG_TAG = "asim" /*SingleImageFragment.class.getSimpleName()*/;
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
+    private static final int REQUEST_PERMISSION_SETTING = 43;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,33 +109,31 @@ public class SingleImageFragment extends Fragment {
         assert source != null;
         switch (source) {
             case "popular": {
-                currentImageUrl = ImagesDataClass.popularImagesList.get(currentPosition).getImage();
-                currentAuthorInfo = ImagesDataClass.popularImagesList.get(currentPosition).getAuthor();
-                currentImageLink = ImagesDataClass.popularImagesList.get(currentPosition).getLink();
-                currentImageName = ImagesDataClass.popularImagesList.get(currentPosition).getName();
+                currentImagesList = ImagesDataClass.popularImagesList;
             }
             break;
             case "recent": {
-                currentImageUrl = ImagesDataClass.recentImagesList.get(currentPosition).getImage();
-                currentAuthorInfo = ImagesDataClass.recentImagesList.get(currentPosition).getAuthor();
-                currentImageLink = ImagesDataClass.recentImagesList.get(currentPosition).getLink();
-                currentImageName = ImagesDataClass.recentImagesList.get(currentPosition).getName();
+                currentImagesList = ImagesDataClass.recentImagesList;
             }
             break;
             case "favorites": {
-                currentImageUrl = ImagesDataClass.favoriteImagesList.get(currentPosition).getImage();
-                currentAuthorInfo = ImagesDataClass.favoriteImagesList.get(currentPosition).getAuthor();
-                currentImageLink = ImagesDataClass.favoriteImagesList.get(currentPosition).getLink();
-                currentImageName = ImagesDataClass.favoriteImagesList.get(currentPosition).getName();
+                currentImagesList = ImagesDataClass.favoriteImagesList;
             }
             break;
             case "default": {
-                currentImageUrl = ImagesDataClass.imageslist.get(currentPosition).getImage();
-                currentAuthorInfo = ImagesDataClass.imageslist.get(currentPosition).getAuthor();
-                currentImageLink = ImagesDataClass.imageslist.get(currentPosition).getLink();
-                currentImageName = ImagesDataClass.imageslist.get(currentPosition).getName();
+                currentImagesList = ImagesDataClass.imageslist;
             }
         }
+
+        if(!currentImagesList.isEmpty()) {
+            currentItem = currentImagesList.get(currentPosition);
+        } else {
+            //TODO: get it back
+        }
+        currentImageUrl = currentItem.getImage();
+        currentAuthorInfo = currentItem.getAuthor();
+        currentImageLink = currentItem.getLink();
+        currentImageName = currentItem.getName();
 
     }
 
@@ -353,8 +357,6 @@ public class SingleImageFragment extends Fragment {
                             //Checking the result and giving feedback to user about success
                             if (fileExists(imageFile)) {
                                 Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
-                                Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
-                                        Toast.LENGTH_SHORT).show();
                                 setWallpaper(imageFile);
                                 Log.e(LOG_TAG, getString(R.string.log_wallpaper_set_successfully));
                             } else {
@@ -370,26 +372,27 @@ public class SingleImageFragment extends Fragment {
     }
 
     private void downloadImageIfPermitted() {
+        boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionWriteToExternalStorageGranted()) {
             downloadImage();
 
         } else {
-            // If it's not granted, should we show an explanation before requesting?
-            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
+            // If it's not granted, did user checked "Never ask again"?
+            if (!showRationale) {
+                // user denied permission and also checked "Never ask again"
                 showMessageOKCancel(getString(R.string.permission_message),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                                intent.setData(uri);
+                                startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
                             }
                         });
             } else {
-                //If no explanation is needed, we can simply request the permission
+                //user denied
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             }
@@ -431,7 +434,7 @@ public class SingleImageFragment extends Fragment {
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(getContext())
                 .setMessage(message)
-                .setPositiveButton("OK", okListener)
+                .setPositiveButton("Go to settings", okListener)
                 .setNegativeButton("Cancel", null)
                 .create()
                 .show();
@@ -565,7 +568,20 @@ public class SingleImageFragment extends Fragment {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+
     }
 
+/*    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        //Save our currentItem if fragment is paused to retrieve it back when fragment resumes
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+    */
 }
