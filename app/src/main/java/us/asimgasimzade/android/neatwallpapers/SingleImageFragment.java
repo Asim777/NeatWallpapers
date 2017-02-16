@@ -79,17 +79,18 @@ public class SingleImageFragment extends Fragment {
     Cursor cursor;
     public enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER;
-
-
     }
-    Operation operation;
 
+
+    Operation operation;
     boolean imageIsFavorite;
 
     private static final String LOG_TAG = "asim" /*SingleImageFragment.class.getSimpleName()*/;
+
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     private static final int REQUEST_PERMISSION_SETTING = 43;
+    private static final String PARCELABLE_KEY = "CurrentItem";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -128,7 +129,13 @@ public class SingleImageFragment extends Fragment {
         if(!currentImagesList.isEmpty()) {
             currentItem = currentImagesList.get(currentPosition);
         } else {
-            //TODO: get it back
+            if(savedInstanceState!= null) {
+                Log.v("asim", "Retrieving currentItem from savedInstanceState");
+                currentItem = savedInstanceState.getParcelable(PARCELABLE_KEY + currentPosition);
+                if(currentItem != null){
+                    Log.v("asim", "Current Item is not null");
+                }
+            }
         }
         currentImageUrl = currentItem.getImage();
         currentAuthorInfo = currentItem.getAuthor();
@@ -568,20 +575,13 @@ public class SingleImageFragment extends Fragment {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
-
-    }
-
-/*    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        //Save our currentItem if fragment is paused to retrieve it back when fragment resumes
-
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save our currentItem if fragment is paused to retrieve it back when fragment resumes
+        outState.putParcelable(PARCELABLE_KEY + currentPosition, currentItem);
     }
-    */
+
 }

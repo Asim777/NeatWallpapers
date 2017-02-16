@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Data model class for GridItem
  */
 
-public class GridItem {
+public class GridItem implements Parcelable{
 
 
     private String image;
@@ -57,7 +57,7 @@ public class GridItem {
         this.number = number;
     }
 
-     /*   // This is where you write the values you want to save to the `Parcel`.
+    // This is where you write the values you want to save to the `Parcel`.
     // The `Parcel` class has methods defined to help you save all of your values.
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -77,6 +77,11 @@ public class GridItem {
         author = in.readString();
         link = in.readString();
         number = in.readInt();
+    }
+
+    //Normal Constructor
+    public GridItem(){
+        super();
     }
 
     // In the vast majority of cases you can simply return 0 for this.
@@ -100,5 +105,5 @@ public class GridItem {
         public GridItem[] newArray(int size) {
             return new GridItem[0];
         }
-    };*/
+    };
 }
