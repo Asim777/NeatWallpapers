@@ -46,7 +46,6 @@ public class PopularFragment extends Fragment {
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
 
-
         //Start Download
         new LoadImagesAsyncTask(getActivity(), rootView, url, "popular").execute();
         mProgressBar.setVisibility(View.VISIBLE);
@@ -62,6 +61,7 @@ public class PopularFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
                 intent.putExtra("source", "popular");
+
                 //Start SingleImageActivity
                 startActivity(intent);
             }

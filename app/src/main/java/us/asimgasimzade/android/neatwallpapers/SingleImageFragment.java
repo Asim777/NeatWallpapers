@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
-import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -21,7 +20,6 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -34,11 +32,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
-import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
-import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -47,6 +40,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
+import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
+import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
 
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static java.lang.Thread.sleep;
@@ -73,12 +71,14 @@ public class SingleImageFragment extends Fragment {
     String currentImageName;
     String source;
     int currentPosition;
+
     // Progress Dialog
     private ProgressDialog progressDialog;
     View rootView;
     Cursor cursor;
+
     public enum Operation {
-        DOWNLOAD, SET_AS_WALLPAPER;
+        DOWNLOAD, SET_AS_WALLPAPER
     }
 
 
@@ -90,7 +90,6 @@ public class SingleImageFragment extends Fragment {
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     private static final int REQUEST_PERMISSION_SETTING = 43;
-    private static final String PARCELABLE_KEY = "CurrentItem";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,11 +100,6 @@ public class SingleImageFragment extends Fragment {
         Bundle bundle = getArguments();
         currentPosition = bundle.getInt("image_number");
         source = bundle.getString("image_source");
-        //We need to make this check so that ViewPager doesn't create next Fragment with
-        // currentPosition = 600 when we enter 599th, because when it does, there is no 600th
-        // element in ImageDataClass.imagelist and it causes IndexOutOfBoundsException. That's why,
-        // when we are at second to last page, and swipe write, activity closes. And we can't enter
-        // the last item from the list either.
 
         assert source != null;
         switch (source) {
@@ -126,22 +120,13 @@ public class SingleImageFragment extends Fragment {
             }
         }
 
-        if(!currentImagesList.isEmpty()) {
+        if (!currentImagesList.isEmpty()) {
             currentItem = currentImagesList.get(currentPosition);
-        } else {
-            if(savedInstanceState!= null) {
-                Log.v("asim", "Retrieving currentItem from savedInstanceState");
-                currentItem = savedInstanceState.getParcelable(PARCELABLE_KEY + currentPosition);
-                if(currentItem != null){
-                    Log.v("asim", "Current Item is not null");
-                }
-            }
+            currentImageUrl = currentItem.getImage();
+            currentAuthorInfo = currentItem.getAuthor();
+            currentImageLink = currentItem.getLink();
+            currentImageName = currentItem.getName();
         }
-        currentImageUrl = currentItem.getImage();
-        currentAuthorInfo = currentItem.getAuthor();
-        currentImageLink = currentItem.getLink();
-        currentImageName = currentItem.getName();
-
     }
 
     @Nullable
@@ -426,9 +411,6 @@ public class SingleImageFragment extends Fragment {
                     // permission was granted, yay!
                     Toast.makeText(getActivity().getApplicationContext(), R.string.permission_granted_message, Toast.LENGTH_SHORT).show();
                     downloadImage();
-                } else {
-                    // permission denied, boo! Disable the functionality that depends on this permission.
-                    //TODO: do something here, maybe snackbar instead of buttons..
                 }
             }
 
@@ -576,12 +558,4 @@ public class SingleImageFragment extends Fragment {
             progressDialog.dismiss();
         }
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //Save our currentItem if fragment is paused to retrieve it back when fragment resumes
-        outState.putParcelable(PARCELABLE_KEY + currentPosition, currentItem);
-    }
-
 }

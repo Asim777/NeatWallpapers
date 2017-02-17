@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Data model class for GridItem
  */
 
-public class GridItem implements Parcelable{
+public class GridItem{
 
 
     private String image;
@@ -57,53 +57,5 @@ public class GridItem implements Parcelable{
         this.number = number;
     }
 
-    // This is where you write the values you want to save to the `Parcel`.
-    // The `Parcel` class has methods defined to help you save all of your values.
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(image);
-        dest.writeString(name);
-        dest.writeString(author);
-        dest.writeString(link);
-        dest.writeInt(number);
-    }
 
-    // Using the `in` variable, we can retrieve the values that
-    // we originally wrote into the `Parcel`.  This constructor is usually
-    // private so that only the `CREATOR` field can access.
-    private GridItem(Parcel in){
-        image = in.readString();
-        name = in.readString();
-        author = in.readString();
-        link = in.readString();
-        number = in.readInt();
-    }
-
-    //Normal Constructor
-    public GridItem(){
-        super();
-    }
-
-    // In the vast majority of cases you can simply return 0 for this.
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    // After implementing the `Parcelable` interface, we need to create the
-    // `Parcelable.Creator<GridItem> CREATOR` constant for our class;
-    public static final Parcelable.Creator<GridItem> CREATOR = new Parcelable.Creator<GridItem>() {
-        // This simply calls our new constructor (typically private) and
-        // passes along the unmarshalled `Parcel`, and then returns the new object!
-        @Override
-        public GridItem createFromParcel(Parcel source) {
-            return new GridItem(source);
-        }
-
-        //This just has to be here
-        @Override
-        public GridItem[] newArray(int size) {
-            return new GridItem[0];
-        }
-    };
 }

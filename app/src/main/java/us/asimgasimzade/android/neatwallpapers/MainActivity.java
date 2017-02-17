@@ -18,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 
@@ -74,8 +75,13 @@ public class MainActivity extends AppCompatActivity {
 
         //We need this sharedPreference in order to automatically select the tab that was selected
         // before exiting app last time
-        sharedPreferences = getPreferences(MODE_PRIVATE);
-        selectedTabPosition = sharedPreferences.getInt(TAB_SHARED_PREFERENCE_TAG, 1);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                sharedPreferences = getPreferences(MODE_PRIVATE);
+                selectedTabPosition = sharedPreferences.getInt(TAB_SHARED_PREFERENCE_TAG, 1);
+            }
+        }).start();
 
         Intent notificationIntent = this.getIntent();
         try {
@@ -195,9 +201,14 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         //When leaving the Activity, we add current tab position to SharedPreference in order to use
         //in next launch
-        SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
-        sharedPreferencesEditor.putInt(TAB_SHARED_PREFERENCE_TAG, selectedTabPosition);
-        sharedPreferencesEditor.apply();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+                sharedPreferencesEditor.putInt(TAB_SHARED_PREFERENCE_TAG, selectedTabPosition);
+                sharedPreferencesEditor.apply();
+            }
+        }).start();
     }
 
     @Override
@@ -213,6 +224,10 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.v("misa", "Coming back from SingleImageActivity");
+    }
 }
 
