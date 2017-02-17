@@ -1,6 +1,5 @@
 package us.asimgasimzade.android.neatwallpapers.Tasks;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,11 +8,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
-
-import us.asimgasimzade.android.neatwallpapers.MainActivity;
-import us.asimgasimzade.android.neatwallpapers.R;
-import us.asimgasimzade.android.neatwallpapers.RecentFragment;
 
 import com.bumptech.glide.Glide;
 
@@ -29,6 +23,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import us.asimgasimzade.android.neatwallpapers.MainActivity;
+import us.asimgasimzade.android.neatwallpapers.R;
+
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
@@ -37,14 +34,11 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
-    private static final String LOG_TAG = "AddNotificationTask";
     private static final String NOTIFICATION_ID_KEY = "Notification Key";
     private Context context;
-    private String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&order=latest&per_page=3";
     private URL feed_url;
     private HttpURLConnection urlConnection;
     private Bitmap notificationBitmap;
-    private Bitmap notificationLargIconBitmap;
     private int notificationImageWidth;
     private int notificationImageHeight;
     private String notificationImageURL;
@@ -55,6 +49,8 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
     @Override
     protected Integer doInBackground(String... params) {
+
+        String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&order=latest&per_page=3";
         Integer result = 0;
 
         try {
@@ -80,23 +76,24 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
                             notificationImageURL = image.getString("webformatURL");
                             notificationImageWidth = image.getInt("webformatWidth");
                             notificationImageHeight = image.getInt("webformatHeight");
+                            result = 1;
                         }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    result = 0;
                 }
-                result = 1; //Successful
             } else {
                 result = 0; //Failed
             }
         } catch (Exception e) {
-            Log.d(LOG_TAG, e.getLocalizedMessage());
+            e.printStackTrace();
+            result = 0;
         } finally {
             urlConnection.disconnect();
         }
 
-
-        //get the bitmap to show in notification bar
+        //get the Bitmap to show in notification bar
         try {
             notificationBitmap = Glide.with(context).
                     load(notificationImageURL).
@@ -111,7 +108,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer result) {
-
+        Bitmap notificationLargIconBitmap;
         if(result == 1) {
             int notificationLargIconBitmapSize = Double.valueOf(notificationImageWidth * 0.7).intValue();
 
@@ -159,8 +156,6 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
             //Launch notification
             NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
             manager.notify(0, builder.build());
-        } else {
-            Log.e(LOG_TAG, context.getString(R.string.notification_loading_error_message));
         }
     }
 

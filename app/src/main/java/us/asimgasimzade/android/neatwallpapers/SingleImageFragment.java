@@ -23,7 +23,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +70,7 @@ public class SingleImageFragment extends Fragment {
     String currentImageName;
     String source;
     int currentPosition;
+    boolean directoryNotCreated;
 
     // Progress Dialog
     private ProgressDialog progressDialog;
@@ -84,8 +84,6 @@ public class SingleImageFragment extends Fragment {
 
     Operation operation;
     boolean imageIsFavorite;
-
-    private static final String LOG_TAG = "asim" /*SingleImageFragment.class.getSimpleName()*/;
 
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
@@ -120,19 +118,21 @@ public class SingleImageFragment extends Fragment {
             }
         }
 
-        if (!currentImagesList.isEmpty()) {
+       if (!currentImagesList.isEmpty()) {
             currentItem = currentImagesList.get(currentPosition);
             currentImageUrl = currentItem.getImage();
             currentAuthorInfo = currentItem.getAuthor();
             currentImageLink = currentItem.getLink();
             currentImageName = currentItem.getName();
         }
+
     }
 
     @Nullable
     @Override
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
 
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
@@ -246,6 +246,7 @@ public class SingleImageFragment extends Fragment {
 
             @Override
             public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
+
                 new AsyncTask<Void, Integer, Boolean>() {
                     @Override
                     protected void onPreExecute() {
@@ -264,7 +265,7 @@ public class SingleImageFragment extends Fragment {
 
                         //Creating our custom album directory, if it's not created, logging error message
                         if (!path.mkdirs()) {
-                            Log.e(LOG_TAG, "Directory not created");
+                            directoryNotCreated = true;
                         }
 
                         //We are checking if there is ExternalStorage mounted on device and is it
@@ -307,13 +308,10 @@ public class SingleImageFragment extends Fragment {
                                     null,
                                     new MediaScannerConnection.OnScanCompletedListener() {
                                         public void onScanCompleted(String path, Uri uri) {
-                                            Log.i("ExternalStorage", "Scanned " + path + ":");
-                                            Log.i("ExternalStorage", "-> uri=" + uri);
+
                                         }
                                     }
                             );
-                        } else {
-                            Log.e(LOG_TAG, "External memory is not available to write");
                         }
                         return null;
                     }
@@ -334,13 +332,17 @@ public class SingleImageFragment extends Fragment {
                         }
 
                         //Checking the result and giving feedback to user about success
+                        if(directoryNotCreated){
+                            Toast.makeText(getActivity().getApplicationContext(),
+                                    R.string.problem_while_creating_directory_message,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
                         if (operation == Operation.DOWNLOAD) {
                             if (fileExists(imageFile)) {
-                                Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
                                 Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
                                         Toast.LENGTH_SHORT).show();
                             } else {
-                                Log.e(LOG_TAG, getString(R.string.log_problem_downloading_image));
                                 Toast.makeText(getActivity(),
                                         R.string.log_problem_downloading_image,
                                         Toast.LENGTH_SHORT).show();
@@ -348,11 +350,12 @@ public class SingleImageFragment extends Fragment {
                         } else {
                             //Checking the result and giving feedback to user about success
                             if (fileExists(imageFile)) {
-                                Log.e(LOG_TAG, getString(R.string.log_image_successfully_saved));
                                 setWallpaper(imageFile);
-                                Log.e(LOG_TAG, getString(R.string.log_wallpaper_set_successfully));
+                                Toast.makeText(getActivity().getApplicationContext(), R.string.log_wallpaper_set_successfully,
+                                        Toast.LENGTH_SHORT).show();
                             } else {
-                                Log.e(LOG_TAG, getString(R.string.log_problem_while_setting_wallpaper));
+                                Toast.makeText(getActivity().getApplicationContext(), R.string.log_problem_while_setting_wallpaper,
+                                        Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -367,11 +370,16 @@ public class SingleImageFragment extends Fragment {
         boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionWriteToExternalStorageGranted()) {
+            //If it's granted, just download the image
             downloadImage();
-
         } else {
             // If it's not granted, did user checked "Never ask again"?
-            if (!showRationale) {
+            if (showRationale) {
+                //user denied but didn't check "Never ask again". We can simply ask permission again
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+            } else {
                 // user denied permission and also checked "Never ask again"
                 showMessageOKCancel(getString(R.string.permission_message),
                         new DialogInterface.OnClickListener() {
@@ -383,10 +391,6 @@ public class SingleImageFragment extends Fragment {
                                 startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
                             }
                         });
-            } else {
-                //user denied
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             }
         }
     }

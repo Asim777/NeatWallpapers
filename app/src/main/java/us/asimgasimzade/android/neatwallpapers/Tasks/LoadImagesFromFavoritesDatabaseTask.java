@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
@@ -54,28 +56,26 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
         mGridView.setAdapter(mGridAdapter);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected Void doInBackground(String... strings) {
 
         FavoritesDBHelper dbHelper = new FavoritesDBHelper(mContext);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(
-                FavoritesEntry.TABLE_NAME, projection, null, null, null, null, "_id DESC");
         int i = 0;
-            try {
-                while (cursor.moveToNext()) {
-                    GridItem item = new GridItem();
-                    item.setName(cursor.getString(1));
-                    item.setImage(cursor.getString(2));
-                    item.setNumber(i);
-                    item.setAuthor(cursor.getString(3));
-                    item.setLink(cursor.getString(4));
-                    mGridData.add(item);
-                    i++;
-                }
-            } finally {
-                cursor.close();
+        try (Cursor cursor = db.query(
+                FavoritesEntry.TABLE_NAME, projection, null, null, null, null, "_id DESC")) {
+            while (cursor.moveToNext()) {
+                GridItem item = new GridItem();
+                item.setName(cursor.getString(1));
+                item.setImage(cursor.getString(2));
+                item.setNumber(i);
+                item.setAuthor(cursor.getString(3));
+                item.setLink(cursor.getString(4));
+                mGridData.add(item);
+                i++;
             }
+        }
 
         return null;
     }

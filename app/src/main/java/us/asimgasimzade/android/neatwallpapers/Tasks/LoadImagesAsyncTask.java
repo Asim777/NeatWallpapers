@@ -4,17 +4,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import us.asimgasimzade.android.neatwallpapers.R;
-
-import us.asimgasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
-import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
-import us.asimgasimzade.android.neatwallpapers.PopularFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,9 +18,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
+import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
+import us.asimgasimzade.android.neatwallpapers.R;
 
 /**
  * This task is called from MainActivity, SingleCategoryActivity and SearchResultActivity to load
@@ -37,10 +34,8 @@ import java.util.ArrayList;
 //Downloading data asynchronously
 public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
-    private static final String LOG_TAG = "LoadImagesAsyncTask";
-    private URL feed_url;
+
     private HttpURLConnection urlConnection;
-    private static final String TAG = PopularFragment.class.getSimpleName();
     private ProgressBar mProgressBar;
     private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
@@ -70,6 +65,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     @Override
     protected Integer doInBackground(String... params) {
         Integer result = 0;
+        URL feed_url;
 
         //Loop through pages
         for (int i = 0; i < numberOfPages; i++) {
@@ -91,11 +87,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 } else {
                     result = 0; //Failed
                 }
-            } catch (MalformedURLException e) {
-                Log.d(TAG, "Problem creating URL");
-                e.printStackTrace();
             } catch (Exception e) {
-                Log.d(TAG, e.getLocalizedMessage());
                 e.printStackTrace();
             } finally {
                 urlConnection.disconnect();
@@ -119,8 +111,8 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                     Toast.makeText(mContext, "Please check the status of the network.", Toast.LENGTH_SHORT).show();
                 }
             } catch (NullPointerException e) {
+                //Can't check if network info isConnectedOrConnecting
                 e.printStackTrace();
-                Log.e(LOG_TAG, "Can't check if network info isConnectedOrConnecting");
             }
         }
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
