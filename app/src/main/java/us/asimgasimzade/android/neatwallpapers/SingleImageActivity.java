@@ -23,17 +23,18 @@ public class SingleImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_image);
 
-        //Loading image
+        //Getting extras from intent
         imageNumber = getIntent().getIntExtra("number", 0);
         source = getIntent().getStringExtra("source");
+
         singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(getSupportFragmentManager(), source);
         singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
         singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
         // how many images to load into memory from the either side of current page
         singleImageViewPager.setOffscreenPageLimit(3);
         singleImageViewPager.setCurrentItem(imageNumber);
-
     }
+
 
 
 }

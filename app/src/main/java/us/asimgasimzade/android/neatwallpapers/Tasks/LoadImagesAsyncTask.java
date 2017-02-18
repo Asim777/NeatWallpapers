@@ -45,6 +45,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private String mSource;
     private int numberOfPages = 1;
 
+
     public LoadImagesAsyncTask(Context context, View rootView, String url, String source) {
         mContext = context;
         mRootView = rootView;
@@ -54,8 +55,10 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
     @Override
     protected void onPreExecute() {
+        GridView mGridView;
         mProgressBar = (ProgressBar) mRootView.findViewById(R.id.progressBar);
-        GridView mGridView = (GridView) mRootView.findViewById(R.id.gridView);
+        mGridView = (GridView) mRootView.findViewById(R.id.gridView);
+
         //Initialize with empty data
         mGridData = new ArrayList<>();
         mGridAdapter = new ImagesGridViewAdapter(mContext, R.layout.image_grid_item_layout, mGridData);
@@ -79,7 +82,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 //200 represent status is OK
                 if (statusCode == 200) {
                     String response = streamToString(urlConnection.getInputStream());
-                    if(i == 0) {
+                    if (i == 0) {
                         numberOfPages = getNumberOfPages(response);
                     }
                     parseResult(response, i);
@@ -117,17 +120,17 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         }
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
         // other images from SingleImageActivity
-        switch (mSource){
-            case "popular" : {
+        switch (mSource) {
+            case "popular": {
                 ImagesDataClass.popularImagesList = mGridData;
                 ImagesDataClass.imageslist = mGridData;
             }
-                break;
-            case "recent" : {
+            break;
+            case "recent": {
                 ImagesDataClass.recentImagesList = mGridData;
             }
-                break;
-            case "default" : {
+            break;
+            case "default": {
                 ImagesDataClass.imageslist = mGridData;
             }
 
@@ -206,15 +209,16 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private int getNumberOfPages(String result) {
         int pages = 0;
 
-        try{
-        //Finding out number of pages
-        JSONObject rootJson = new JSONObject(result);
+        try {
+            //Finding out number of pages
+            JSONObject rootJson = new JSONObject(result);
 
-        if(rootJson.getInt("totalHits")%200 != 0) {
-            pages = (rootJson.getInt("totalHits") / 200) + 1;
-        } else {
-            pages =  rootJson.getInt("totalHits") / 200;
-        }} catch (JSONException e){
+            if (rootJson.getInt("totalHits") % 200 != 0) {
+                pages = (rootJson.getInt("totalHits") / 200) + 1;
+            } else {
+                pages = rootJson.getInt("totalHits") / 200;
+            }
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
