@@ -11,5 +11,6 @@
     <color name="black">#000000</color>
     <color name="splash_background">#FF6EB4EC</color>
     <color name="darkBackground">#e2e2e2</color>
+    <color name="slightlyDarkBackground">#f2f2f2</color>
     <color name="lightBackground">#f0f0f0</color>
 </resources>
