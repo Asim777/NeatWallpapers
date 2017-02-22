@@ -380,31 +380,14 @@ public class SingleImageFragment extends Fragment {
     }
 
     private void downloadImageIfPermitted() {
-        boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionWriteToExternalStorageGranted()) {
             //If it's granted, just download the image
             downloadImage();
         } else {
-            // If it's not granted, did user checked "Never ask again"?
-            if (showRationale) {
-                //user denied but didn't check "Never ask again". We can simply ask permission again
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
-            } else {
-                // user denied permission and also checked "Never ask again"
-                showMessageOKCancel(getString(R.string.permission_message),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-                                intent.setData(uri);
-                                startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-                            }
-                        });
-            }
+            //If it's not granted, request it
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
     }
 
@@ -420,6 +403,8 @@ public class SingleImageFragment extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
@@ -428,6 +413,21 @@ public class SingleImageFragment extends Fragment {
                     // permission was granted, yay!
                     Toast.makeText(getActivity().getApplicationContext(), R.string.permission_granted_message, Toast.LENGTH_SHORT).show();
                     downloadImage();
+                } else {
+                    //Permission is not granted, but did the user also check "Never ask again"?
+                    if (!showRationale) {
+                        // user denied permission and also checked "Never ask again"
+                        showMessageOKCancel(getString(R.string.permission_message),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+                                    }
+                                });
+                    }
                 }
             }
 

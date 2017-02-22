@@ -41,6 +41,6 @@
     <string name="permission_granted_message">Permission is granted</string>
     <string name="permission_message">You need to grant permission to save image into your device in order to download it. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
     <string name="problem_while_creating_directory_message">There was a problem while creating directory!</string>
-    <!--<string name="test_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>-->
-
+    <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
+    <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
 </resources>

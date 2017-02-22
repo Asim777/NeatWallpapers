@@ -53,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Initializing the Google Mobile Ads SDK
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-5015291550861860~9287306639");
+        MobileAds.initialize(getApplicationContext(), getString(R.string.ad_unit_id_main_activity));
 
         AdView mAdView = (AdView) findViewById(R.id.main_adView);
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
+                .addTestDevice("A53EE927CC6A3261857802031148F13B")
                 .build();
         mAdView.loadAd(adRequest);
 
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         //Setting pending intent
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) date.getTime(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + 86400000L, AlarmManager.INTERVAL_DAY, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY*3, AlarmManager.INTERVAL_DAY*7, pendingIntent);
     }
 
     private void setupViewPager(ViewPager viewPager) {

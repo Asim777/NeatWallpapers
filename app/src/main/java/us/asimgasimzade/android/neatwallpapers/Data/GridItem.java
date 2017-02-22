@@ -1,8 +1,5 @@
 package us.asimgasimzade.android.neatwallpapers.Data;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * Data model class for GridItem
  */

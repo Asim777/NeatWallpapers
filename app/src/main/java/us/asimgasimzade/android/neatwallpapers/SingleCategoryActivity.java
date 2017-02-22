@@ -38,7 +38,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_category);
 
         //Initializing the Google Mobile Ads SDK
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-5015291550861860~9287306639");
+        MobileAds.initialize(getApplicationContext(), getString(R.string.ad_unit_id_single_category_activity));
 
         AdView mAdView = (AdView) findViewById(R.id.categories_adView);
         AdRequest adRequest = new AdRequest.Builder()
