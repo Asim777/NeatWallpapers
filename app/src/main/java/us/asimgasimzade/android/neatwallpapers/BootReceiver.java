@@ -12,7 +12,10 @@ import java.util.Date;
 
 import static android.content.Context.ALARM_SERVICE;
 
-
+/**
+ * Broadcast Receiver to receive BOOT_COMPLETED system broadcast
+ * and fire AlarmManager to set notifications after the boot
+ */
 
 public class BootReceiver extends BroadcastReceiver {
     @Override
@@ -25,15 +28,12 @@ public class BootReceiver extends BroadcastReceiver {
             //Setting intent to fire NotificationReceiver which will create the notification
             Intent notificationIntent = new Intent(context, NotificationReceiver.class);
             //Setting pending intent
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), (int) date.getTime(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            //Setting alarmManager to repeat the alarm with interval one week
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime(), 60000L, pendingIntent);
-            Log.d("asimlog", "alarm manager registered");
-            Toast.makeText(context.getApplicationContext(), "alarm manager registered", Toast.LENGTH_LONG ).show();
-        } else {
-            Log.d("asimlog", "notification doesn't fire");
-            Toast.makeText(context.getApplicationContext(), "notification doesn't fire", Toast.LENGTH_LONG ).show();
-
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+                    (int) date.getTime(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
+            //after 3 days
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY*3,
+                    AlarmManager.INTERVAL_HOUR*7, pendingIntent);
         }
     }
 }

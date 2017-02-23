@@ -5,12 +5,10 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -23,7 +21,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -31,8 +28,6 @@ import com.google.android.gms.ads.MobileAds;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import us.asimgasimzade.android.neatwallpapers.Tasks.AddNotificationTask;
 
 /**
  * This is MainActivity, it holds ViewPager of populated by 5 fragments
@@ -61,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         AdView mAdView = (AdView) findViewById(R.id.main_adView);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("A53EE927CC6A3261857802031148F13B")
                 .build();
         mAdView.loadAd(adRequest);
 
@@ -131,9 +124,12 @@ public class MainActivity extends AppCompatActivity {
         //Setting intent to fire NotificationReceiver which will create the notification
         Intent intent = new Intent(this, NotificationReceiver.class);
         //Setting pending intent
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) date.getTime(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        //Setting alarmManager to repeat the alarm with interval one week
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + 60000L, 60000L, pendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                (int) date.getTime(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
+        //after 3 days
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,  date.getTime() + AlarmManager.INTERVAL_DAY*3,
+                AlarmManager.INTERVAL_HOUR*7, pendingIntent);
     }
 
     private void setupViewPager(ViewPager viewPager) {

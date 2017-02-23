@@ -42,8 +42,6 @@ public class SingleCategoryActivity extends AppCompatActivity {
 
         AdView mAdView = (AdView) findViewById(R.id.categories_adView);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
                 .build();
         mAdView.loadAd(adRequest);
 

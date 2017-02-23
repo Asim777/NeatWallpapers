@@ -344,13 +344,6 @@ public class SingleImageFragment extends Fragment {
                                 progressDialog.dismiss();
                             }
 
-                            //Checking the result and giving feedback to user about success
-                            if (directoryNotCreated) {
-                                Toast.makeText(getActivity().getApplicationContext(),
-                                        R.string.problem_while_creating_directory_message,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-
                             if (operation == Operation.DOWNLOAD) {
                                 if (fileExists(imageFile)) {
                                     Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
