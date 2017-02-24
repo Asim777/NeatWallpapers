@@ -118,6 +118,10 @@ public class SingleImageFragment extends Fragment {
                 currentImagesList = ImagesDataClass.favoriteImagesList;
             }
             break;
+            case "search": {
+                currentImagesList = ImagesDataClass.searchResultImagesList;
+            }
+            break;
             case "default": {
                 currentImagesList = ImagesDataClass.imageslist;
             }
@@ -126,7 +130,6 @@ public class SingleImageFragment extends Fragment {
         if (currentImagesList.isEmpty()) {
                 fragmentKilled = true;
                 getActivity().finish();
-
         } else {
             getImageAttributes();
         }

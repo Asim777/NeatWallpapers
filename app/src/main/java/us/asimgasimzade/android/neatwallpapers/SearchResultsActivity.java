@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
@@ -22,24 +23,28 @@ import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
  * This Activity shows search result as gridView
  */
 
-public class SearchResultsActivity extends AppCompatActivity {
+public class SearchResultsActivity extends AppCompatActivity implements NoResultsCallback {
     String url;
     View rootView;
     String searchQuery;
+    TextView noResults;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_single_category);
-
+        setContentView(R.layout.activity_search_results);
         handleIntent(getIntent());
 
         //Set search query as activity title
         setTitle(searchQuery);
         //Set categoryApiName as URL extension
         constructUrl("popular", searchQuery);
-        // Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         rootView = findViewById(R.id.rootView);
+
+        //Get reference to noResults TextView and make it invisible for now
+        noResults = (TextView) rootView.findViewById(R.id.noResults);
+        noResults.setVisibility(View.INVISIBLE);
 
         //Start Download
         loadImages();
@@ -108,12 +113,13 @@ public class SearchResultsActivity extends AppCompatActivity {
     }
 
     private void loadImages() {
-        //Start LoadImagesAsyncTask
 
+
+        //Start LoadImagesAsyncTask
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
-        new LoadImagesAsyncTask(this, rootView, url, "default").execute();
+        new LoadImagesAsyncTask(this, rootView, url, "search").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
@@ -126,7 +132,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(SearchResultsActivity.this, SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-                intent.putExtra("source", "default");
+                intent.putExtra("source", "search");
 
                 //Start SingleImageActivity
                 startActivity(intent);
@@ -134,13 +140,20 @@ public class SearchResultsActivity extends AppCompatActivity {
         });
     }
 
+
+
     /**
      * This method constructs customized url using order and searchQuery
      * @param order - Order in which grid items should be sorted
      * @param searchQuery - Search query entered by user in search view
      */
     private void constructUrl(String order, String searchQuery) {
-
                 url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&orientation=vertical&min_width=450&order=" + order + "&q=" + searchQuery;
     }
+
+    @Override
+    public void noResults() {
+        noResults.setVisibility(View.VISIBLE);
+    }
 }
+

@@ -1,6 +1,7 @@
 package us.asimgasimzade.android.neatwallpapers.Tasks;
 
 import android.content.Context;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -17,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,7 +26,9 @@ import java.util.ArrayList;
 import us.asimgasimzade.android.neatwallpapers.Adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
+import us.asimgasimzade.android.neatwallpapers.NoResultsCallback;
 import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.SearchResultsActivity;
 
 /**
  * This task is called from MainActivity, SingleCategoryActivity and SearchResultActivity to load
@@ -44,6 +48,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private String mUrl;
     private String mSource;
     private int numberOfPages = 1;
+    private WeakReference<NoResultsCallback> noResultsCallbackReference;
 
 
     public LoadImagesAsyncTask(Context context, View rootView, String url, String source) {
@@ -51,6 +56,9 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         mRootView = rootView;
         mUrl = url;
         mSource = source;
+        if (mSource.equals("search")){
+            noResultsCallbackReference = new WeakReference<>((NoResultsCallback) context);
+        }
     }
 
     @Override
@@ -130,6 +138,14 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                 ImagesDataClass.recentImagesList = mGridData;
             }
             break;
+            case "search": {
+                ImagesDataClass.searchResultImagesList = mGridData;
+                NoResultsCallback ref = noResultsCallbackReference.get();
+                if(ImagesDataClass.searchResultImagesList.isEmpty() && ref != null){
+                    ref.noResults();
+                }
+            }
+            break;
             case "default": {
                 ImagesDataClass.imageslist = mGridData;
             }
@@ -162,11 +178,9 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             JSONArray hits = rootJson.optJSONArray("hits");
 
             GridItem item;
-            for (int i = 0; i < 200; i++) {
-
-                item = new GridItem();
-
-                if (hits.length() > 0) {
+            if (hits.length() > 0) {
+                for (int i = 0; i < 200; i++) {
+                    item = new GridItem();
                     JSONObject image = hits.getJSONObject(i);
                     if (image != null) {
                         item.setImage(image.getString("webformatURL"));
@@ -191,8 +205,10 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                                 break;
                         }
                     }
+
+                    mGridData.add(item);
                 }
-                mGridData.add(item);
+
             }
 
 

@@ -14,5 +14,5 @@ public class ImagesDataClass {
     public static ArrayList<GridItem> popularImagesList = new ArrayList<>();
     public static ArrayList<GridItem> recentImagesList = new ArrayList<>();
     public static ArrayList<GridItem> favoriteImagesList = new ArrayList<>();
-
+    public static ArrayList<GridItem> searchResultImagesList = new ArrayList<>();
 }
