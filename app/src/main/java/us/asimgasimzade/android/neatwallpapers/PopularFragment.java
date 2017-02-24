@@ -10,12 +10,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-
-import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
 /**
  * This Fragment holds GridView of popular images

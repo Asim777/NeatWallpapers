@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import us.asimgasimzade.android.neatwallpapers.Adapters.ColorsListViewAdapter;
-import us.asimgasimzade.android.neatwallpapers.Data.Color;
+import us.asimgasimzade.android.neatwallpapers.adapters.ColorsListViewAdapter;
+import us.asimgasimzade.android.neatwallpapers.data.Color;
 
 import java.util.ArrayList;
 
@@ -21,17 +21,11 @@ import java.util.ArrayList;
 
 public class ColorsFragment extends Fragment{
 
-    ListView mColorsListView;
-
-    private ArrayList<Color> mColorData = new ArrayList<>();
-
-
     //String array for holding list of categories
     public String[] colorNames = new String[]{
             "Black", "White", "Red", "Blue", "Green", "Yellow", "Purple",
             "Grey", "Orange", "Brown"
     };
-
     public int[] colorThumbnails = new int[]{
             R.drawable.black,
             R.drawable.white,
@@ -44,6 +38,8 @@ public class ColorsFragment extends Fragment{
             R.drawable.orange,
             R.drawable.brown
     };
+    ListView mColorsListView;
+    private ArrayList<Color> mColorData = new ArrayList<>();
 
 
     public ColorsFragment() {

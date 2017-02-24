@@ -40,10 +40,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.Data.ImagesDataClass;
-import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract;
-import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBHelper;
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
+import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract;
+import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
 
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static java.lang.Thread.sleep;
@@ -54,6 +54,9 @@ import static java.lang.Thread.sleep;
 
 public class SingleImageFragment extends Fragment {
 
+    private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
+    private static final int REQUEST_PERMISSION_SETTING = 43;
     Button favoriteButton;
     Button setAsWallpaperButton;
     Button downloadButton;
@@ -73,24 +76,12 @@ public class SingleImageFragment extends Fragment {
     boolean fragmentKilled;
     int currentPosition;
     boolean directoryNotCreated;
-
-    // Progress Dialog
-    private ProgressDialog progressDialog;
     View rootView;
     Cursor cursor;
-
-    public enum Operation {
-        DOWNLOAD, SET_AS_WALLPAPER
-    }
-
-
     Operation operation;
     boolean imageIsFavorite;
-
-    private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
-    private static final int REQUEST_PERMISSION_SETTING = 43;
-
+    // Progress Dialog
+    private ProgressDialog progressDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -442,6 +433,62 @@ public class SingleImageFragment extends Fragment {
                 .show();
     }
 
+    protected void showProgressDialog() {
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(getString(R.string.message_downloading_image));
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setMax(100);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgress(0);
+        progressDialog.show();
+    }
+
+    private void setWallpaper(File imageFile) {
+        Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
+        Uri imageUri = Uri.fromFile(imageFile);
+        setAsIntent.setDataAndType(imageUri, "image/*");
+        setAsIntent.putExtra("jpg", "image/*");
+        startActivityForResult(Intent.createChooser(setAsIntent, getString(R.string.set_as)), REQUEST_ID_SET_AS_WALLPAPER);
+    }
+
+    /**
+     * *This method checks if downloading image was successful so we can show according feedback to
+     * the user
+     * Returns boolean - true if successful and false if unsuccessful
+     */
+    private boolean fileExists(File image) {
+        boolean result;
+        result = image.exists() && image.isFile();
+        return result;
+    }
+
+    /**
+     * This method checks if there is External Storage currently mounted in device. It returns boolean
+     *
+     * @return boolean, true if External Storage is mounted, false if not
+     */
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+
+    }
+
+
+    public enum Operation {
+        DOWNLOAD, SET_AS_WALLPAPER
+    }
+
     class ImageIsFavoriteTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
@@ -519,57 +566,5 @@ public class SingleImageFragment extends Fragment {
             }
             new ImageIsFavoriteTask().execute();
         }
-    }
-
-    protected void showProgressDialog() {
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(R.string.message_downloading_image));
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setIndeterminate(false);
-        progressDialog.setMax(100);
-        progressDialog.setCancelable(false);
-        progressDialog.setProgress(0);
-        progressDialog.show();
-    }
-
-    private void setWallpaper(File imageFile) {
-        Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
-        Uri imageUri = Uri.fromFile(imageFile);
-        setAsIntent.setDataAndType(imageUri, "image/*");
-        setAsIntent.putExtra("jpg", "image/*");
-        startActivityForResult(Intent.createChooser(setAsIntent, getString(R.string.set_as)), REQUEST_ID_SET_AS_WALLPAPER);
-    }
-
-
-    /**
-     * *This method checks if downloading image was successful so we can show according feedback to
-     * the user
-     * Returns boolean - true if successful and false if unsuccessful
-     */
-    private boolean fileExists(File image) {
-        boolean result;
-        result = image.exists() && image.isFile();
-        return result;
-    }
-
-    /**
-     * This method checks if there is External Storage currently mounted in device. It returns boolean
-     *
-     * @return boolean, true if External Storage is mounted, false if not
-     */
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
-
     }
 }

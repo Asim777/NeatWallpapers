@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver;
+
 /**
  * This is MainActivity, it holds ViewPager of populated by 5 fragments
  * Popular, Recent, Categories, Colors and Favorites
@@ -36,12 +38,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 
-    private TabLayout tabLayout;
-    private int selectedTabPosition;
-    SharedPreferences sharedPreferences;
-
     private static final String NOTIFICATION_ID_KEY = "Notification Key";
     private static final String TAB_SHARED_PREFERENCE_TAG = "tab position";
+    SharedPreferences sharedPreferences;
+    private TabLayout tabLayout;
+    private int selectedTabPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
         //after 3 days
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,  date.getTime() + AlarmManager.INTERVAL_DAY*3,
-                AlarmManager.INTERVAL_HOUR*7, pendingIntent);
+                AlarmManager.INTERVAL_DAY * 7, pendingIntent);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -141,37 +142,6 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new FavoritesFragment(), getString(R.string.favorites_fragment_tag));
 
         viewPager.setAdapter(adapter);
-    }
-
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
-
-        ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-
     }
 
     @Override
@@ -221,6 +191,37 @@ public class MainActivity extends AppCompatActivity {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         return true;
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
+
     }
 
 }

@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import us.asimgasimzade.android.neatwallpapers.Adapters.CategoriesListViewAdapter;
-import us.asimgasimzade.android.neatwallpapers.Data.Category;
+import us.asimgasimzade.android.neatwallpapers.adapters.CategoriesListViewAdapter;
+import us.asimgasimzade.android.neatwallpapers.data.Category;
 
 import java.util.ArrayList;
 
@@ -21,23 +21,17 @@ import java.util.ArrayList;
 
 public class CategoriesFragment extends Fragment {
 
-    ListView mCategoriesListView;
-
-    private ArrayList<Category> mCategoryData = new ArrayList<>();
-
     //String array for holding list of categories
     public String[] categoryNames = new String[]{
             "Nature", "Textures", "Technology", "Monuments", "Animals", "Feelings", "Travel",
             "Computers", "Music", "People", "Religion", "Buildings", "Sports", "Food", "Industry",
             "Fashion", "Business", "Education", "Health", "Transportation"
     };
-
     public String[] categoryAPInames = new String[]{
             "nature", "backgrounds", "science", "places", "animals", "feelings", "travel",
             "computer", "music", "people", "religion", "buildings", "sports", "food", "industry",
             "fashion", "business", "education", "health", "transportation"
     };
-
     public int[] categoryThumbnails = new int[]{
             R.drawable.nature,
             R.drawable.textures_backgrounds,
@@ -60,6 +54,8 @@ public class CategoriesFragment extends Fragment {
             R.drawable.health,
             R.drawable.transportation,
     };
+    ListView mCategoriesListView;
+    private ArrayList<Category> mCategoryData = new ArrayList<>();
 
 
     public CategoriesFragment() {

@@ -1,12 +1,10 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.broadcast_receivers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Date;
 
@@ -33,7 +31,7 @@ public class BootReceiver extends BroadcastReceiver {
             //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
             //after 3 days
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY*3,
-                    AlarmManager.INTERVAL_HOUR*7, pendingIntent);
+                    AlarmManager.INTERVAL_DAY * 7, pendingIntent);
         }
     }
 }

@@ -1,10 +1,10 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.broadcast_receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import us.asimgasimzade.android.neatwallpapers.Tasks.AddNotificationTask;
+import us.asimgasimzade.android.neatwallpapers.tasks.AddNotificationTask;
 
 /**
  * BroadcastReceiver for handling notifications

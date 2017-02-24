@@ -12,8 +12,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
-import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesFromFavoritesDatabaseTask;
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesFromFavoritesDatabaseTask;
 
 /**
  * This holds Favorite images gridView and populated from FavoritesDB
@@ -21,10 +21,10 @@ import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesFromFavoritesData
 
 public class FavoritesFragment extends Fragment{
 
+    public static final int REQUEST_CODE = 102;
     GridView mGridView;
     View rootView;
     ProgressBar mProgressBar;
-    public static final int REQUEST_CODE = 102;
 
     public FavoritesFragment() {
         // Required empty public constructor

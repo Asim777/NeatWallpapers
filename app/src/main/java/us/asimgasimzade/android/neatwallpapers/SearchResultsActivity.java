@@ -16,8 +16,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import us.asimgasimzade.android.neatwallpapers.Data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.Tasks.LoadImagesAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
 /**
  * This Activity shows search result as gridView

@@ -1,9 +1,10 @@
-package us.asimgasimzade.android.neatwallpapers.FavoritesDB;
+package us.asimgasimzade.android.neatwallpapers.favorites_db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import us.asimgasimzade.android.neatwallpapers.FavoritesDB.FavoritesDBContract.FavoritesEntry;
+
+import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract.FavoritesEntry;
 
 /**
  * Manages local Favorites Database

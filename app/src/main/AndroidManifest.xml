@@ -15,11 +15,11 @@
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
+        android:installLocation="internalOnly"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MainTheme"
-        tools:ignore="GoogleAppIndexingWarning"
-        android:installLocation="internalOnly">
+        tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="us.asimgasimzade.android.neatwallpapers.MainActivity">
             <meta-data
                 android:name="android.app.default_searchable"
@@ -66,9 +66,10 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="us.asimgasimzade.android.neatwallpapers.NotificationReceiver"/>
+        <receiver android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver" />
 
-        <receiver android:name="us.asimgasimzade.android.neatwallpapers.BootReceiver"
+        <receiver
+            android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

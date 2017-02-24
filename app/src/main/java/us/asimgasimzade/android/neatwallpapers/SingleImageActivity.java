@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import us.asimgasimzade.android.neatwallpapers.Adapters.SingleImageViewPagerAdapter;
+import us.asimgasimzade.android.neatwallpapers.adapters.SingleImageViewPagerAdapter;
 
 /**
  * This Activity holds single image ViewPager
