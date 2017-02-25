@@ -6,12 +6,12 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:contentDescription="@string/category_image"
         android:id="@+id/category_thumbnail_image_view"
         android:layout_width="0dp"
         android:layout_height="65dp"
         android:layout_gravity="start"
-        android:layout_weight="2" />
+        android:layout_weight="2"
+        android:contentDescription="@string/category_image" />
 
     <TextView
         android:id="@+id/category_name_text_view"
@@ -22,15 +22,14 @@
         android:paddingLeft="30dp"
         android:paddingStart="30dp"
         android:textSize="18sp"
-        android:textStyle="bold"
         tools:ignore="RtlSymmetry" />
 
     <ImageView
-        android:contentDescription="@string/category_icon"
         android:id="@+id/category_icon_image_view"
         android:layout_width="0dp"
         android:layout_height="25dp"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
+        android:contentDescription="@string/category_icon"
         android:src="@mipmap/ic_arrow_right" />
 </LinearLayout>

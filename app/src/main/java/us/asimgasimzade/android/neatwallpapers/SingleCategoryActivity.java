@@ -38,11 +38,10 @@ public class SingleCategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_category);
 
         //Initializing the Google Mobile Ads SDK
-        MobileAds.initialize(getApplicationContext(), getString(R.string.ad_unit_id_single_category_activity));
+        MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
         AdView mAdView = (AdView) findViewById(R.id.categories_adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .build();
+        AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
         //Get categoryApiName to use in URL and Category name to use in activity title from intent

@@ -23,8 +23,6 @@
     <string name="search_hint">Enter search value</string>
     <string name="author_info">Author: %1$s</string>
     <string name="pixabay_link">View on Pixabay</string>
-    <string name="main_banner_ad_unit_id">ca-app-pub-5015291550861860/457790543</string>
-    <string name="categories_banner_ad_unit_id">ca-app-pub-5015291550861860/4485017037</string>
     <string name="log_image_successfully_saved">Image successfully saved</string>
     <string name="toast_image_successfully_saved">Image is successfully saved!</string>
     <string name="log_problem_downloading_image">Problem while downloading image, please try again</string>
@@ -41,6 +39,7 @@
     <string name="permission_granted_message">Permission is granted</string>
     <string name="permission_message">You need to grant permission to save image into your device in order to download it. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
     <string name="problem_while_creating_directory_message">There was a problem while creating directory!</string>
+    <string name="admob_app_id">ca-app-pub-5015291550861860~9287306639</string>
     <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
     <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
     <string name="unfortunately_there_are_no_results_for_this_request">Unfortunately there are no results for this request.</string>

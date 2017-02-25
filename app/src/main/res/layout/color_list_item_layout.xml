@@ -7,11 +7,11 @@
 
     <ImageView
         android:id="@+id/color_thumbnail_image_view"
-        android:contentDescription="@string/color_image"
         android:layout_width="0dp"
         android:layout_height="65dp"
         android:layout_gravity="start"
-        android:layout_weight="2" />
+        android:layout_weight="2"
+        android:contentDescription="@string/color_image" />
 
     <TextView
         android:id="@+id/color_name_text_view"
@@ -22,15 +22,14 @@
         android:paddingLeft="30dp"
         android:paddingStart="30dp"
         android:textSize="18sp"
-        android:textStyle="bold"
         tools:ignore="RtlSymmetry" />
 
     <ImageView
         android:id="@+id/color_icon_image_view"
-        android:contentDescription="@string/color_icon"
         android:layout_width="0dp"
         android:layout_height="25dp"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
+        android:contentDescription="@string/color_icon"
         android:src="@mipmap/ic_arrow_right" />
 </LinearLayout>

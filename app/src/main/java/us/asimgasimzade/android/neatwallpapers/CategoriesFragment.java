@@ -83,8 +83,6 @@ public class CategoriesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_categories, container, false);
         mCategoriesListView = (ListView) rootView.findViewById(R.id.categories_listView);
 
-
-
         // Create new ArrayAdapter - giving it arguments - context, single row xml, which is
         // category_list_item_layout.xml and array to take data from
         CategoriesListViewAdapter mCategoryAdapter = new CategoriesListViewAdapter(getActivity(), R.layout.category_list_item_layout, mCategoryData);
@@ -107,7 +105,6 @@ public class CategoriesFragment extends Fragment {
                 startActivity(openCategoryIntent);
             }
         });
-
 
         return rootView;
     }

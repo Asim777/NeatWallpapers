@@ -53,11 +53,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Initializing the Google Mobile Ads SDK
-        MobileAds.initialize(getApplicationContext(), getString(R.string.ad_unit_id_main_activity));
+        MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
         AdView mAdView = (AdView) findViewById(R.id.main_adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .build();
+        AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);

@@ -1,9 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     tools:context="us.asimgasimzade.android.neatwallpapers.MainActivity">
 
     <android.support.design.widget.CoordinatorLayout
@@ -48,6 +48,6 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="center|bottom"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/main_banner_ad_unit_id"/>
+        ads:adUnitId="@string/ad_unit_id_main_activity" />
 
 </RelativeLayout>
