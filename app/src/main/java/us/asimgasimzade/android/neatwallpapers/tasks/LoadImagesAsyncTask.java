@@ -147,7 +147,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             case "default": {
                 ImagesDataClass.imageslist = mGridData;
             }
-
+            break;
         }
         mProgressBar.setVisibility(View.GONE);
     }

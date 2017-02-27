@@ -340,21 +340,21 @@ public class SingleImageFragment extends Fragment {
 
                             if (operation == Operation.DOWNLOAD) {
                                 if (fileExists(imageFile)) {
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.log_image_successfully_saved,
+                                    Toast.makeText(getActivity().getApplicationContext(), R.string.image_successfully_saved_message,
                                             Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(getActivity(),
-                                            R.string.log_problem_downloading_image,
+                                            R.string.problem_downloading_image_message,
                                             Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 //Checking the result and giving feedback to user about success
                                 if (fileExists(imageFile)) {
                                     setWallpaper(imageFile);
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.log_wallpaper_set_successfully,
+                                    Toast.makeText(getActivity().getApplicationContext(), R.string.setting_wallpaper_message,
                                             Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.log_problem_while_setting_wallpaper,
+                                    Toast.makeText(getActivity().getApplicationContext(), R.string.problem_while_setting_wallpaper_message,
                                             Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -560,9 +560,9 @@ public class SingleImageFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             if (!imageIsFavorite) {
-                Toast.makeText(getActivity(), R.string.log_image_added_to_favorites, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.image_added_to_favorites_message, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getActivity(), R.string.log_image_removed_from_favorites, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.image_removed_from_favorites_message, Toast.LENGTH_SHORT).show();
             }
             new ImageIsFavoriteTask().execute();
         }

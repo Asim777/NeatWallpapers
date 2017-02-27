@@ -62,6 +62,9 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
             case "recent":
                 returnValue = ImagesDataClass.recentImagesList.size();
                 break;
+            case "search":
+                returnValue = ImagesDataClass.searchResultImagesList.size();
+                break;
         }
         return returnValue;
     }
