@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 (int) date.getTime(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
         //after 3 days
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,  date.getTime() + AlarmManager.INTERVAL_DAY*3,
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
                 AlarmManager.INTERVAL_DAY * 7, pendingIntent);
     }
 
@@ -141,27 +141,6 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new FavoritesFragment(), getString(R.string.favorites_fragment_tag));
 
         viewPager.setAdapter(adapter);
-    }
-
-    @Override
-    public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.exit_confirmation_positive_button_string)
-                .setMessage(R.string.exit_confirmation_dialog_string)
-                .setCancelable(true)
-                .setNegativeButton(R.string.exit_confirmation_negative_button_string, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                })
-                .setPositiveButton(R.string.exit_confirmation_positive_button_string, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        MainActivity.this.finish();
-                        System.exit(0);
-                    }
-                }).show();
     }
 
     @Override
