@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -33,7 +34,12 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
-        handleIntent(getIntent());
+
+        //Get the search intent that started this activity
+        Intent searchIntent = getIntent();
+
+        //Perform the search
+        handleIntent(searchIntent);
 
         //Set search query as activity title
         setTitle(searchQuery);
@@ -49,6 +55,13 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
         //Start Download
         loadImages();
 
+        if (Intent.ACTION_SEARCH.equals(searchIntent.getAction())) {
+            String query = searchIntent.getStringExtra(SearchManager.QUERY);
+            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+                    SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE);
+            suggestions.saveRecentQuery(query, null);
+        }
+
     }
 
     @Override
@@ -60,7 +73,6 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             //Get search query from intent to use in URL and in activity title
             searchQuery = intent.getStringExtra(SearchManager.QUERY);
-
         }
     }
 

@@ -2,11 +2,9 @@ package us.asimgasimzade.android.neatwallpapers;
 
 
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,6 +18,8 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String NOTIFICATION_ID_KEY = "Notification Key";
     private static final String TAB_SHARED_PREFERENCE_TAG = "tab position";
     SharedPreferences sharedPreferences;
+    Intent intent;
     private TabLayout tabLayout;
     private int selectedTabPosition;
 
@@ -79,11 +80,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
-        Intent notificationIntent = this.getIntent();
+        intent = this.getIntent();
+
         try {
             //If app opened from Notification intent, set tab to Recent
-            if (notificationIntent != null && notificationIntent.getExtras() != null &&
-                    notificationIntent.getExtras().containsKey(NOTIFICATION_ID_KEY) &&
+            if (intent != null && intent.getExtras() != null &&
+                    intent.getExtras().containsKey(NOTIFICATION_ID_KEY) &&
                     getIntent().getExtras().getInt(NOTIFICATION_ID_KEY) == 42) {
                 //noinspection ConstantConditions
                 tabLayout.getTabAt(1).select();
