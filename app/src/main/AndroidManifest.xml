@@ -20,7 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/MainTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="us.asimgasimzade.android.neatwallpapers.MainActivity">
+        <activity
+            android:name="us.asimgasimzade.android.neatwallpapers.MainActivity"
+            android:windowSoftInputMode="adjustPan">>
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
