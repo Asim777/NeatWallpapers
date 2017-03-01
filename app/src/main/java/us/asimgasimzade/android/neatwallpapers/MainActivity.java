@@ -19,7 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAB_SHARED_PREFERENCE_TAG = "tab position";
     SharedPreferences sharedPreferences;
     Intent intent;
+    SearchView searchView;
     private TabLayout tabLayout;
     private int selectedTabPosition;
 
@@ -158,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 sharedPreferencesEditor.apply();
             }
         }).start();
+
     }
 
     @Override
@@ -167,10 +169,33 @@ public class MainActivity extends AppCompatActivity {
 
         // Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+
+        if (searchView != null && checkFocus(searchView)) {
+            searchView.clearFocus();
+        }
+        super.onResume();
+    }
+
+    private boolean checkFocus(View view) {
+        if (view.isFocused())
+            return true;
+
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                if (checkFocus(viewGroup.getChildAt(i)))
+                    return true;
+            }
+        }
+        return false;
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -203,6 +228,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 }
+
 

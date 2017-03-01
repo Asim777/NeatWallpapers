@@ -69,42 +69,51 @@ public class SingleCategoryActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_sort) {
+        switch (id) {
+            case R.id.action_sort: {
 
-            String[] sortOptionArray = new String[]{
-                    "Popular", "Latest",
-            };
+                String[] sortOptionArray = new String[]{
+                        "Popular", "Latest",
+                };
 
-            final Dialog dialog = new Dialog(this);
-            dialog.setContentView(R.layout.sort_dialog);
-            ListView sortDialogListView = (ListView) dialog.findViewById(R.id.sort_dialog_list_view);
-            sortDialogListView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, sortOptionArray));
-            dialog.setCancelable(true);
-            dialog.setTitle("Sort by:");
-            dialog.show();
+                final Dialog dialog = new Dialog(this);
+                dialog.setContentView(R.layout.sort_dialog);
+                ListView sortDialogListView = (ListView) dialog.findViewById(R.id.sort_dialog_list_view);
+                sortDialogListView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, sortOptionArray));
+                dialog.setCancelable(true);
+                dialog.setTitle("Sort by:");
+                dialog.show();
 
-            sortDialogListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    switch (i) {
-                        case 0: {
-                            constructUrl("popular", categoryApiName);
-                            break;
+                sortDialogListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        switch (i) {
+                            case 0: {
+                                constructUrl("popular", categoryApiName);
+                                break;
+                            }
+                            case 1: {
+                                constructUrl("latest", categoryApiName);
+                                break;
+                            }
                         }
-                        case 1: {
-                            constructUrl("latest", categoryApiName);
-                            break;
-                        }
+
+                        dialog.dismiss();
+                        loadImages();
                     }
-
-                    dialog.dismiss();
-                    loadImages();
-                }
-            });
-
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
+                });
+                return true;
+            }
+            case android.R.id.home: {
+                //To fix bug when clicking up button on toolbar when inside singleCategoryActivity it
+                // goes back to MainActivity and reloads it, however when clicking phone back button
+                // it just closes the SingleCategoryActivity and goes back to MainActivity without
+                // reloading. That's why we are calling onBackPressed() when up button is clicked
+                onBackPressed();
+                return true;
+            }
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 

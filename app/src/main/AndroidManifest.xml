@@ -43,12 +43,16 @@
 
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.SearchResultsActivity"
+            android:launchMode="singleTop"
             android:parentActivityName="us.asimgasimzade.android.neatwallpapers.MainActivity"
             android:theme="@style/SingleCategoryTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
 
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".SearchResultsActivity" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="us.asimgasimzade.android.neatwallpapers.MainActivity" />
@@ -82,7 +86,8 @@
 
         <provider
             android:name="us.asimgasimzade.android.neatwallpapers.SearchSuggestionProvider"
-            android:authorities="us.asimgasimzade.android.neatwallpapers.SearchSuggestionProvider" />
+            android:authorities="us.asimgasimzade.android.neatwallpapers.SearchSuggestionProvider"
+            android:exported="false" />
 
     </application>
 
