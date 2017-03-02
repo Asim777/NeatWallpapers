@@ -147,15 +147,13 @@ public class SingleCategoryActivity extends AppCompatActivity {
     private void constructUrl(String order, String categoryApiName) {
         switch (callingFragment) {
             case "CategoriesFragment": {
-                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&orientation=vertical&min_width=450&order=" + order + "&category=" + categoryApiName;
+                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryApiName;
                 break;
             }
-            case "ColorsFragment" : {
-                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&orientation=vertical&min_width=450&order=" + order +"&q=" + categoryName;
+            case "ColorsFragment": {
+                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryName;
                 break;
             }
-
         }
     }
-
 }

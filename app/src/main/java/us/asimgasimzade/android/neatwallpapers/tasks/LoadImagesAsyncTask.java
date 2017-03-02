@@ -36,7 +36,7 @@ import us.asimgasimzade.android.neatwallpapers.R;
 //Downloading data asynchronously
 public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
-
+    int offset;
     private HttpURLConnection urlConnection;
     private ProgressBar mProgressBar;
     private ImagesGridViewAdapter mGridAdapter;
@@ -171,6 +171,8 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
      * @param result is result String we got from InputStreamReader
      */
     private void parseResult(String result, int pageNumber) {
+
+
         try {
             JSONObject rootJson = new JSONObject(result);
             JSONArray hits = rootJson.optJSONArray("hits");
@@ -178,41 +180,72 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             GridItem item;
             if (hits.length() > 0) {
                 for (int i = 0; i < 200; i++) {
-                    item = new GridItem();
+
+                    int width;
+                    int height;
+                    /*int likes;
+                    int favorites;
+                    int views;*/
+
                     JSONObject image = hits.getJSONObject(i);
                     if (image != null) {
-                        item.setImage(image.getString("webformatURL"));
-                        item.setName(image.getString("id"));
-                        item.setAuthor(image.getString("user"));
-                        item.setLink(image.getString("pageURL"));
-                        switch (pageNumber) {
-                            case 0:
-                                item.setNumber(i);
-                                break;
-                            case 1:
-                                item.setNumber(i + 200);
-                                break;
-                            case 2:
-                                item.setNumber(i + 400);
-                                break;
-                            case 3:
-                                item.setNumber(i + 600);
-                                break;
-                            case 4:
-                                item.setNumber(i + 800);
-                                break;
+                        width = image.getInt("imageWidth");
+                        height = image.getInt("imageHeight");
+                       /* favorites = image.getInt("favorites");
+                        likes = image.getInt("likes");
+                        views = image.getInt("views");*/
+
+                        if (imageMeetsRequirements(width, height)) {
+                            item = new GridItem();
+                            item.setImage(image.getString("largeImageURL"));
+                            item.setThumbnail(image.getString("webformatURL"));
+                            item.setName(image.getString("id_hash"));
+                            item.setAuthor(image.getString("user"));
+                            item.setLink(image.getString("fullHDURL"));
+
+                            switch (pageNumber) {
+                                case 0:
+                                    item.setNumber(i - offset);
+                                    break;
+                                case 1:
+                                    item.setNumber(i + 200 - offset);
+                                    break;
+                                case 2:
+                                    item.setNumber(i + 400 - offset);
+                                    break;
+                                case 3:
+                                    item.setNumber(i + 600 - offset);
+                                    break;
+                                case 4:
+                                    item.setNumber(i + 800 - offset);
+                                    break;
+                            }
+                            mGridData.add(item);
+                        } else {
+                            offset++;
                         }
                     }
-
-                    mGridData.add(item);
                 }
-
             }
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean imageMeetsRequirements(int width, int height/*, int views*/) {
+        boolean aspectRatioIsOK = false;
+        /*boolean isPopular = false;*/
+
+        if (width / height <= 2) {
+            aspectRatioIsOK = true;
+        }
+        //likes > 50
+        //favorites >
+        //views >
+        /*if (views > 100) {
+            isPopular = true;
+        }*/
+        return aspectRatioIsOK /*&& isPopular*/;
     }
 
     /**

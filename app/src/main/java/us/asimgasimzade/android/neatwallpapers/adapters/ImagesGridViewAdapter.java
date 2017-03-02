@@ -59,7 +59,7 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem> {
         }
 
         GridItem item = mGridData.get(position);
-        Glide.with(mContext).load(item.getImage()).into(holder.imageView);
+        Glide.with(mContext).load(item.getThumbnail()).into(holder.imageView);
         return row;
     }
 

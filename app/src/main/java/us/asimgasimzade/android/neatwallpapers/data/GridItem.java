@@ -11,8 +11,16 @@ public class GridItem {
     private String name;
     private String author;
     private String link;
+    private String thumbnail;
     private int number;
 
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 
     public String getLink() {
         return link;

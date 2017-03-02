@@ -182,7 +182,7 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
      * @param searchQuery - Search query entered by user in search view
      */
     private void constructUrl(String order, String searchQuery) {
-        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&safesearch=true&per_page=200&orientation=vertical&min_width=450&order=" + order + "&q=" + searchQuery;
+        url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + searchQuery;
     }
 
     @Override

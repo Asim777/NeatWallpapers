@@ -159,7 +159,7 @@ public class SingleImageFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
-                    openImageLinkIntent.setData(Uri.parse(currentImageLink));
+                    openImageLinkIntent.setData(Uri.parse("https://pixabay.com/goto/" + currentImageName + "/"));
                     startActivity(openImageLinkIntent);
                 }
             });
@@ -481,7 +481,6 @@ public class SingleImageFragment extends Fragment {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
-
     }
 
 
