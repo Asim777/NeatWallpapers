@@ -20,6 +20,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
@@ -41,6 +45,14 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
         //Get the search intent that started this activity
         Intent mSearchIntent = getIntent();
         performSearch(mSearchIntent);
+
+        //Initializing the Google Mobile Ads SDK
+        MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
+
+        AdView mAdView = (AdView) findViewById(R.id.search_adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
     }
 
     private void performSearch(Intent searchIntent) {

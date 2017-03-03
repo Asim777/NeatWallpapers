@@ -39,4 +39,15 @@
         android:layout_centerInParent="true"
         android:visibility="gone" />
 
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/search_adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center|bottom"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/ad_unit_id_search_results_activity" />
+
 </RelativeLayout>

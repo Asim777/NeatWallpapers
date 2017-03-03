@@ -42,5 +42,6 @@
     <string name="admob_app_id">ca-app-pub-5015291550861860~9287306639</string>
     <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
     <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
+    <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>
     <string name="unfortunately_there_are_no_results_for_this_request">Unfortunately there are no results for this request.</string>
 </resources>
