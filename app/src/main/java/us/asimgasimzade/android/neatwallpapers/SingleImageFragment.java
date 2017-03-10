@@ -145,6 +145,14 @@ public class SingleImageFragment extends Fragment {
 
             //Downloading and setting image
             ImageView imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
+                            putExtra("url", currentImageUrl);
+                    startActivity(fullImageIntent);
+                }
+            });
             Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).into(imageView);
 
             //Setting author info

@@ -74,6 +74,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="us.asimgasimzade.android.neatwallpapers.FullImageActivity"
+            android:parentActivityName=".SingleImageActivity">
+
+        </activity>
+
         <receiver android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver" />
 
         <receiver

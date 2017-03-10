@@ -112,50 +112,55 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
         if (result == 1) {
             int notificationLargIconBitmapSize = Double.valueOf(notificationImageWidth * 0.7).intValue();
 
-            notificationLargIconBitmap = Bitmap.createBitmap(notificationBitmap, 0, 0, notificationLargIconBitmapSize, notificationLargIconBitmapSize);
-            //Setting content of standard notification
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setLargeIcon(notificationLargIconBitmap)
-                    .setContentTitle("NeatWallpapers")
-                    .setContentText("Check out new wallpapers!")
-                    .setTicker("text")
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            if (notificationBitmap != null) {
+                notificationLargIconBitmap = Bitmap.createBitmap(notificationBitmap, 0, 0,
+                        notificationLargIconBitmapSize, notificationLargIconBitmapSize);
 
-            //Setting new style for expanded notification
-            NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
+                //Setting content of standard notification
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setLargeIcon(notificationLargIconBitmap)
+                        .setContentTitle("NeatWallpapers")
+                        .setContentText("Check out new wallpapers!")
+                        .setTicker("text")
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-            //Set bitmap as big picture to BigPictureStyle
-            bigPictureStyle.bigPicture(notificationBitmap);
+                //Setting new style for expanded notification
+                NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
 
-            // Sets a title for the Inbox in expanded layout
-            bigPictureStyle.setBigContentTitle("NeatWallpapers");
-            //Set style to a Notification Builder
-            builder.setStyle(bigPictureStyle);
-            //Set intent to open the app when clicking on notification
-            Intent notificationIntent = new Intent(context, MainActivity.class);
-            //Put extra so that Main activity knows that app is opened from notification and opens
-            //app on Recent tab
-            notificationIntent.putExtra(NOTIFICATION_ID_KEY, 42);
+                //Set bitmap as big picture to BigPictureStyle
+                bigPictureStyle.bigPicture(notificationBitmap);
 
-            // This ensures that the back button follows the recommended convention for the back key.
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-            // Adds the back stack for the Intent (but not the Intent itself)
-            stackBuilder.addParentStack(MainActivity.class);
-            // Adds the Intent that starts the Activity to the top of the stack.
-            stackBuilder.addNextIntent(notificationIntent);
+                // Sets a title for the Inbox in expanded layout
+                bigPictureStyle.setBigContentTitle("NeatWallpapers");
+                //Set style to a Notification Builder
+                builder.setStyle(bigPictureStyle);
+                //Set intent to open the app when clicking on notification
+                Intent notificationIntent = new Intent(context, MainActivity.class);
+                //Put extra so that Main activity knows that app is opened from notification and opens
+                //app on Recent tab
+                notificationIntent.putExtra(NOTIFICATION_ID_KEY, 42);
 
-            //Set PendingIntent so notification arrives even when app is not running
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            //Set pending intent to notification builder
-            builder.setContentIntent(contentIntent);
-            //To close notification after clicking it
-            builder.setAutoCancel(true);
+                // This ensures that the back button follows the recommended convention for the back key.
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+                // Adds the back stack for the Intent (but not the Intent itself)
+                stackBuilder.addParentStack(MainActivity.class);
+                // Adds the Intent that starts the Activity to the top of the stack.
+                stackBuilder.addNextIntent(notificationIntent);
 
-            //Launch notification
-            NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-            manager.notify(0, builder.build());
+                //Set PendingIntent so notification arrives even when app is not running
+                PendingIntent contentIntent = PendingIntent.getActivity(context, 3, notificationIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                //Set pending intent to notification builder
+                builder.setContentIntent(contentIntent);
+
+                //To close notification after clicking it
+                builder.setAutoCancel(true);
+
+                //Launch notification
+                NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+                manager.notify(0, builder.build());
+            }
         }
     }
 

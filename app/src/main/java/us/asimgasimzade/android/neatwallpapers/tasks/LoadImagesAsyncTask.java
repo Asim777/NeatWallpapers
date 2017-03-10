@@ -36,7 +36,7 @@ import us.asimgasimzade.android.neatwallpapers.R;
 //Downloading data asynchronously
 public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
-    int offset;
+    private int offset;
     private HttpURLConnection urlConnection;
     private ProgressBar mProgressBar;
     private ImagesGridViewAdapter mGridAdapter;
@@ -172,7 +172,6 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
      */
     private void parseResult(String result, int pageNumber) {
 
-
         try {
             JSONObject rootJson = new JSONObject(result);
             JSONArray hits = rootJson.optJSONArray("hits");
@@ -183,17 +182,11 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
                     int width;
                     int height;
-                    /*int likes;
-                    int favorites;
-                    int views;*/
 
                     JSONObject image = hits.getJSONObject(i);
                     if (image != null) {
                         width = image.getInt("imageWidth");
                         height = image.getInt("imageHeight");
-                       /* favorites = image.getInt("favorites");
-                        likes = image.getInt("likes");
-                        views = image.getInt("views");*/
 
                         if (imageMeetsRequirements(width, height)) {
                             item = new GridItem();
@@ -232,20 +225,16 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         }
     }
 
-    private boolean imageMeetsRequirements(int width, int height/*, int views*/) {
-        boolean aspectRatioIsOK = false;
-        /*boolean isPopular = false;*/
-
-        if (width / height <= 2) {
-            aspectRatioIsOK = true;
-        }
-        //likes > 50
-        //favorites >
-        //views >
-        /*if (views > 100) {
-            isPopular = true;
-        }*/
-        return aspectRatioIsOK /*&& isPopular*/;
+    /**
+     * Returning true if aspect ratio meets requirements
+     *
+     * @param width  - width of image
+     * @param height - height of image
+     */
+    private boolean imageMeetsRequirements(int width, int height) {
+        double mWidth = (double) width;
+        double mHeight = (double) height;
+        return (mWidth / mHeight <= 1.7);
     }
 
     /**

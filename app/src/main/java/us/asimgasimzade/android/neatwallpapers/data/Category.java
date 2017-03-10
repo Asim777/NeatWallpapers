@@ -1,5 +1,7 @@
 package us.asimgasimzade.android.neatwallpapers.data;
 
+import android.widget.Toast;
+
 /**
  * Data model class for Category item
  */
