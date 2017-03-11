@@ -120,7 +120,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setLargeIcon(notificationLargIconBitmap)
-                        .setContentTitle("NeatWallpapers")
+                        .setContentTitle(context.getResources().getString(R.string.app_name))
                         .setContentText("Check out new wallpapers!")
                         .setTicker("text")
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
@@ -132,7 +132,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
                 bigPictureStyle.bigPicture(notificationBitmap);
 
                 // Sets a title for the Inbox in expanded layout
-                bigPictureStyle.setBigContentTitle("NeatWallpapers");
+                bigPictureStyle.setBigContentTitle(context.getResources().getString(R.string.app_name));
                 //Set style to a Notification Builder
                 builder.setStyle(bigPictureStyle);
                 //Set intent to open the app when clicking on notification

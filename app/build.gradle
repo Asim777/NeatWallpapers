@@ -59,6 +59,8 @@ dependencies {
     compile 'com.google.firebase:firebase-core'
     compile 'com.google.firebase:firebase-ads:10.0.1'
 
+    compile 'com.commit451:PhotoView:1.2.4'
+
 }
 
 apply plugin: 'com.google.gms.google-services'
