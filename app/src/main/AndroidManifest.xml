@@ -93,7 +93,7 @@
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.FullImageActivity"
             android:parentActivityName=".SingleImageActivity"
-            android:theme="@style/MainTheme.ActionBar.Transparent" />
+            android:theme="@style/MainTheme.ActionBarStyle.Transparent"/>
 
 
         <receiver android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver" />

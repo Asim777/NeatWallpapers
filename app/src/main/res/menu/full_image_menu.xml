@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="us.asimgasimzade.android.neatwallpapers.FullImageActivity">
     <item
-        android:id="@+id/favorite_button"
-        android:icon="@mipmap/ic_favorite"
+
+        android:id="@+id/action_favorite"
+        android:icon="@mipmap/ic_white_favorite"
         android:orderInCategory="100"
-        app:showAsAction="always"
-        android:title="@string/favorite" />
+        android:title="@string/favorites_action_title"
+        app:showAsAction="ifRoom" />
 </menu>

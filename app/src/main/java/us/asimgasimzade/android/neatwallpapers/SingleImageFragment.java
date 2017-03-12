@@ -44,6 +44,8 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract;
 import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
+import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
 
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static java.lang.Thread.sleep;
@@ -52,7 +54,7 @@ import static java.lang.Thread.sleep;
  * Fragment that holds single image page in SingleImage view pager
  */
 
-public class SingleImageFragment extends Fragment {
+public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyncResponse {
 
     private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
@@ -77,16 +79,17 @@ public class SingleImageFragment extends Fragment {
     int currentPosition;
     boolean directoryNotCreated;
     View rootView;
-    Cursor cursor;
     Operation operation;
     boolean imageIsFavorite;
     // Progress Dialog
     private ProgressDialog progressDialog;
+    SingleImageFragment fragmentInstance;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        fragmentInstance = this;
 
         //Getting url of current selected image from ImagesDataClass using imageNumber from
         // intent and ViewPager page position
@@ -119,8 +122,8 @@ public class SingleImageFragment extends Fragment {
         }
 
         if (currentImagesList.isEmpty()) {
-                fragmentKilled = true;
-                getActivity().finish();
+            fragmentKilled = true;
+            getActivity().finish();
         } else {
             getImageAttributes();
         }
@@ -199,14 +202,17 @@ public class SingleImageFragment extends Fragment {
             //-----------------------------------------------------------------------------------------
 
             favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
-            new SingleImageFragment.ImageIsFavoriteTask().execute();
+            new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName, favoriteButton).execute();
 
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //When favorite button inside SingleImageActivity is clicked, we are adding this
                     //image to Favorites database and changing background of a button
-                    new SingleImageFragment.AddOrRemoveFavoriteAsyncTask().execute();
+                    new AddOrRemoveFavoriteAsyncTask(fragmentInstance, imageIsFavorite, getActivity(),
+                            currentImageName, favoriteButton).execute();
+                    //Setting delegate back to this instance of SingleImageFragment
+
                     //Sending back return intent to FavoritesFragment to update it's GridView with new data
                     Intent databaseIsChangedIntent = new Intent();
                     getActivity().setResult(Activity.RESULT_OK, databaseIsChangedIntent);
@@ -248,7 +254,8 @@ public class SingleImageFragment extends Fragment {
                     // if it already exists Toast message, saying that it does
                     operation = Operation.DOWNLOAD;
                     if (fileExists(imageFileForChecking)) {
-                        Toast.makeText(getActivity().getApplicationContext(), R.string.image_already_exists_message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity().getApplicationContext(),
+                                R.string.image_already_exists_message, Toast.LENGTH_SHORT).show();
                     } else {
                         //If it doesn't exist, download it, but first check if we have permission to do it
                         downloadImageIfPermitted();
@@ -359,11 +366,11 @@ public class SingleImageFragment extends Fragment {
                                 //Checking the result and giving feedback to user about success
                                 if (fileExists(imageFile)) {
                                     setWallpaper(imageFile);
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.setting_wallpaper_message,
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getActivity().getApplicationContext(),
+                                            R.string.setting_wallpaper_message, Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.problem_while_setting_wallpaper_message,
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getActivity().getApplicationContext(),
+                                            R.string.problem_while_setting_wallpaper_message, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -406,7 +413,8 @@ public class SingleImageFragment extends Fragment {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.permission_granted_message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.permission_granted_message,
+                            Toast.LENGTH_SHORT).show();
                     downloadImage();
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
@@ -492,86 +500,13 @@ public class SingleImageFragment extends Fragment {
     }
 
 
-    public enum Operation {
-        DOWNLOAD, SET_AS_WALLPAPER
+    private enum Operation {
+        DOWNLOAD, SET_AS_WALLPAPER;
     }
 
-    class ImageIsFavoriteTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            FavoritesDBHelper dbHelper = new FavoritesDBHelper(getActivity());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String selectString = "SELECT * FROM " + FavoritesDBContract.FavoritesEntry.TABLE_NAME
-                    + " WHERE " + FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " =?";
-
-            try {
-                cursor = db.rawQuery(selectString, new String[]{currentImageName});
-                imageIsFavorite = cursor.moveToFirst();
-            } finally {
-                cursor.close();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (imageIsFavorite) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    favoriteButton.setBackground(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite_selected));
-                } else {
-                    //noinspection deprecation
-                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite_selected));
-                }
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    favoriteButton.setBackground(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite));
-                } else {
-                    //noinspection deprecation
-                    favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite));
-                }
-            }
-        }
-    }
-
-    public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            FavoritesDBHelper dbHelper = new FavoritesDBHelper(getActivity());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            // Define 'where' part of query
-            String selection = FavoritesDBContract.FavoritesEntry.IMAGE_NAME + " = ?";
-
-            if (imageIsFavorite) {
-                // Issue SQL statement
-                db.delete(FavoritesDBContract.FavoritesEntry.TABLE_NAME, selection, new String[]{currentImageName});
-                return null;
-            } else {
-                //Create content values for new database entry
-                ContentValues values = new ContentValues();
-                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_NAME, currentImageName);
-                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_URL, currentImageUrl);
-                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_AUTHOR, currentAuthorInfo);
-                values.put(FavoritesDBContract.FavoritesEntry.IMAGE_LINK, currentImageLink);
-
-                // Insert the new row using our values
-                db.insert(FavoritesDBContract.FavoritesEntry.TABLE_NAME, null, values);
-                return null;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (!imageIsFavorite) {
-                Toast.makeText(getActivity(), R.string.image_added_to_favorites_message, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getActivity(), R.string.image_removed_from_favorites_message, Toast.LENGTH_SHORT).show();
-            }
-            new ImageIsFavoriteTask().execute();
-        }
+    @Override
+    public void updateImageIsFavorite(boolean response) {
+        imageIsFavorite = response;
     }
 }
+

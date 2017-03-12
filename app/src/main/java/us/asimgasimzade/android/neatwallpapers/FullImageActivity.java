@@ -1,21 +1,18 @@
 package us.asimgasimzade.android.neatwallpapers;
 
-import android.os.Build;
+
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v7.app.ActionBar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -34,47 +31,38 @@ public class FullImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_image);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.full_image_toolbar);
+
+        //Set action bar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //Enable up button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        final Drawable upArrow = ContextCompat.getDrawable(this, R.mipmap.ic_up);
+        upArrow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        if (toolbar != null) {
-            //Get status bar height
-            int statusBarHeight = 0;
-            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-            if (resourceId > 0) {
-                statusBarHeight = getResources().getDimensionPixelSize(resourceId);
-            }
-
-            //Apply top padding to a toolbar to fix content going under transparent status bar issue
-            AppBarLayout.LayoutParams toolbarParams = new AppBarLayout.LayoutParams
-                    (ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            toolbarParams.setMargins(0, statusBarHeight, 0, 0);
-            toolbar.setLayoutParams(toolbarParams);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
-
-        //Removing title from action bar
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        //Make the activity full screen
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        //Get the imageview and wrap it in photoViewAttacher so that user can zoom, scroll
+        // and double tap the imageview
         ImageView imageView = (ImageView) findViewById(R.id.fullImageView);
         PhotoViewAttacher photoViewAttacher;
         photoViewAttacher = new PhotoViewAttacher(imageView);
+        photoViewAttacher.setMaximumScale(2);
         photoViewAttacher.update();
 
         //Get image URL from the intent
         String imageUrl = getIntent().getStringExtra("url");
         Glide.with(getApplicationContext()).load(imageUrl).into(imageView);
+
+
+       /* new ImageIsFavoriteTask().execute();*/
 
     }
 
@@ -90,12 +78,17 @@ public class FullImageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-
         switch (id) {
-            case R.id.favorite_button: {
-                Toast.makeText(this, "Favorite pressed", Toast.LENGTH_LONG);
+            case R.id.action_favorite:
+                //TODO: Copy favorite code from SingleImageFragment
+                return true;
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default: {
+                return super.onOptionsItemSelected(item);
             }
         }
-        return super.onOptionsItemSelected(item);
+
     }
 }

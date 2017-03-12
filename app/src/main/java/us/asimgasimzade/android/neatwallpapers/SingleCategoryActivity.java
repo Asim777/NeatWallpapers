@@ -41,7 +41,9 @@ public class SingleCategoryActivity extends AppCompatActivity {
         MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
         AdView mAdView = (AdView) findViewById(R.id.categories_adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
+                .build();
         mAdView.loadAd(adRequest);
 
         //Get categoryApiName to use in URL and Category name to use in activity title from intent
@@ -68,9 +70,12 @@ public class SingleCategoryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         switch (id) {
-            case R.id.action_sort: {
+
+            case R.id.action_sort:
 
                 String[] sortOptionArray = new String[]{
                         "Popular", "Latest",
@@ -103,18 +108,19 @@ public class SingleCategoryActivity extends AppCompatActivity {
                     }
                 });
                 return true;
-            }
-            case android.R.id.home: {
+
+            case android.R.id.home:
                 //To fix bug when clicking up button on toolbar when inside singleCategoryActivity it
                 // goes back to MainActivity and reloads it, however when clicking phone back button
                 // it just closes the SingleCategoryActivity and goes back to MainActivity without
                 // reloading. That's why we are calling onBackPressed() when up button is clicked
                 onBackPressed();
                 return true;
-            }
-            default:
-                return super.onContextItemSelected(item);
+
+
+            default: return super.onContextItemSelected(item);
         }
+
     }
 
     private void loadImages() {
