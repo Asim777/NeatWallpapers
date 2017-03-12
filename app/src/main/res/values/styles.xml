@@ -43,4 +43,12 @@
         <item name="android:textSize">15sp</item>
     </style>
 
+    <!-- Transparent Action Bar -->
+    <style name="MainTheme.ActionBarStyle.Transparent" parent="MainTheme">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="colorPrimary">@android:color/black</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+    </style>
+
 </resources>
