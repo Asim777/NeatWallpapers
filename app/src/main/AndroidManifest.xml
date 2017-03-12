@@ -8,8 +8,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -20,34 +20,46 @@
         android:supportsRtl="true"
         android:theme="@style/MainTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
+
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.MainActivity"
-            android:windowSoftInputMode="adjustPan">>
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
         </activity>
+
+
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.SingleImageActivity"
             android:parentActivityName="us.asimgasimzade.android.neatwallpapers.MainActivity">
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="us.asimgasimzade.android.neatwallpapers.MainActivity" />
+
         </activity>
+
+
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.SingleCategoryActivity"
             android:parentActivityName="us.asimgasimzade.android.neatwallpapers.MainActivity"
             android:theme="@style/SingleCategoryTheme">
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="us.asimgasimzade.android.neatwallpapers.MainActivity" />
+
         </activity>
+
 
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.SearchResultsActivity"
             android:launchMode="singleTop"
             android:parentActivityName="us.asimgasimzade.android.neatwallpapers.MainActivity"
             android:theme="@style/SingleCategoryTheme">
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -64,33 +76,41 @@
 
         </activity>
 
+
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.SplashActivity"
             android:theme="@style/SplashTheme">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
 
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.FullImageActivity"
-            android:parentActivityName=".SingleImageActivity">
+            android:parentActivityName=".SingleImageActivity"
+            android:theme="@style/MainTheme.ActionBar.Transparent" />
 
-        </activity>
 
         <receiver android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver" />
+
 
         <receiver
             android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.BootReceiver"
             android:enabled="true"
             android:exported="true">
+
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
+
         </receiver>
+
 
         <provider
             android:name="us.asimgasimzade.android.neatwallpapers.SearchSuggestionProvider"

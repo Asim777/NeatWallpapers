@@ -1,8 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="MainTheme" parent="MainTheme.Base">
-    </style>
+    <style name="MainTheme" parent="MainTheme.Base"/>
 
     <style name="MainTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowNoTitle">true</item>
@@ -41,6 +40,14 @@
     <style name="mySearchResult" parent="TextAppearance.AppCompat.SearchResult.Title">
         <item name="android:textColor">#000000</item>
         <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- Transparent Action Bar -->
+    <style name="MainTheme.ActionBarStyle.Transparent" parent="MainTheme">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="colorPrimary">@android:color/black</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
     </style>
 
 </resources>

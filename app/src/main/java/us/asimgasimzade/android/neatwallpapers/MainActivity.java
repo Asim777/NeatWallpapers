@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-
         //We need this sharedPreference in order to automatically select the tab that was selected
         // before exiting app last time
         new Thread(new Runnable() {

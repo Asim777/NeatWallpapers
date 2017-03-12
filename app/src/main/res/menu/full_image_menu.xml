@@ -2,12 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="us.asimgasimzade.android.neatwallpapers.MainActivity">
+    tools:context="us.asimgasimzade.android.neatwallpapers.FullImageActivity">
     <item
-        android:id="@+id/search"
-        android:icon="@mipmap/ic_search"
+        android:id="@+id/favorite_button"
+        android:icon="@mipmap/ic_favorite"
         android:orderInCategory="100"
-        android:title="@string/search_action_title"
         app:showAsAction="always"
-        app:actionViewClass="android.support.v7.widget.SearchView"/>
+        android:title="@string/favorite" />
 </menu>
