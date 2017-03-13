@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="us.asimgasimzade.android.neatwallpapers.SingleCategoryActivity">
+    tools:context="us.asimgasimzade.android.neatwallpapers.MainActivity">
     <item
         android:id="@+id/search"
         android:icon="@mipmap/ic_search"
         android:orderInCategory="100"
         android:title="@string/search_action_title"
-        app:showAsAction="always"
-        app:actionViewClass="android.support.v7.widget.SearchView"/>
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always" />
 </menu>

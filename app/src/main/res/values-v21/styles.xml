@@ -21,7 +21,7 @@
     </style>
 
     <!-- Transparent Action Bar -->
-    <style name="MainTheme.ActionBarStyle.Transparent" parent="MainTheme">
+    <style name="MainTheme.ActionBar.Transparent" parent="MainTheme">
         <item name="android:windowContentOverlay">@null</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="colorPrimary">@android:color/black</item>

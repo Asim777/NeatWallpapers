@@ -10,14 +10,14 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
+import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract.FavoritesEntry;
 import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
-import us.asimgasimzade.android.neatwallpapers.R;
-
-import java.util.ArrayList;
 
 /**
  * This takes takes data from Favorites database and populates GridView in FavoritesFragment
@@ -69,6 +69,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
                 GridItem item = new GridItem();
                 item.setName(cursor.getString(1));
                 item.setImage(cursor.getString(2));
+                item.setThumbnail(cursor.getString(2));
                 item.setNumber(i);
                 item.setAuthor(cursor.getString(3));
                 item.setLink(cursor.getString(4));
