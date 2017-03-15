@@ -4,12 +4,8 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.widget.Button;
 
-import us.asimgasimzade.android.neatwallpapers.IsImageFavoriteAsyncResponse;
-import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.IsImageFavoriteAsyncResponseInterface;
 import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract;
 import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
 
@@ -19,13 +15,13 @@ import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
  */
 
 public class ImageIsFavoriteTask extends AsyncTask<String, Void, Void> {
-    public IsImageFavoriteAsyncResponse mDelegate = null;
+    public IsImageFavoriteAsyncResponseInterface mDelegate = null;
     private boolean mImageIsFavorite;
     private Activity mActivity;
     private Cursor mCursor;
     private String mCurrentImageName;
 
-    public ImageIsFavoriteTask(IsImageFavoriteAsyncResponse delegate, boolean imageIsFavorite, Activity activity, String currentImageName) {
+    public ImageIsFavoriteTask(IsImageFavoriteAsyncResponseInterface delegate, boolean imageIsFavorite, Activity activity, String currentImageName) {
         mImageIsFavorite = imageIsFavorite;
         mActivity = activity;
         mCurrentImageName = currentImageName;

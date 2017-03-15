@@ -1,5 +1,7 @@
 package us.asimgasimzade.android.neatwallpapers;
 
-public interface IsImageFavoriteAsyncResponse {
+public interface IsImageFavoriteAsyncResponseInterface {
+
     void updateImageIsFavorite(boolean response);
+
 }

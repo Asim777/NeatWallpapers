@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,7 +17,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +26,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
@@ -42,42 +36,46 @@ import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
 
-import static android.support.v4.content.PermissionChecker.checkSelfPermission;
-import static java.lang.Thread.sleep;
+import static us.asimgasimzade.android.neatwallpapers.Utils.createTarget;
+import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImage;
+import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImageIfPermitted;
+import static us.asimgasimzade.android.neatwallpapers.Utils.fileExists;
+import static us.asimgasimzade.android.neatwallpapers.Utils.setWallpaper;
+import static us.asimgasimzade.android.neatwallpapers.Utils.showMessageOKCancel;
 
 /**
  * Fragment that holds single image page in SingleImage view pager
  */
 
-public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyncResponse {
+public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyncResponseInterface,
+        DownloadTargetInterface {
 
-    private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
+
     private static final int REQUEST_PERMISSION_SETTING = 43;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     private static final int FULL_IMAGE_REQUEST_CODE = 105;
-    Button favoriteButton;
-    Button setAsWallpaperButton;
-    Button downloadButton;
-    Button backButton;
-    SimpleTarget<Bitmap> target;
-    File imageFile;
-    File imageFileForChecking;
-    FileOutputStream outputStream;
-    GridItem currentItem;
-    ArrayList<GridItem> currentImagesList;
+    int currentPosition;
+
+    boolean imageIsFavorite;
+    boolean fragmentKilled;
     String currentImageUrl;
     String currentAuthorInfo;
     String currentImageLink;
     String currentImageName;
     String source;
     String url;
-    boolean fragmentKilled;
-    int currentPosition;
-    boolean directoryNotCreated;
+    File imageFileForChecking;
+    Button favoriteButton;
+    Button setAsWallpaperButton;
+    Button downloadButton;
+    Button backButton;
+    SimpleTarget<Bitmap> target;
+    GridItem currentItem;
+    ArrayList<GridItem> currentImagesList;
     View rootView;
     Operation operation;
-    boolean imageIsFavorite;
     SingleImageFragment fragmentInstance;
+    Activity activityInstance;
     // Progress Dialog
     private ProgressDialog progressDialog;
 
@@ -86,6 +84,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
         super.onCreate(savedInstanceState);
 
         fragmentInstance = this;
+        activityInstance = getActivity();
 
         //Getting url of current selected image from ImagesDataClass using imageNumber from
         // intent and ViewPager page position
@@ -93,7 +92,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
         currentPosition = bundle.getInt("image_number");
         source = bundle.getString("image_source");
         url = bundle.getString("current_url");
-
 
         assert source != null;
         switch (source) {
@@ -148,7 +146,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
+                    Intent fullImageIntent = new Intent(getActivity(), FullImageActivityInterface.class).
                             putExtra("url", currentImageUrl).
                             putExtra("author", currentAuthorInfo).
                             putExtra("link", currentImageLink).
@@ -230,11 +228,14 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
                     //Change the current Wallpaper:
                     //if image doesn't exist then download it first
                     operation = Operation.SET_AS_WALLPAPER;
+                    //Creating target
+                    createTarget(activityInstance, fragmentInstance, operation, currentImageName, imageFileForChecking, progressDialog);
+
                     if (!fileExists(imageFileForChecking)) {
-                        downloadImageIfPermitted();
+                        downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
                     } else {
                         //if it exists, just set it as wallpaper
-                        setWallpaper(imageFileForChecking);
+                        setWallpaper(activityInstance, imageFileForChecking);
                     }
                 }
             });
@@ -252,130 +253,21 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
                     //Downloading image
                     // if it already exists Toast message, saying that it does
                     operation = Operation.DOWNLOAD;
+                    //Creating target
+                    createTarget(activityInstance, fragmentInstance, operation, currentImageName, imageFileForChecking, progressDialog);
                     if (fileExists(imageFileForChecking)) {
-                        Toast.makeText(getActivity().getApplicationContext(),
-                                R.string.image_already_exists_message, Toast.LENGTH_SHORT).show();
+                        SingleToast.show(getActivity().getApplicationContext(),
+                                getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
                     } else {
                         //If it doesn't exist, download it, but first check if we have permission to do it
-                        downloadImageIfPermitted();
+                        downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
                     }
                 }
             });
 
+            progressDialog = new ProgressDialog(activityInstance);
 
-            target = new SimpleTarget<Bitmap>() {
 
-                @Override
-                public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
-
-                    new AsyncTask<Void, Integer, Boolean>() {
-                        @Override
-                        protected void onPreExecute() {
-                            super.onPreExecute();
-                            showProgressDialog();
-                        }
-
-                        @Override
-                        protected Boolean doInBackground(Void... voids) {
-
-                            final int totalProgressTime = 100;
-                            //Specifying path to our app's directory
-                            File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
-                            //Creating imageFile using path to our custom album
-                            imageFile = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
-
-                            //Creating our custom album directory, if it's not created, logging error message
-                            if (!path.mkdirs()) {
-                                directoryNotCreated = true;
-                            }
-
-                            //We are checking if there is ExternalStorage mounted on device and is it
-                            //readable
-                            if (isExternalStorageWritable()) {
-                                int jumpTime = 5;
-                                try {
-                                    outputStream = new FileOutputStream(imageFile);
-                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-
-                                    while (jumpTime < totalProgressTime) {
-                                        try {
-                                            sleep(70);
-                                            //publishing progress
-                                            //after that onProgressUpdate will be called
-                                            publishProgress(jumpTime);
-                                            jumpTime += 5;
-
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    try {
-                                        if (outputStream != null) {
-                                            outputStream.flush();
-                                            outputStream.close();
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                // Tell the media scanner about the new file so that it is
-                                // immediately available to the user.
-                                MediaScannerConnection.scanFile(getActivity().getApplicationContext(),
-                                        new String[]{imageFile.getAbsolutePath()},
-                                        null,
-                                        new MediaScannerConnection.OnScanCompletedListener() {
-                                            public void onScanCompleted(String path, Uri uri) {
-
-                                            }
-                                        }
-                                );
-                            }
-                            return null;
-                        }
-
-                        @Override
-                        protected void onProgressUpdate(Integer... values) {
-                            super.onProgressUpdate(values);
-                            //Setting progress value
-                            /*progressDialog.setMax(100);*/
-                            progressDialog.setProgress(values[0]);
-                        }
-
-                        @Override
-                        protected void onPostExecute(Boolean aBoolean) {
-                            //Dismiss the progress dialog
-                            if (progressDialog != null) {
-                                progressDialog.dismiss();
-                            }
-
-                            if (operation == Operation.DOWNLOAD) {
-                                if (fileExists(imageFile)) {
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.image_successfully_saved_message,
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getActivity(),
-                                            R.string.problem_downloading_image_message,
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                //Checking the result and giving feedback to user about success
-                                if (fileExists(imageFile)) {
-                                    setWallpaper(imageFile);
-                                    Toast.makeText(getActivity().getApplicationContext(),
-                                            R.string.setting_wallpaper_message, Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getActivity().getApplicationContext(),
-                                            R.string.problem_while_setting_wallpaper_message, Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }
-                    }.execute();
-                }
-            };
         }
         return rootView;
     }
@@ -384,28 +276,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
         //Sending back return intent to FavoritesFragment to update it's GridView with new data
         Intent databaseIsChangedIntent = new Intent();
         getActivity().setResult(result, databaseIsChangedIntent);
-    }
-
-    private void downloadImageIfPermitted() {
-        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
-        if (isPermissionWriteToExternalStorageGranted()) {
-            //If it's granted, just download the image
-            downloadImage();
-        } else {
-            //If it's not granted, request it
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
-    }
-
-    private void downloadImage() {
-        //We have permission, so we can download the image
-        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
-    }
-
-    private boolean isPermissionWriteToExternalStorageGranted() {
-        return (checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED);
     }
 
     @Override
@@ -418,14 +288,14 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.permission_granted_message,
-                            Toast.LENGTH_SHORT).show();
-                    downloadImage();
+                    SingleToast.show(getActivity().getApplicationContext(), getString(R.string.permission_granted_message),
+                            Toast.LENGTH_SHORT);
+                    downloadImage(activityInstance, currentImageUrl, target);
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(getString(R.string.permission_message),
+                        showMessageOKCancel(activityInstance, getString(R.string.permission_message),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -445,56 +315,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
 
     }
 
-    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(getContext())
-                .setMessage(message)
-                .setPositiveButton("Go to settings", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
-    }
-
-    protected void showProgressDialog() {
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(R.string.message_downloading_image));
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setIndeterminate(false);
-        progressDialog.setMax(100);
-        progressDialog.setCancelable(false);
-        progressDialog.setProgress(0);
-        progressDialog.show();
-    }
-
-    private void setWallpaper(File imageFile) {
-        Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
-        Uri imageUri = Uri.fromFile(imageFile);
-        setAsIntent.setDataAndType(imageUri, "image/*");
-        setAsIntent.putExtra("jpg", "image/*");
-        startActivityForResult(Intent.createChooser(setAsIntent, getString(R.string.set_as)), REQUEST_ID_SET_AS_WALLPAPER);
-    }
-
-    /**
-     * *This method checks if downloading image was successful so we can show according feedback to
-     * the user
-     * Returns boolean - true if successful and false if unsuccessful
-     */
-    private boolean fileExists(File image) {
-        boolean result;
-        result = image.exists() && image.isFile();
-        return result;
-    }
-
-    /**
-     * This method checks if there is External Storage currently mounted in device. It returns boolean
-     *
-     * @return boolean, true if External Storage is mounted, false if not
-     */
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
     @Override
     public void onPause() {
         super.onPause();
@@ -509,6 +329,13 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
         super.onResume();
         new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK && requestCode == FULL_IMAGE_REQUEST_CODE) {
+            sendFavoritesOKResult(Activity.RESULT_OK);
+        }
     }
 
     @Override
@@ -533,14 +360,12 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && requestCode == FULL_IMAGE_REQUEST_CODE) {
-            sendFavoritesOKResult(Activity.RESULT_OK);
-        }
+    public void getTheTarget(SimpleTarget<Bitmap> response) {
+        target = response;
     }
 
-    private enum Operation {
-        DOWNLOAD, SET_AS_WALLPAPER;
+    enum Operation {
+        DOWNLOAD, SET_AS_WALLPAPER
     }
 }
 

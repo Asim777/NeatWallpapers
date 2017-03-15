@@ -47,4 +47,6 @@
     <string name="full_image_description">Full image</string>
     <string name="favorites_action_title">Favorites</string>
     <string name="up_action_title">Up button</string>
+    <string name="download_action_title">Download</string>
+    <string name="set_action_title">Set</string>
 </resources>

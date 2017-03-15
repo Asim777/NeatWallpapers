@@ -2,12 +2,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="us.asimgasimzade.android.neatwallpapers.FullImageActivity">
-    <item
+    tools:context="us.asimgasimzade.android.neatwallpapers.FullImageActivityInterface">
 
+    <item
+        android:id="@+id/action_set"
+        android:icon="@mipmap/ic_set"
+        android:orderInCategory="100"
+        android:title="@string/set_action_title"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_download"
+        android:icon="@mipmap/ic_download"
+        android:orderInCategory="101"
+        android:title="@string/download_action_title"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_favorite"
         android:icon="@mipmap/ic_white_favorite"
-        android:orderInCategory="100"
+        android:orderInCategory="102"
         android:title="@string/favorites_action_title"
         app:showAsAction="ifRoom" />
+
 </menu>
