@@ -91,7 +91,7 @@
 
 
         <activity
-            android:name="us.asimgasimzade.android.neatwallpapers.FullImageActivityInterface"
+            android:name="us.asimgasimzade.android.neatwallpapers.FullImageActivity"
             android:parentActivityName=".SingleImageActivity"
             android:theme="@style/MainTheme.ActionBarStyle.Transparent" />
 

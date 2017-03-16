@@ -78,6 +78,21 @@ class Utils {
         }
     }
 
+    /**
+     * Overriding the same method as above without Fragment argument, for when it's called from Activity
+     */
+    static void downloadImageIfPermitted(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
+        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
+        if (isPermissionWriteToExternalStorageGranted(thisActivity)) {
+            //If it's granted, just download the image
+            downloadImage(thisActivity, currentImageUrl, target);
+        } else {
+            //If it's not granted, request it
+            ActivityCompat.requestPermissions(thisActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
     static void downloadImage(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
         //We have permission, so we can download the image
         Glide.with(thisActivity.getApplicationContext()).load(currentImageUrl).asBitmap().into(target);

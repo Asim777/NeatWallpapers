@@ -146,7 +146,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent fullImageIntent = new Intent(getActivity(), FullImageActivityInterface.class).
+                    Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
                             putExtra("url", currentImageUrl).
                             putExtra("author", currentAuthorInfo).
                             putExtra("link", currentImageLink).
@@ -182,6 +182,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
             //Creating imageFile using path to our custom album
             imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
 
+            progressDialog = new ProgressDialog(activityInstance);
 
             //-----------------------------------------------------------------------------------------
             //Back button
@@ -253,6 +254,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
                     //Downloading image
                     // if it already exists Toast message, saying that it does
                     operation = Operation.DOWNLOAD;
+
                     //Creating target
                     createTarget(activityInstance, fragmentInstance, operation, currentImageName, imageFileForChecking, progressDialog);
                     if (fileExists(imageFileForChecking)) {
@@ -264,8 +266,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
                     }
                 }
             });
-
-            progressDialog = new ProgressDialog(activityInstance);
 
 
         }
