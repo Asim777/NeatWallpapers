@@ -14,10 +14,9 @@
         android:drawSelectorOnTop="true"
         android:focusable="true"
         android:gravity="center"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
         android:listSelector="@android:color/transparent"
-        android:layout_marginBottom="?attr/actionBarSize"/>
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth" />
 
     <ProgressBar
         android:id="@+id/progressBar"
