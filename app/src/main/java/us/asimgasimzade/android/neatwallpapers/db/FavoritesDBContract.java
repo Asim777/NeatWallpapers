@@ -1,4 +1,4 @@
-package us.asimgasimzade.android.neatwallpapers.favorites_db;
+package us.asimgasimzade.android.neatwallpapers.db;
 
 import android.provider.BaseColumns;
 

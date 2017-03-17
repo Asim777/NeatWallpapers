@@ -1,6 +1,6 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.utils;
 
 //Little callback interface to call from asyntask when there are no results
-public interface NoResultsCallback {
+public interface NoResultsCallbackInterface {
     void noResults();
 }

@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#33000000"
+        android:background="@color/single_image_transparent_phone"
         android:orientation="vertical">
 
         <LinearLayout

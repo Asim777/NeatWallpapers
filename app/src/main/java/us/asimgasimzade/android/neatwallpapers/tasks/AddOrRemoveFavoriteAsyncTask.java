@@ -6,11 +6,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import us.asimgasimzade.android.neatwallpapers.IsImageFavoriteAsyncResponseInterface;
+import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
 import us.asimgasimzade.android.neatwallpapers.R;
-import us.asimgasimzade.android.neatwallpapers.SingleToast;
-import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract;
-import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
+import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
+import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBContract;
+import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBHelper;
 
 /**
  * This task handles adding image to Favorites and removing image from Favorites
@@ -24,9 +24,9 @@ public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<String, Void, Void> 
     private String mCurrentImageUrl;
     private String mCurrentAuthorInfo;
     private String mCurrentImageLink;
-    private IsImageFavoriteAsyncResponseInterface mDelegate;
+    private IsImageFavoriteResponseInterface mDelegate;
 
-    public AddOrRemoveFavoriteAsyncTask(IsImageFavoriteAsyncResponseInterface delegate, boolean imageIsFavorite,
+    public AddOrRemoveFavoriteAsyncTask(IsImageFavoriteResponseInterface delegate, boolean imageIsFavorite,
                                         Activity activity, String currentImageName, String currentImageUrl,
                                         String currentAuthorInfo, String currentImageLink) {
         mDelegate = delegate;

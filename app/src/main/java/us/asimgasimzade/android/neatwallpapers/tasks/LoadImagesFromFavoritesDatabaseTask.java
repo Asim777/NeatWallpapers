@@ -16,8 +16,8 @@ import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
-import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract.FavoritesEntry;
-import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
+import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBContract.FavoritesEntry;
+import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBHelper;
 
 /**
  * This takes takes data from Favorites database and populates GridView in FavoritesFragment

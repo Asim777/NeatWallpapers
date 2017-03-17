@@ -1,4 +1,4 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.content.Context;
 import android.widget.Toast;

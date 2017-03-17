@@ -26,12 +26,13 @@ import com.google.android.gms.ads.MobileAds;
 
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.utils.NoResultsCallbackInterface;
 
 /**
  * This Activity shows search result as gridView
  */
 
-public class SearchResultsActivity extends AppCompatActivity implements NoResultsCallback {
+public class SearchResultsActivity extends AppCompatActivity implements NoResultsCallbackInterface {
     String url;
     View rootView;
     String searchQuery;
@@ -52,6 +53,7 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
         AdView mAdView = (AdView) findViewById(R.id.search_adView);
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
+                .addTestDevice("256571F20E046FFBCCB1FF45FC193BC6")
                 .build();
         mAdView.loadAd(adRequest);
 

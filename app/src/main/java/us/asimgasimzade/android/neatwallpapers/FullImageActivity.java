@@ -39,20 +39,23 @@ import java.io.File;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
+import us.asimgasimzade.android.neatwallpapers.utils.DownloadTargetInterface;
+import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
+import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
-import static us.asimgasimzade.android.neatwallpapers.R.id.rootView;
-import static us.asimgasimzade.android.neatwallpapers.Utils.createTarget;
-import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImage;
-import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImageIfPermitted;
-import static us.asimgasimzade.android.neatwallpapers.Utils.fileExists;
-import static us.asimgasimzade.android.neatwallpapers.Utils.showMessageOKCancel;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.createTarget;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImageIfPermitted;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
 
 /**
  * This activity opens when user clicks on image from SingleImageActivity to see the full
  * scrollable version of image
  */
 
-public class FullImageActivity extends AppCompatActivity implements IsImageFavoriteAsyncResponseInterface,
+public class FullImageActivity extends AppCompatActivity implements IsImageFavoriteResponseInterface,
         DownloadTargetInterface {
 
     private static final int REQUEST_PERMISSION_SETTING = 43;

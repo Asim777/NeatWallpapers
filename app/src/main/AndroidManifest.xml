@@ -83,7 +83,6 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -94,6 +93,21 @@
             android:name="us.asimgasimzade.android.neatwallpapers.FullImageActivity"
             android:parentActivityName=".SingleImageActivity"
             android:theme="@style/MainTheme.ActionBarStyle.Transparent" />
+
+        <activity
+            android:name="us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/SingleCategoryTheme">
+
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+
+        </activity>
 
 
         <receiver android:name="us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver" />

@@ -5,9 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
-import us.asimgasimzade.android.neatwallpapers.IsImageFavoriteAsyncResponseInterface;
-import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBContract;
-import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
+import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
+import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBContract;
+import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBHelper;
 
 /**
  * This task decides whether image is currently in favorites or not and changes heart shaped Favorite
@@ -15,13 +15,13 @@ import us.asimgasimzade.android.neatwallpapers.favorites_db.FavoritesDBHelper;
  */
 
 public class ImageIsFavoriteTask extends AsyncTask<String, Void, Void> {
-    public IsImageFavoriteAsyncResponseInterface mDelegate = null;
+    public IsImageFavoriteResponseInterface mDelegate = null;
     private boolean mImageIsFavorite;
     private Activity mActivity;
     private Cursor mCursor;
     private String mCurrentImageName;
 
-    public ImageIsFavoriteTask(IsImageFavoriteAsyncResponseInterface delegate, boolean imageIsFavorite, Activity activity, String currentImageName) {
+    public ImageIsFavoriteTask(IsImageFavoriteResponseInterface delegate, boolean imageIsFavorite, Activity activity, String currentImageName) {
         mImageIsFavorite = imageIsFavorite;
         mActivity = activity;
         mCurrentImageName = currentImageName;

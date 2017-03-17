@@ -1,4 +1,4 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.graphics.Bitmap;
 

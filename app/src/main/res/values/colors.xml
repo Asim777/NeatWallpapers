@@ -14,4 +14,6 @@
     <color name="darkBackground">#e2e2e2</color>
     <color name="slightlyDarkBackground">#f2f2f2</color>
     <color name="lightBackground">#f0f0f0</color>
+    <color name="single_image_transparent_phone">#33000000</color>
+    <color name="single_image_transparent_tablet">#66000000</color>
 </resources>

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import us.asimgasimzade.android.neatwallpapers.adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
-import us.asimgasimzade.android.neatwallpapers.NoResultsCallback;
+import us.asimgasimzade.android.neatwallpapers.utils.NoResultsCallbackInterface;
 import us.asimgasimzade.android.neatwallpapers.R;
 
 /**
@@ -46,7 +46,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private String mUrl;
     private String mSource;
     private int numberOfPages = 1;
-    private WeakReference<NoResultsCallback> noResultsCallbackReference;
+    private WeakReference<NoResultsCallbackInterface> noResultsCallbackReference;
 
 
     public LoadImagesAsyncTask(Context context, View rootView, String url, String source) {
@@ -55,7 +55,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         mUrl = url;
         mSource = source;
         if (mSource.equals("search")) {
-            noResultsCallbackReference = new WeakReference<>((NoResultsCallback) context);
+            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) context);
         }
     }
 
@@ -138,7 +138,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             break;
             case "search": {
                 ImagesDataClass.searchResultImagesList = mGridData;
-                NoResultsCallback ref = noResultsCallbackReference.get();
+                NoResultsCallbackInterface ref = noResultsCallbackReference.get();
                 if (ImagesDataClass.searchResultImagesList.isEmpty() && ref != null) {
                     ref.noResults();
                 }

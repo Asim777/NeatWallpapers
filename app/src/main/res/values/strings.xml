@@ -7,7 +7,7 @@
     <string name="colors">Colors Fragment</string>
     <string name="favorites">Favorites Fragment</string>
     <string name="sort_action_title">Sort</string>
-    <string name="set_as">NeatWallpapers</string>
+    <string name="set_as">Set as</string>
     <string name="download">Download</string>
     <string name="set_as_wallpaper">Set as wallpaper</string>
     <string name="exit_confirmation_dialog_string">Are you sure you want to exit?</string>

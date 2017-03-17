@@ -39,19 +39,22 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
+import us.asimgasimzade.android.neatwallpapers.utils.DownloadTargetInterface;
+import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
+import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
 
-import static us.asimgasimzade.android.neatwallpapers.Utils.createTarget;
-import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImage;
-import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImageIfPermitted;
-import static us.asimgasimzade.android.neatwallpapers.Utils.fileExists;
-import static us.asimgasimzade.android.neatwallpapers.Utils.setWallpaper;
-import static us.asimgasimzade.android.neatwallpapers.Utils.showMessageOKCancel;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.createTarget;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImageIfPermitted;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.setWallpaper;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
 
 /**
  * Fragment that holds single image page in SingleImage view pager
  */
 
-public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyncResponseInterface,
+public class SingleImageFragment extends Fragment implements IsImageFavoriteResponseInterface,
         DownloadTargetInterface {
 
     private static final int REQUEST_PERMISSION_SETTING = 43;
@@ -387,7 +390,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteAsyn
         target = response;
     }
 
-    enum Operation {
+    public enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER
     }
 }

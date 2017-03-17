@@ -1,4 +1,4 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.Manifest;
 import android.app.Activity;
@@ -25,16 +25,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
+
 import static java.lang.Thread.sleep;
 
 /**
  * This class has utility methods that can be accessed from everywhere
  */
 
-class Utils {
+public class Utils {
 
+    public static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
-    private static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
 
     /**
      * *This method checks if downloading image was successful so we can show according feedback to
@@ -43,7 +46,7 @@ class Utils {
      * @param image - image to be checked
      * @return boolean - true if successful and false if unsuccessful
      */
-    static boolean fileExists(File image) {
+    public static boolean fileExists(File image) {
         boolean result;
         result = image.exists() && image.isFile();
         return result;
@@ -65,8 +68,8 @@ class Utils {
      * isPermissionWriteToExternalStorageGranted, and if yes, it calls dowloadImage() method,
      * if not, it shows Request Permission dialog
      */
-    static void downloadImageIfPermitted(Activity thisActivity, Fragment thisFragment, String currentImageUrl,
-                                         SimpleTarget<Bitmap> target) {
+    public static void downloadImageIfPermitted(Activity thisActivity, Fragment thisFragment, String currentImageUrl,
+                                                SimpleTarget<Bitmap> target) {
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionWriteToExternalStorageGranted(thisActivity)) {
             //If it's granted, just download the image
@@ -81,7 +84,7 @@ class Utils {
     /**
      * Overriding the same method as above without Fragment argument, for when it's called from Activity
      */
-    static void downloadImageIfPermitted(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
+    public static void downloadImageIfPermitted(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionWriteToExternalStorageGranted(thisActivity)) {
             //If it's granted, just download the image
@@ -93,7 +96,7 @@ class Utils {
         }
     }
 
-    static void downloadImage(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
+    public static void downloadImage(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
         //We have permission, so we can download the image
         Glide.with(thisActivity.getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
     }
@@ -104,16 +107,17 @@ class Utils {
                 == PackageManager.PERMISSION_GRANTED);
     }
 
-    static void setWallpaper(Activity thisActivity, File imageFile) {
+    public static void setWallpaper(Activity thisActivity, File imageFile) {
         Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
+        setAsIntent.addCategory(Intent.CATEGORY_DEFAULT);
         Uri imageUri = Uri.fromFile(imageFile);
         setAsIntent.setDataAndType(imageUri, "image/*");
-        setAsIntent.putExtra("jpg", "image/*");
-        thisActivity.startActivityForResult(Intent.createChooser(setAsIntent, thisActivity.getString(R.string.set_as)),
-                REQUEST_ID_SET_AS_WALLPAPER);
+        setAsIntent.putExtra("mimeType", "image/*");
+        thisActivity.startActivity(Intent.createChooser(setAsIntent,
+                thisActivity.getString(R.string.set_as)));
     }
 
-    static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
+    public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(thisActivity)
                 .setMessage(message)
                 .setPositiveButton("Go to settings", okListener)
@@ -122,8 +126,8 @@ class Utils {
                 .show();
     }
 
-    static void createTarget(final Activity thisActivity, DownloadTargetInterface delegate, final SingleImageFragment.Operation operation,
-                             final String currentImageName, final File imageFile, final ProgressDialog progressDialog) {
+    public static void createTarget(final Activity thisActivity, DownloadTargetInterface delegate, final SingleImageFragment.Operation operation,
+                                    final String currentImageName, final File imageFile, final ProgressDialog progressDialog) {
 
         SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
 
