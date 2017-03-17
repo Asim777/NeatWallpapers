@@ -42,7 +42,7 @@ public class PopularFragment extends Fragment {
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
 
-        //Start Download
+        //Start Loading images into a grid
         new LoadImagesAsyncTask(getActivity(), rootView, url, "popular").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 

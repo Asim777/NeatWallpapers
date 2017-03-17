@@ -22,12 +22,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 
@@ -35,6 +40,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
 
+import static us.asimgasimzade.android.neatwallpapers.R.id.rootView;
 import static us.asimgasimzade.android.neatwallpapers.Utils.createTarget;
 import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImage;
 import static us.asimgasimzade.android.neatwallpapers.Utils.downloadImageIfPermitted;
@@ -58,7 +64,8 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
     String imageName;
     MenuItem favoriteActionButton;
     SingleImageFragment.Operation operation;
-    ProgressDialog progressDialog;
+    ProgressDialog downloadProgressDialog;
+    ProgressBar loadingAnimationProgressBar;
     SimpleTarget<Bitmap> target;
     File imageFileForChecking;
 
@@ -67,7 +74,6 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_image);
-
 
         //Set action bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -99,7 +105,26 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         imageAuthor = getIntent().getStringExtra("author");
         imageLink = getIntent().getStringExtra("link");
         imageName = getIntent().getStringExtra("name");
-        Glide.with(getApplicationContext()).load(imageUrl).into(imageView);
+
+        loadingAnimationProgressBar = (ProgressBar) findViewById(R.id.loading_progress_bar);
+        loadingAnimationProgressBar.setVisibility(View.VISIBLE);
+
+        Glide.with(getApplicationContext()).load(imageUrl).
+                listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model,
+                                               Target<GlideDrawable> target, boolean isFirstResource) {
+                        loadingAnimationProgressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target,
+                                                   boolean isFromMemoryCache, boolean isFirstResource) {
+                        loadingAnimationProgressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                }).into(imageView);
 
         //Get image is favorite boolean from intent
         imageIsFavorite = getIntent().getBooleanExtra("image_is_favorite", false);
@@ -111,7 +136,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         //Creating imageFile using path to our custom album
         imageFileForChecking = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
 
-        progressDialog = new ProgressDialog(this);
+        downloadProgressDialog = new ProgressDialog(this);
     }
 
     @Override
@@ -144,7 +169,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                 //if image doesn't exist then download it first
                 operation = SingleImageFragment.Operation.SET_AS_WALLPAPER;
                 //Creating target
-                createTarget(this, this, operation, imageName, imageFileForChecking, progressDialog);
+                createTarget(this, this, operation, imageName, imageFileForChecking, downloadProgressDialog);
                 if (!fileExists(imageFileForChecking)) {
                     downloadImageIfPermitted(this, imageUrl, target);
                 } else {
@@ -159,7 +184,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                 operation = SingleImageFragment.Operation.DOWNLOAD;
 
                 //Creating target
-                createTarget(this, this, operation, imageName, imageFileForChecking, progressDialog);
+                createTarget(this, this, operation, imageName, imageFileForChecking, downloadProgressDialog);
                 if (fileExists(imageFileForChecking)) {
                     SingleToast.show(this.getApplicationContext(),
                             getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
