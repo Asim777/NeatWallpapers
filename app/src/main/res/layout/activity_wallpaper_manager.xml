@@ -8,14 +8,14 @@
         android:id="@+id/wallpaper_manager_image_holder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="3"
         android:background="@color/textColorPrimary">
 
         <ImageView
             android:id="@+id/wallpaper_manager_image_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center" />
+            android:contentDescription="@string/image_content_description" />
 
     </FrameLayout>
 
@@ -23,58 +23,57 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:gravity="center"
+        android:paddingBottom="30dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="30dp"
         android:weightSum="3">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/option_standard"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:clickable="true"
+            android:drawableBottom="@mipmap/ic_standard_black"
+            android:text="@string/wallpaper_manager_option_standard"
+            android:textAlignment="center"
+            android:textColor="@color/textColorPrimary"
+            android:textStyle="bold" />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/option_entire"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:clickable="true"
+            android:drawableBottom="@mipmap/ic_entire_black"
+            android:text="@string/wallpaper_manager_option_entire"
+            android:textAlignment="center"
+            android:textColor="@color/textColorPrimary"
+            android:textStyle="bold" />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/option_free"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-        </LinearLayout>
+            android:clickable="true"
+            android:drawableBottom="@mipmap/ic_free_black"
+            android:text="@string/wallpaper_manager_option_free"
+            android:textAlignment="center"
+            android:textColor="@color/textColorPrimary"
+            android:textStyle="bold" />
 
     </LinearLayout>
 </LinearLayout>

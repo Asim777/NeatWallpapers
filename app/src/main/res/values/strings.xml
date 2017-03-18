@@ -49,4 +49,8 @@
     <string name="up_action_title">Up button</string>
     <string name="download_action_title">Download</string>
     <string name="set_action_title">Set</string>
+    <string name="wallpaper_manager_option_standard">STANDARD</string>
+    <string name="wallpaper_manager_option_entire">ENTIRE</string>
+    <string name="wallpaper_manager_option_free">FREE</string>
+    <string name="wallpaper_manager_option_others">OTHERS</string>
 </resources>

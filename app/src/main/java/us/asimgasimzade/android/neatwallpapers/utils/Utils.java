@@ -27,6 +27,7 @@ import java.io.OutputStream;
 
 import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
+import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
 
 import static java.lang.Thread.sleep;
 
@@ -108,13 +109,15 @@ public class Utils {
     }
 
     public static void setWallpaper(Activity thisActivity, File imageFile) {
-        Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
-        setAsIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        /*Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
+        setAsIntent.addCategory(Intent.CATEGORY_DEFAULT);*/
+        Intent setAsIntent = new Intent(thisActivity, WallpaperManagerActivity.class);
         Uri imageUri = Uri.fromFile(imageFile);
         setAsIntent.setDataAndType(imageUri, "image/*");
         setAsIntent.putExtra("mimeType", "image/*");
-        thisActivity.startActivity(Intent.createChooser(setAsIntent,
-                thisActivity.getString(R.string.set_as)));
+        /*thisActivity.startActivity(Intent.createChooser(setAsIntent,
+                thisActivity.getString(R.string.set_as)));*/
+        thisActivity.startActivity(setAsIntent);
     }
 
     public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
