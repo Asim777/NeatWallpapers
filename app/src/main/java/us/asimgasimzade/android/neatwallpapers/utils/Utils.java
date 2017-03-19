@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,7 +23,6 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,6 @@ import static java.lang.Thread.sleep;
 
 public class Utils {
 
-    public static final int REQUEST_ID_SET_AS_WALLPAPER = 100;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
 
     /**
@@ -118,8 +117,6 @@ public class Utils {
         Uri imageUri = Uri.fromFile(imageFile);
         setAsIntent.setDataAndType(imageUri, "image/*");
         setAsIntent.putExtra("mimeType", "image/*");
-        /*thisActivity.startActivity(Intent.createChooser(setAsIntent,
-                thisActivity.getString(R.string.set_as)));*/
         thisActivity.startActivity(setAsIntent);
     }
 

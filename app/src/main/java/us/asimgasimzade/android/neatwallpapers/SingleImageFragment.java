@@ -208,7 +208,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             //Creating imageFile using path to our custom album
             imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
 
-            progressDialog = new ProgressDialog(activityInstance);
+            progressDialog = new ProgressDialog(activityInstance, R.style.AppCompatAlertDialogStyle);
 
             //-----------------------------------------------------------------------------------------
             //Back button
