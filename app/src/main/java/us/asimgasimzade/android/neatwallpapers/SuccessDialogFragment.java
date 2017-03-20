@@ -1,11 +1,10 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -19,6 +18,7 @@ import android.view.LayoutInflater;
  */
 
 public class SuccessDialogFragment extends DialogFragment {
+    @SuppressLint("InflateParams")
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -54,8 +54,8 @@ public class SuccessDialogFragment extends DialogFragment {
         //Setting button colors to our accentColor
         super.onStart();
         ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).
-                setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
+                setTextColor(ContextCompat.getColor(getActivity(), R.color.green));
         ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_NEGATIVE).
-                setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
+                setTextColor(ContextCompat.getColor(getActivity(), R.color.green));
     }
 }

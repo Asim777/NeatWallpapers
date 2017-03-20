@@ -2,7 +2,6 @@ package us.asimgasimzade.android.neatwallpapers;
 
 import android.app.Activity;
 import android.app.WallpaperManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -16,7 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -26,7 +25,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
-import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.getBitmapFromUri;
 
@@ -43,9 +41,9 @@ public class WallpaperManagerActivity extends AppCompatActivity {
     double currentBitmapHeight;
     int aspectRatioWidth;
     int aspectRatioHeight;
-    TextView standardTextView;
-    TextView entireTextView;
-    TextView freeTextView;
+    Button standardButton;
+    Button entireButton;
+    Button freeButton;
     Activity thisActivity;
     CropImageView cropImageView;
     Intent intent;
@@ -100,40 +98,35 @@ public class WallpaperManagerActivity extends AppCompatActivity {
         cropImageView.setImageUriAsync(imageUri);
         //Disabling auto-zooming when selected small portion of image
         cropImageView.setAutoZoomEnabled(false);
-        //Set initial aspect ratio to standard
-        cropImageView.setAspectRatio(1, 1);
 
         //Getting reference to our crop options button textviews
-        standardTextView = (TextView) findViewById(R.id.option_standard);
-        entireTextView = (TextView) findViewById(R.id.option_entire);
-        freeTextView = (TextView) findViewById(R.id.option_free);
+        standardButton = (Button) findViewById(R.id.option_standard);
+        entireButton = (Button) findViewById(R.id.option_entire);
+        freeButton = (Button) findViewById(R.id.option_free);
 
         //Standard button
-        standardTextView.setOnClickListener(new View.OnClickListener() {
+        standardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeToDefaultBackground(entireTextView, freeTextView);
-                standardTextView.setBackgroundColor(ContextCompat.getColor(thisActivity, R.color.colorPrimary));
+                selectButton("standard");
                 cropImageView.setAspectRatio(1, 1);
             }
         });
 
         //Entire button
-        entireTextView.setOnClickListener(new View.OnClickListener() {
+        entireButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeToDefaultBackground(standardTextView, freeTextView);
-                entireTextView.setBackgroundColor(ContextCompat.getColor(thisActivity, R.color.colorPrimary));
+                selectButton("entire");
                 cropImageView.setAspectRatio(aspectRatioWidth, aspectRatioHeight);
             }
         });
 
         //Free button
-        freeTextView.setOnClickListener(new View.OnClickListener() {
+        freeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeToDefaultBackground(standardTextView, entireTextView);
-                freeTextView.setBackgroundColor(ContextCompat.getColor(thisActivity, R.color.colorPrimary));
+                selectButton("free");
                 cropImageView.clearAspectRatio();
             }
         });
@@ -153,6 +146,9 @@ public class WallpaperManagerActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //Set initial aspect ratio to standard
+        standardButton.callOnClick();
     }
 
     @Override
@@ -185,18 +181,62 @@ public class WallpaperManagerActivity extends AppCompatActivity {
         }
     }
 
-    private void changeToDefaultBackground(TextView... textViews) {
+    private void selectButton(String callingButton) {
 
         int color;
         Drawable backgroundDrawable;
-        for (TextView textView : textViews) {
-            backgroundDrawable = textView.getBackground();
+        Drawable currentButtonDrawable;
+        Button[] otherButtons;
+        Button currentButton;
+        Drawable standardButtonDrawableWhite = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_standard_white);
+        Drawable entireButtonDrawableWhite = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_entire_white);
+        Drawable freeButtonDrawableWhite = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_free_white);
+        Drawable standardButtonDrawableBlack = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_standard_black);
+        Drawable entireButtonDrawableBlack = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_entire_black);
+        Drawable freeButtonDrawableBlack = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_free_black);
+
+        switch (callingButton) {
+            case "standard":
+                currentButton = standardButton;
+                otherButtons = new Button[]{entireButton, freeButton};
+                currentButtonDrawable = standardButtonDrawableWhite;
+                break;
+
+            case "entire":
+                currentButton = entireButton;
+                otherButtons = new Button[]{standardButton, freeButton};
+                currentButtonDrawable = entireButtonDrawableWhite;
+                break;
+
+            case "free":
+                currentButton = freeButton;
+                otherButtons = new Button[]{standardButton, entireButton};
+                currentButtonDrawable = freeButtonDrawableWhite;
+                break;
+
+            default:
+                currentButton = standardButton;
+                otherButtons = new Button[]{entireButton, freeButton};
+                currentButtonDrawable = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_standard_white);
+        }
+
+        for (Button button : otherButtons) {
+            backgroundDrawable = button.getBackground();
             if (backgroundDrawable instanceof ColorDrawable) {
                 color = ((ColorDrawable) backgroundDrawable).getColor();
-                if (color != ContextCompat.getColor(thisActivity, R.color.white))
-                    textView.setBackgroundColor(ContextCompat.getColor(thisActivity, R.color.white));
+                if (color != ContextCompat.getColor(thisActivity, R.color.white)) {
+                    button.setBackgroundColor(ContextCompat.getColor(thisActivity, R.color.white));
+                    button.setTextColor(ContextCompat.getColor(thisActivity, R.color.black));
+                }
             }
         }
+        standardButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, standardButtonDrawableBlack);
+        entireButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, entireButtonDrawableBlack);
+        freeButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, freeButtonDrawableBlack);
+
+        currentButton.setBackgroundColor(ContextCompat.getColor(thisActivity, R.color.colorPrimary));
+        currentButton.setTextColor(ContextCompat.getColor(thisActivity, R.color.white));
+        currentButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, currentButtonDrawable);
 
     }
 
