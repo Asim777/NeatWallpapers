@@ -2,13 +2,13 @@ package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -123,8 +123,17 @@ public class Utils {
     public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(thisActivity)
                 .setMessage(message)
-                .setPositiveButton("Go to settings", okListener)
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton(R.string.permission_dialog_positive_button, okListener)
+                .setNegativeButton(R.string.permission_dialog_negative_button, null)
+                .create()
+                .show();
+    }
+
+    public static void showSuccessDialog(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(thisActivity)
+                .setMessage(message)
+                .setPositiveButton(R.string.success_dialog_positive_button, okListener)
+                .setNegativeButton(R.string.success_dialog_negative_button, null)
                 .create()
                 .show();
     }
@@ -269,9 +278,6 @@ public class Utils {
                             //Checking the result and giving feedback to user about success
                             if (fileExists(imageFile)) {
                                 setWallpaper(thisActivity, imageFile);
-                                SingleToast.show(thisActivity.getApplicationContext(),
-                                        thisActivity.getString(R.string.setting_wallpaper_message),
-                                        Toast.LENGTH_SHORT);
                             } else {
                                 SingleToast.show(thisActivity.getApplicationContext(),
                                         thisActivity.getString(R.string.problem_while_setting_wallpaper_message),
@@ -285,4 +291,6 @@ public class Utils {
 
         delegate.getTheTarget(target);
     }
+
+
 }

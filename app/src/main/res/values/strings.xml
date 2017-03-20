@@ -53,4 +53,10 @@
     <string name="wallpaper_manager_option_entire">ENTIRE</string>
     <string name="wallpaper_manager_option_free">FREE</string>
     <string name="wallpaper_manager_option_others">OTHERS</string>
+    <string name="permission_dialog_positive_button">Go to settings</string>
+    <string name="permission_dialog_negative_button">Cancel</string>
+    <string name="success_dialog_message">It\'s done. Do you want to go to home screen and check out how it looks?</string>
+    <string name="success_dialog_positive_button">Check it out</string>
+    <string name="success_dialog_negative_button">Stay</string>
+    <string name="success_dialog_title">SUCCESS</string>
 </resources>

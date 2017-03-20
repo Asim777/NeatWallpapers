@@ -16,4 +16,5 @@
     <color name="lightBackground">#f0f0f0</color>
     <color name="single_image_transparent_phone">#33000000</color>
     <color name="single_image_transparent_tablet">#66000000</color>
+    <color name="green">#FF6AC259</color>
 </resources>

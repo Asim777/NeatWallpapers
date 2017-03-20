@@ -2,6 +2,7 @@ package us.asimgasimzade.android.neatwallpapers;
 
 import android.app.Activity;
 import android.app.WallpaperManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.getBitmapFromUri;
 
@@ -80,9 +82,8 @@ public class WallpaperManagerActivity extends AppCompatActivity {
                 //Getting fractional part, rounding it up to 2 digits after comma and
                 // multiplying it by 100 to get 2 digits, casting it to int and now we have our
                 // aspect ratio height
-                int fractional = (int) (new BigDecimal(initialAspectRatio).remainder(BigDecimal.ONE)
+                aspectRatioHeight = (int) (new BigDecimal(initialAspectRatio).remainder(BigDecimal.ONE)
                         .setScale(2, RoundingMode.HALF_UP).doubleValue() * 100);
-                aspectRatioHeight = fractional;
                 //Multiplying aspect ratio height by result of dividing inage width to height and
                 //getting our aspect ratio width
                 aspectRatioWidth = (int) (aspectRatioHeight * initialAspectRatio);
@@ -147,12 +148,8 @@ public class WallpaperManagerActivity extends AppCompatActivity {
                 try {
                     resultBitmap = result.getBitmap();
                     wallpaperManager.setBitmap(resultBitmap);
-                    SingleToast.show(thisActivity, "Wallpaper successfully changed", Toast.LENGTH_SHORT);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    SingleToast.show(thisActivity,
-                            "There was a problem while setting image as your wallpaper. Please try again",
-                            Toast.LENGTH_LONG);
                 }
             }
         });
@@ -168,6 +165,7 @@ public class WallpaperManagerActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int itemId = item.getItemId();
         switch (itemId) {
             case android.R.id.home:
@@ -177,7 +175,7 @@ public class WallpaperManagerActivity extends AppCompatActivity {
             case R.id.action_set:
                 //Set current image as Wallpaper:
                 cropImageView.getCroppedImageAsync();
-
+                new SuccessDialogFragment().show(getSupportFragmentManager(), "Success");
 
                 return true;
 
@@ -188,6 +186,7 @@ public class WallpaperManagerActivity extends AppCompatActivity {
     }
 
     private void changeToDefaultBackground(TextView... textViews) {
+
         int color;
         Drawable backgroundDrawable;
         for (TextView textView : textViews) {
