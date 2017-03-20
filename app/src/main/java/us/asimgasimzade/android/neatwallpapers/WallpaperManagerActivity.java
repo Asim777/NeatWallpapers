@@ -35,7 +35,6 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.getBitmapFromU
 
 public class WallpaperManagerActivity extends AppCompatActivity {
     Bitmap currentBitmap;
-    Bitmap defaultBitmap;
     Bitmap resultBitmap;
     double currentBitmapWidth;
     double currentBitmapHeight;
@@ -88,7 +87,6 @@ public class WallpaperManagerActivity extends AppCompatActivity {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            //TODO: put proper default placeholder image here - defaultBitmap
             SingleToast.show(getApplicationContext(),
                     "There was a problem while downloading the image. Please try again", Toast.LENGTH_LONG);
         }
