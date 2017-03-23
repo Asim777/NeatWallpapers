@@ -35,7 +35,6 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
     private Bitmap mBitmap;
     private OutputStream outputStream;
     private ProgressDialog mDownloadProgressDialog;
-    private boolean directoryNotCreated;
 
     public DownloadImageAsyncTask(final Activity thisActivity,
                                   final SingleImageFragment.Operation operation, final String currentImageName,
@@ -65,10 +64,7 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
             //Creating imageFile using path to our custom album
             File imageFile = new File(path, "NEATWALLPAPERS_" + mCurrentImageName + ".jpg");
 
-            //Creating our custom album directory, if it's not created, logging error message
-            if (!path.mkdirs()) {
-                directoryNotCreated = true;
-            }
+
 
             //We are checking if there is ExternalStorage mounted on device and is it
             //readable
@@ -134,12 +130,6 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
                         mThisActivity.getString(R.string.problem_while_setting_wallpaper_message),
                         Toast.LENGTH_SHORT);
             }
-        }
-
-        if(directoryNotCreated){
-            showToast(mThisActivity.getApplicationContext(),
-                    mThisActivity.getString(R.string.problem_downloading_image_message),
-                    Toast.LENGTH_LONG);
         }
     }
 

@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,14 +28,15 @@ import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
 public class SingleCategoryActivity extends AppCompatActivity {
     String url;
-    View rootView;
     String categoryApiName;
     String categoryName;
     String callingFragment;
+    private MultiSwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Inflate the layout for this fragment
         setContentView(R.layout.activity_single_category);
 
         //Initializing the Google Mobile Ads SDK
@@ -56,8 +58,25 @@ public class SingleCategoryActivity extends AppCompatActivity {
         setTitle(categoryName);
         //Set categoryApiName as URL extension
         constructUrl("popular", categoryApiName);
-        // Inflate the layout for this fragment
-        rootView = findViewById(R.id.rootView);
+
+        // Lookup the swipe container view
+        swipeContainer = (MultiSwipeRefreshLayout) findViewById(R.id.rootView);
+        // Setting gridView as swipable children, so that scrolling gridView up doesn't interfere with
+        // SwipeRefreshLayout to be triggered when in the middle of gridView
+        swipeContainer.setSwipeableChildren(R.id.gridView);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadImages();
+            }
+        });
+
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
 
         //Start Download
         loadImages();
@@ -128,10 +147,10 @@ public class SingleCategoryActivity extends AppCompatActivity {
     private void loadImages() {
         //Start LoadImagesAsyncTask
 
-        GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
-        ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        GridView mGridView = (GridView) swipeContainer.findViewById(R.id.gridView);
+        ProgressBar mProgressBar = (ProgressBar) swipeContainer.findViewById(R.id.progressBar);
 
-        new LoadImagesAsyncTask(this, rootView, url, "default").execute();
+        new LoadImagesAsyncTask(this, swipeContainer, url, swipeContainer, "default").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity

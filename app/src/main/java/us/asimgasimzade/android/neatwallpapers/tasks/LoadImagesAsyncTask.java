@@ -2,7 +2,9 @@ package us.asimgasimzade.android.neatwallpapers.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
@@ -38,15 +40,28 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private int offset;
     private HttpURLConnection urlConnection;
     private ProgressBar mProgressBar;
+    private FrameLayout mProgressBarContainer;
     private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
     private Context mContext;
     private View mRootView;
     private String mUrl;
     private String mSource;
+    private SwipeRefreshLayout mSwipeContainer;
     private int numberOfPages = 1;
     private WeakReference<NoResultsCallbackInterface> noResultsCallbackReference;
 
+
+    public LoadImagesAsyncTask(Context context, View rootView, String url, SwipeRefreshLayout swipeContainer, String source) {
+        mContext = context;
+        mRootView = rootView;
+        mUrl = url;
+        mSwipeContainer = swipeContainer;
+        mSource = source;
+        if (mSource.equals("search")) {
+            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) context);
+        }
+    }
 
     public LoadImagesAsyncTask(Context context, View rootView, String url, String source) {
         mContext = context;
@@ -139,6 +154,9 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             break;
         }
         mProgressBar.setVisibility(View.GONE);
+        if(mSwipeContainer != null){
+            mSwipeContainer.setRefreshing(false);
+        }
     }
 
     private String streamToString(InputStream stream) throws IOException {

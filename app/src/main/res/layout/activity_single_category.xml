@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="us.asimgasimzade.android.neatwallpapers.SingleCategoryActivity">
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true">
     <GridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"
@@ -36,5 +40,6 @@
         android:layout_gravity="center|bottom"
         ads:adSize="SMART_BANNER"
         ads:adUnitId="@string/ad_unit_id_single_category_activity" />
+    </RelativeLayout>
 
-</RelativeLayout>
+</us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout>

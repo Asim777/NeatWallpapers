@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ public class FavoritesFragment extends Fragment{
     GridView mGridView;
     View rootView;
     ProgressBar mProgressBar;
+    private MultiSwipeRefreshLayout swipeContainer;
 
     public FavoritesFragment() {
         // Required empty public constructor
@@ -42,6 +44,25 @@ public class FavoritesFragment extends Fragment{
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_favorites, container, false);
         mGridView = (GridView) rootView.findViewById(R.id.gridView);
+
+        // Lookup the swipe container view
+        swipeContainer = (MultiSwipeRefreshLayout) rootView.findViewById(R.id.favorites_container_swipe);
+        // Setting gridView as swipable children, so that scrolling gridView up doesn't interfere with
+        // SwipeRefreshLayout to be triggered when in the middle of gridView
+        swipeContainer.setSwipeableChildren(R.id.gridView);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateGridView();
+            }
+        });
+
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
 
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
@@ -69,7 +90,7 @@ public class FavoritesFragment extends Fragment{
 
     public void updateGridView(){
         //Start Download from database
-        new LoadImagesFromFavoritesDatabaseTask(getActivity(), rootView).execute();
+        new LoadImagesFromFavoritesDatabaseTask(getActivity(), rootView, swipeContainer).execute();
         mProgressBar.setVisibility(View.VISIBLE);
     }
 

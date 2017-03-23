@@ -4,6 +4,7 @@ package us.asimgasimzade.android.neatwallpapers;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ public class RecentFragment extends Fragment{
     GridView mGridView;
     View rootView;
     String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&order=latest&per_page=200";
+    ProgressBar mProgressBar;
+    private MultiSwipeRefreshLayout swipeContainer;
 
     public RecentFragment() {
         // Required empty public constructor
@@ -39,10 +42,36 @@ public class RecentFragment extends Fragment{
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_recent, container, false);
         mGridView = (GridView) rootView.findViewById(R.id.gridView);
-        ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
+        // Lookup the swipe container view
+        swipeContainer = (MultiSwipeRefreshLayout) rootView.findViewById(R.id.recent_container_swipe);
+        // Setting gridView as swipable children, so that scrolling gridView up doesn't interfere with
+        // SwipeRefreshLayout to be triggered when in the middle of gridView
+        swipeContainer.setSwipeableChildren(R.id.gridView);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshGridView();
+            }
+        });
+
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        refreshGridView();
+
+
+        return rootView;
+    }
+
+    private void refreshGridView() {
         //Start Download
-        new LoadImagesAsyncTask(getActivity(), rootView, url, "recent").execute();
+        new LoadImagesAsyncTask(getActivity(), rootView, url, swipeContainer, "recent").execute();
         mProgressBar.setVisibility(View.VISIBLE);
 
         //Setting onItemClickListener to GridView which starts intent and goes to SingleImageActivity
@@ -60,6 +89,5 @@ public class RecentFragment extends Fragment{
                 startActivity(intent);
             }
         });
-        return rootView;
     }
 }

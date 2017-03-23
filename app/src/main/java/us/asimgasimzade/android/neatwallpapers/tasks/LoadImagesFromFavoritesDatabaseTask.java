@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
@@ -28,6 +29,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
     private Context mContext;
     private View mRootView;
     private ProgressBar mProgressBar;
+    private SwipeRefreshLayout mSwipeContainer;
 
     private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
@@ -41,9 +43,10 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
             FavoritesEntry.IMAGE_LINK
     };
 
-    public LoadImagesFromFavoritesDatabaseTask(Context context, View rootView) {
+    public LoadImagesFromFavoritesDatabaseTask(Context context, View rootView, SwipeRefreshLayout swipeContainer) {
         mContext = context;
         mRootView = rootView;
+        mSwipeContainer = swipeContainer;
     }
 
     @Override
@@ -87,5 +90,6 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
         ImagesDataClass.favoriteImagesList = mGridData;
 
         mProgressBar.setVisibility(View.GONE);
+        mSwipeContainer.setRefreshing(false);
     }
 }
