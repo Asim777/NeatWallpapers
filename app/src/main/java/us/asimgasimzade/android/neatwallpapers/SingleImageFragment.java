@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 
@@ -38,24 +39,23 @@ import java.util.ArrayList;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
-import us.asimgasimzade.android.neatwallpapers.utils.DownloadTargetInterface;
 import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
-import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
 
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.createTarget;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImageIfPermitted;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.setWallpaper;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
  * Fragment that holds single image page in SingleImage view pager
  */
 
-public class SingleImageFragment extends Fragment implements IsImageFavoriteResponseInterface,
-        DownloadTargetInterface {
+public class SingleImageFragment extends Fragment implements IsImageFavoriteResponseInterface {
 
     private static final int REQUEST_PERMISSION_SETTING = 43;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
@@ -82,10 +82,12 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     Operation operation;
     SingleImageFragment fragmentInstance;
     Activity activityInstance;
-    // Downloading progress dialog
-    private ProgressDialog progressDialog;
+    //Downloading progress dialog
+    ProgressDialog downloadProgressDialog;
     // Loading animation progress bar
     private ProgressBar loadingAnimationProgressBar;
+    DownloadImageAsyncTask downloadImageTask;
+    private boolean downloadImageTaskCancelled;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -200,7 +202,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                 }
             });
 
-
             //We'll use this file to check if given image already exists on device and take corresponding
             //course of action depending on that
             //Specifying path to our app's directory
@@ -208,7 +209,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             //Creating imageFile using path to our custom album
             imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
 
-            progressDialog = new ProgressDialog(activityInstance, R.style.AppCompatAlertDialogStyle);
+
+
 
             //-----------------------------------------------------------------------------------------
             //Back button
@@ -233,14 +235,15 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
                     //When favorite button inside SingleImageActivity is clicked, we are adding this
                     //image to Favorites database and changing background of a button
                     new AddOrRemoveFavoriteAsyncTask(fragmentInstance, imageIsFavorite, getActivity(),
                             currentImageName, currentImageUrl, currentAuthorInfo, currentImageLink).execute();
                     //Setting delegate back to this instance of SingleImageFragment
                     sendFavoritesOKResult(Activity.RESULT_OK);
-
                 }
+
             });
 
             //-----------------------------------------------------------------------------------------
@@ -252,17 +255,25 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             setAsWallpaperButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //Change the current Wallpaper:
-                    //if image doesn't exist then download it first
-                    operation = Operation.SET_AS_WALLPAPER;
-                    //Creating target
-                    createTarget(activityInstance, fragmentInstance, operation, currentImageName, imageFileForChecking, progressDialog);
+                    //Check if network is available
+                    if (checkNetworkConnection(activityInstance)) {
+                        //Change the current Wallpaper, if image doesn't exist then download it first
+                        operation = Operation.SET_AS_WALLPAPER;
 
-                    if (!fileExists(imageFileForChecking)) {
-                        downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
-                    } else {
-                        //if it exists, just set it as wallpaper
-                        setWallpaper(activityInstance, imageFileForChecking);
+                        if (!fileExists(imageFileForChecking)) {
+
+                            //Creating target
+                            target = createTarget();
+                            //Creating progress dialog
+                            createProgressDialog();
+                            //Show downloading progress dialog
+                            downloadProgressDialog.show();
+
+                            downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
+                        } else {
+                            //if it exists, just set it as wallpaper
+                            setWallpaper(activityInstance, imageFileForChecking);
+                        }
                     }
                 }
             });
@@ -277,18 +288,27 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //Downloading image
-                    // if it already exists Toast message, saying that it does
-                    operation = Operation.DOWNLOAD;
+                    //Check if network is available
+                    if (checkNetworkConnection(activityInstance)) {
 
-                    //Creating target
-                    createTarget(activityInstance, fragmentInstance, operation, currentImageName, imageFileForChecking, progressDialog);
-                    if (fileExists(imageFileForChecking)) {
-                        SingleToast.show(getActivity().getApplicationContext(),
-                                getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
-                    } else {
-                        //If it doesn't exist, download it, but first check if we have permission to do it
-                        downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
+
+                        //Downloading image
+                        // if it already exists Toast message, saying that it does
+                        operation = Operation.DOWNLOAD;
+
+                        if (fileExists(imageFileForChecking)) {
+                            showToast(getActivity().getApplicationContext(),
+                                    getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
+                        } else {
+                            //Creating target
+                            target = createTarget();
+                            //Create Progress dialog
+                            createProgressDialog();
+                            //Show downloading progress dialog
+                            downloadProgressDialog.show();
+                            //If it doesn't exist, download it, but first check if we have permission to do it
+                            downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
+                        }
                     }
                 }
             });
@@ -296,6 +316,42 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
         }
         return rootView;
+    }
+
+    private void createProgressDialog() {
+        //Creating progress dialog
+        downloadProgressDialog = new ProgressDialog(activityInstance, R.style.AppCompatAlertDialogStyle);
+        downloadProgressDialog.setMessage(activityInstance.getString(R.string.message_downloading_image));
+        downloadProgressDialog.setCancelable(true);
+        downloadProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                //Cancel the task if user presses back while mDownloadProgressDialog
+                // is shown
+                if(downloadImageTask != null) {
+                    downloadImageTask.cancel(true);
+                } else {
+                    downloadImageTaskCancelled = true;
+                }
+            }
+        });
+        downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadProgressDialog.dismiss();
+                        //If downloadImageTask exists, cancel it, if it doesn't exist yet, update
+                        //the boolean so that it never gets started from Target's onResourceReady
+                        if(downloadImageTask != null) {
+                            downloadImageTask.cancel(true);
+                        } else {
+                            downloadImageTaskCancelled = true;
+                        }
+                    }
+                });
+        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        downloadProgressDialog.setIndeterminate(false);
+        downloadProgressDialog.setMax(100);
     }
 
     public void sendFavoritesOKResult(int result) {
@@ -314,7 +370,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    SingleToast.show(getActivity().getApplicationContext(), getString(R.string.permission_granted_message),
+                    showToast(getActivity().getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
                     downloadImage(activityInstance, currentImageUrl, target);
                 } else {
@@ -345,8 +401,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     public void onPause() {
         super.onPause();
 
-        if (progressDialog != null) {
-            progressDialog.dismiss();
+        if (downloadProgressDialog != null) {
+            downloadProgressDialog.dismiss();
         }
     }
 
@@ -385,9 +441,22 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         }
     }
 
-    @Override
-    public void getTheTarget(SimpleTarget<Bitmap> response) {
-        target = response;
+    public SimpleTarget<Bitmap> createTarget() {
+
+        return new SimpleTarget<Bitmap>() {
+
+            @Override
+            public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
+                if(!downloadImageTaskCancelled){
+                    downloadImageTask = new DownloadImageAsyncTask(activityInstance, operation, currentImageName,
+                            imageFileForChecking, bitmap, downloadProgressDialog);
+                    downloadImageTask.execute();
+                } else {
+                    downloadImageTaskCancelled = false;
+                }
+            }
+        };
+
     }
 
     public enum Operation {

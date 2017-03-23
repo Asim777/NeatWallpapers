@@ -8,9 +8,10 @@ import android.widget.Toast;
 
 import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
 import us.asimgasimzade.android.neatwallpapers.R;
-import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
 import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBContract;
 import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBHelper;
+
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
  * This task handles adding image to Favorites and removing image from Favorites
@@ -68,9 +69,9 @@ public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<String, Void, Void> 
     @Override
     protected void onPostExecute(Void aVoid) {
         if (!mImageIsFavorite) {
-            SingleToast.show(mActivity, mActivity.getResources().getString(R.string.image_added_to_favorites_message), Toast.LENGTH_SHORT);
+            showToast(mActivity, mActivity.getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
         } else {
-            SingleToast.show(mActivity, mActivity.getResources().getString(R.string.image_removed_from_favorites_message), Toast.LENGTH_SHORT);
+            showToast(mActivity, mActivity.getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
         }
         new ImageIsFavoriteTask(mDelegate, mImageIsFavorite, mActivity, mCurrentImageName).execute();
     }

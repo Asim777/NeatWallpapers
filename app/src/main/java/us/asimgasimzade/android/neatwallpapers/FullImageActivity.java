@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 
@@ -38,25 +39,23 @@ import java.io.File;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
-import us.asimgasimzade.android.neatwallpapers.utils.DownloadTargetInterface;
 import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
-import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.createTarget;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImageIfPermitted;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
  * This activity opens when user clicks on image from SingleImageActivity to see the full
  * scrollable version of image
  */
 
-public class FullImageActivity extends AppCompatActivity implements IsImageFavoriteResponseInterface,
-        DownloadTargetInterface {
+public class FullImageActivity extends AppCompatActivity implements IsImageFavoriteResponseInterface {
 
     private static final int REQUEST_PERMISSION_SETTING = 43;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
@@ -71,6 +70,8 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
     ProgressBar loadingAnimationProgressBar;
     SimpleTarget<Bitmap> target;
     File imageFileForChecking;
+    DownloadImageAsyncTask downloadImageTask;
+    private boolean downloadImageTaskCancelled;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,7 +140,8 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         //Creating imageFile using path to our custom album
         imageFileForChecking = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
 
-        downloadProgressDialog = new ProgressDialog(this);
+
+
     }
 
     @Override
@@ -171,9 +173,16 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                 //Change the current Wallpaper:
                 //if image doesn't exist then download it first
                 operation = SingleImageFragment.Operation.SET_AS_WALLPAPER;
-                //Creating target
-                createTarget(this, this, operation, imageName, imageFileForChecking, downloadProgressDialog);
+
                 if (!fileExists(imageFileForChecking)) {
+
+                    //Creating target
+                    target = createTarget();
+                    //Creating progress dialog
+                    createProgressDialog();
+                    //Show downloading progress dialog
+                    downloadProgressDialog.show();
+
                     downloadImageIfPermitted(this, imageUrl, target);
                 } else {
                     //if it exists, just set it as wallpaper
@@ -186,12 +195,17 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                 // if it already exists Toast message, saying that it does
                 operation = SingleImageFragment.Operation.DOWNLOAD;
 
-                //Creating target
-                createTarget(this, this, operation, imageName, imageFileForChecking, downloadProgressDialog);
                 if (fileExists(imageFileForChecking)) {
-                    SingleToast.show(this.getApplicationContext(),
+                    showToast(this.getApplicationContext(),
                             getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
                 } else {
+                    //Creating target
+                    target = createTarget();
+                    //Creating progress dialog
+                    createProgressDialog();
+                    //Show downloading progress dialog
+                    downloadProgressDialog.show();
+
                     //If it doesn't exist, download it, but first check if we have permission to do it
                     downloadImageIfPermitted(this, imageUrl, target);
                 }
@@ -234,7 +248,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    SingleToast.show(getApplicationContext(), getString(R.string.permission_granted_message),
+                    showToast(getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
                     downloadImage(this, imageUrl, target);
                 } else {
@@ -261,10 +275,61 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
 
     }
 
-    @Override
-    public void getTheTarget(SimpleTarget<Bitmap> response) {
-        target = response;
+    private void createProgressDialog() {
+        //Creating progress dialog
+        downloadProgressDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+        downloadProgressDialog.setMessage(getString(R.string.message_downloading_image));
+        downloadProgressDialog.setCancelable(true);
+        downloadProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                //Cancel the task if user presses back while mDownloadProgressDialog
+                // is shown
+                if(downloadImageTask != null) {
+                    downloadImageTask.cancel(true);
+                } else {
+                    downloadImageTaskCancelled = true;
+                }
+            }
+        });
+        downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadProgressDialog.dismiss();
+                        //If downloadImageTask exists, cancel it, if it doesn't exist yet, update
+                        //the boolean so that it never gets started from Target's onResourceReady
+                        if(downloadImageTask != null) {
+                            downloadImageTask.cancel(true);
+                        } else {
+                            downloadImageTaskCancelled = true;
+                        }
+                    }
+                });
+        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        downloadProgressDialog.setIndeterminate(false);
+        downloadProgressDialog.setMax(100);
     }
+
+    public SimpleTarget<Bitmap> createTarget() {
+
+        return new SimpleTarget<Bitmap>() {
+
+            @Override
+            public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
+                if (!downloadImageTaskCancelled) {
+                    downloadImageTask = new DownloadImageAsyncTask(FullImageActivity.this, operation, imageName,
+                            imageFileForChecking, bitmap, downloadProgressDialog);
+                    downloadImageTask.execute();
+                } else {
+                    downloadImageTaskCancelled = false;
+                }
+            }
+
+        };
+    }
+
+
 
     @Override
     public void updateImageIsFavorite(boolean response) {

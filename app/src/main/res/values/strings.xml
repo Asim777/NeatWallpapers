@@ -29,7 +29,7 @@
     <string name="problem_while_setting_wallpaper_message">Problem while setting wallpaper</string>
     <string name="image_added_to_favorites_message">Image is added to Favorites</string>
     <string name="image_removed_from_favorites_message">Image is removed from Favorites</string>
-    <string name="setting_wallpaper_message">Setting image as wallpaper...</string>
+    <string name="setting_wallpaper_message">Setting image as wallpaper&#8230;</string>
     <string name="message_downloading_image">Downloading Image</string>
     <string name="category_image">Category image</string>
     <string name="category_icon">category_icon</string>
@@ -42,7 +42,7 @@
     <string name="admob_app_id">ca-app-pub-5015291550861860~9287306639</string>
     <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
     <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
-    <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>
+    <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>z
     <string name="unfortunately_there_are_no_results_for_this_request">Unfortunately there are no results for this request.</string>
     <string name="full_image_description">Full image</string>
     <string name="favorites_action_title">Favorites</string>
@@ -59,4 +59,5 @@
     <string name="success_dialog_positive_button">Check it out</string>
     <string name="success_dialog_negative_button">Stay</string>
     <string name="success_dialog_title">SUCCESS</string>
+    <string name="download_cancelled_message">Download is cancelled</string>
 </resources>

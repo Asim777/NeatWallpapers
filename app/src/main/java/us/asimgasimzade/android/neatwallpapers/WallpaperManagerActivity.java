@@ -24,9 +24,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import us.asimgasimzade.android.neatwallpapers.utils.SingleToast;
-
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.getBitmapFromUri;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
  * This activity allows user to choose how to set the wallpaper: full width, standart or free size;
@@ -81,13 +80,13 @@ public class WallpaperManagerActivity extends AppCompatActivity {
                 // aspect ratio height
                 aspectRatioHeight = (int) (new BigDecimal(initialAspectRatio).remainder(BigDecimal.ONE)
                         .setScale(2, RoundingMode.HALF_UP).doubleValue() * 100);
-                //Multiplying aspect ratio height by result of dividing inage width to height and
+                //Multiplying aspect ratio height by result of dividing image width to height and
                 //getting our aspect ratio width
                 aspectRatioWidth = (int) (aspectRatioHeight * initialAspectRatio);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            SingleToast.show(getApplicationContext(),
+            showToast(getApplicationContext(),
                     "There was a problem while downloading the image. Please try again", Toast.LENGTH_LONG);
         }
 
@@ -116,7 +115,9 @@ public class WallpaperManagerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 selectButton("entire");
-                cropImageView.setAspectRatio(aspectRatioWidth, aspectRatioHeight);
+                if (aspectRatioHeight > 0 & aspectRatioHeight > 0) {
+                    cropImageView.setAspectRatio(aspectRatioWidth, aspectRatioHeight);
+                }
             }
         });
 
@@ -139,6 +140,7 @@ public class WallpaperManagerActivity extends AppCompatActivity {
                 try {
                     resultBitmap = result.getBitmap();
                     wallpaperManager.setBitmap(resultBitmap);
+                    new SuccessDialogFragment().show(getSupportFragmentManager(), "Success");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -169,8 +171,6 @@ public class WallpaperManagerActivity extends AppCompatActivity {
             case R.id.action_set:
                 //Set current image as Wallpaper:
                 cropImageView.getCroppedImageAsync();
-                new SuccessDialogFragment().show(getSupportFragmentManager(), "Success");
-
                 return true;
 
             default: {

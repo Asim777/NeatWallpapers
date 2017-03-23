@@ -1,13 +1,10 @@
 package us.asimgasimzade.android.neatwallpapers.tasks;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +24,8 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.utils.NoResultsCallbackInterface;
 import us.asimgasimzade.android.neatwallpapers.R;
+
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 
 /**
  * This task is called from MainActivity, SingleCategoryActivity and SearchResultActivity to load
@@ -112,17 +111,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         if (result == 1) {
             mGridAdapter.setGridData(mGridData);
         } else {
-            ConnectivityManager connectivityManager =
-                    (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            try {
-                if (activeNetworkInfo == null || !activeNetworkInfo.isConnectedOrConnecting()) {
-                    Toast.makeText(mContext, "Please check the status of the network.", Toast.LENGTH_SHORT).show();
-                }
-            } catch (NullPointerException e) {
-                //Can't check if network info isConnectedOrConnecting
-                e.printStackTrace();
-            }
+            checkNetworkConnection(mContext);
         }
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
         // other images from SingleImageActivity
