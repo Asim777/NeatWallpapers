@@ -179,12 +179,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         if (searchView != null && checkFocus(searchView)) {
             searchView.clearFocus();
+            searchView.setQuery("", false);
+            searchView.setIconified(true);
         }
-        super.onResume();
     }
 
     private boolean checkFocus(View view) {

@@ -57,6 +57,7 @@
         <activity
             android:name="us.asimgasimzade.android.neatwallpapers.SearchResultsActivity"
             android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan"
             android:parentActivityName="us.asimgasimzade.android.neatwallpapers.MainActivity"
             android:theme="@style/SingleCategoryTheme">
 
