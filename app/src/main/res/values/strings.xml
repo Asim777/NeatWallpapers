@@ -30,7 +30,8 @@
     <string name="image_added_to_favorites_message">Image is added to Favorites</string>
     <string name="image_removed_from_favorites_message">Image is removed from Favorites</string>
     <string name="setting_wallpaper_message">Setting image as wallpaper&#8230;</string>
-    <string name="message_downloading_image">Downloading Image</string>
+    <string name="message_downloading_image">Please wait while image is being downloaded</string>
+    <string name="title_downloading_image">Downloading</string>
     <string name="category_image">Category image</string>
     <string name="category_icon">category_icon</string>
     <string name="color_image">color image</string>

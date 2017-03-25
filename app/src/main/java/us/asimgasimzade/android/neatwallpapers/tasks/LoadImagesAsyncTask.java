@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
@@ -21,11 +20,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.utils.NoResultsCallbackInterface;
-import us.asimgasimzade.android.neatwallpapers.R;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 
@@ -40,7 +39,6 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private int offset;
     private HttpURLConnection urlConnection;
     private ProgressBar mProgressBar;
-    private FrameLayout mProgressBarContainer;
     private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
     private Context mContext;
@@ -93,10 +91,10 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         //Loop through pages
         for (int i = 0; i < numberOfPages; i++) {
             try {
-                mUrl = mUrl + "&page=" + (i + 1);
-                feed_url = new URL(mUrl);
+                feed_url = new URL(mUrl + "&page=" + (i + 1));
                 //Create Apache HttpClient
                 urlConnection = (HttpURLConnection) feed_url.openConnection();
+
                 int statusCode = urlConnection.getResponseCode();
 
                 //200 represent status is OK

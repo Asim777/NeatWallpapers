@@ -164,7 +164,6 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
 
     private void loadImages() {
 
-
         //Start LoadImagesAsyncTask
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
@@ -186,6 +185,7 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
 
                 //Start SingleImageActivity
                 startActivity(intent);
+
             }
         });
     }

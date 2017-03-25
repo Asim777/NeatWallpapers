@@ -61,6 +61,8 @@ public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<String, Void, Void> 
 
             // Insert the new row using our values
             db.insert(FavoritesDBContract.FavoritesEntry.TABLE_NAME, null, values);
+            // Closing the database
+            db.close();
             return null;
         }
 

@@ -35,7 +35,5 @@ public class SingleImageActivity extends AppCompatActivity {
         singleImageViewPager.setCurrentItem(imageNumber);
     }
 
-
-
 }
 

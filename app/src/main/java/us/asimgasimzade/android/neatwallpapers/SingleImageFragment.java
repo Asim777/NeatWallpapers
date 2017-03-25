@@ -63,7 +63,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     int currentPosition;
 
     boolean imageIsFavorite;
-    boolean fragmentKilled;
     String currentImageUrl;
     String currentAuthorInfo;
     String currentImageLink;
@@ -126,12 +125,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
         }
 
-        if (currentImagesList.isEmpty()) {
-            fragmentKilled = true;
-            getActivity().finish();
-        } else {
-            getImageAttributes();
-        }
+        getImageAttributes();
+
     }
 
     public void getImageAttributes() {
@@ -147,180 +142,178 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        if (!fragmentKilled) {
-            // Inflate the layout for this fragment
-            rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
 
-            //Downloading and setting image
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
-                            putExtra("url", currentImageUrl).
-                            putExtra("author", currentAuthorInfo).
-                            putExtra("link", currentImageLink).
-                            putExtra("name", currentImageName).
-                            putExtra("image_is_favorite", imageIsFavorite);
-                    startActivityForResult(fullImageIntent, FULL_IMAGE_REQUEST_CODE);
-                }
-            });
+        // Inflate the layout for this fragment
+        rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
 
-            loadingAnimationProgressBar = (ProgressBar) rootView.findViewById(R.id.loading_progress_bar);
-            loadingAnimationProgressBar.setVisibility(View.VISIBLE);
-            Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).
-                    listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model,
-                                                   Target<GlideDrawable> target, boolean isFirstResource) {
-                            loadingAnimationProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
+        //Downloading and setting image
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
+                        putExtra("url", currentImageUrl).
+                        putExtra("author", currentAuthorInfo).
+                        putExtra("link", currentImageLink).
+                        putExtra("name", currentImageName).
+                        putExtra("image_is_favorite", imageIsFavorite);
+                startActivityForResult(fullImageIntent, FULL_IMAGE_REQUEST_CODE);
+            }
+        });
 
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target,
-                                                       boolean isFromMemoryCache, boolean isFirstResource) {
-                            loadingAnimationProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    }).into(imageView);
+        loadingAnimationProgressBar = (ProgressBar) rootView.findViewById(R.id.loading_progress_bar);
+        loadingAnimationProgressBar.setVisibility(View.VISIBLE);
+        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).
+                listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model,
+                                               Target<GlideDrawable> target, boolean isFirstResource) {
+                        loadingAnimationProgressBar.setVisibility(View.GONE);
+                        return false;
+                    }
 
-            //Setting author info
-            TextView authorInfoTextView = (TextView) rootView.findViewById(R.id.author_info_text_view);
-            authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), currentAuthorInfo));
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target,
+                                                   boolean isFromMemoryCache, boolean isFirstResource) {
+                        loadingAnimationProgressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                }).into(imageView);
 
-            //Setting image link
-            TextView imageLinkTextView = (TextView) rootView.findViewById(R.id.image_link_text_view);
-            imageLinkTextView.setPaintFlags(imageLinkTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        //Setting author info
+        TextView authorInfoTextView = (TextView) rootView.findViewById(R.id.author_info_text_view);
+        authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), currentAuthorInfo));
 
-            imageLinkTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
-                    openImageLinkIntent.setData(Uri.parse("https://pixabay.com/goto/" + currentImageName + "/"));
-                    startActivity(openImageLinkIntent);
-                }
-            });
+        //Setting image link
+        TextView imageLinkTextView = (TextView) rootView.findViewById(R.id.image_link_text_view);
+        imageLinkTextView.setPaintFlags(imageLinkTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-            //We'll use this file to check if given image already exists on device and take corresponding
-            //course of action depending on that
-            //Specifying path to our app's directory
-            File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
-            //Creating imageFile using path to our custom album
-            imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
+        imageLinkTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent openImageLinkIntent = new Intent(Intent.ACTION_VIEW);
+                openImageLinkIntent.setData(Uri.parse("https://pixabay.com/goto/" + currentImageName + "/"));
+                startActivity(openImageLinkIntent);
+            }
+        });
 
-
+        //We'll use this file to check if given image already exists on device and take corresponding
+        //course of action depending on that
+        //Specifying path to our app's directory
+        File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
+        //Creating imageFile using path to our custom album
+        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
 
 
-            //-----------------------------------------------------------------------------------------
-            //Back button
-            //-----------------------------------------------------------------------------------------
-            backButton = (Button) rootView.findViewById(R.id.single_image_back_button);
-            backButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //When back button inside SingleImageActivity is clicked, we are initiating
-                    //back button pressed and automatically going back to the previous activity
-                    getActivity().onBackPressed();
-                }
-            });
+        //-----------------------------------------------------------------------------------------
+        //Back button
+        //-----------------------------------------------------------------------------------------
+        backButton = (Button) rootView.findViewById(R.id.single_image_back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //When back button inside SingleImageActivity is clicked, we are initiating
+                //back button pressed and automatically going back to the previous activity
+                getActivity().onBackPressed();
+            }
+        });
 
-            //-----------------------------------------------------------------------------------------
-            // Favorite button
-            //-----------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
+        // Favorite button
+        //-----------------------------------------------------------------------------------------
 
-            favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
-            new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
+        favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
+        new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
 
-            favoriteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-                    //When favorite button inside SingleImageActivity is clicked, we are adding this
-                    //image to Favorites database and changing background of a button
-                    new AddOrRemoveFavoriteAsyncTask(fragmentInstance, imageIsFavorite, getActivity(),
-                            currentImageName, currentImageUrl, currentAuthorInfo, currentImageLink).execute();
-                    //Setting delegate back to this instance of SingleImageFragment
-                    sendFavoritesOKResult(Activity.RESULT_OK);
-                }
+                //When favorite button inside SingleImageActivity is clicked, we are adding this
+                //image to Favorites database and changing background of a button
+                new AddOrRemoveFavoriteAsyncTask(fragmentInstance, imageIsFavorite, getActivity(),
+                        currentImageName, currentImageUrl, currentAuthorInfo, currentImageLink).execute();
+                //Setting delegate back to this instance of SingleImageFragment
+                sendFavoritesOKResult(Activity.RESULT_OK);
+            }
 
-            });
+        });
 
-            //-----------------------------------------------------------------------------------------
-            // Set as wallpaper button
-            //-----------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
+        // Set as wallpaper button
+        //-----------------------------------------------------------------------------------------
 
-            setAsWallpaperButton = (Button) rootView.findViewById(R.id.set_as_wallpaper_button);
+        setAsWallpaperButton = (Button) rootView.findViewById(R.id.set_as_wallpaper_button);
 
-            setAsWallpaperButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Check if network is available
-                    if (checkNetworkConnection(activityInstance)) {
-                        //Change the current Wallpaper, if image doesn't exist then download it first
-                        operation = Operation.SET_AS_WALLPAPER;
+        setAsWallpaperButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Check if network is available
+                if (checkNetworkConnection(activityInstance)) {
+                    //Change the current Wallpaper, if image doesn't exist then download it first
+                    operation = Operation.SET_AS_WALLPAPER;
 
-                        if (!fileExists(imageFileForChecking)) {
+                    if (!fileExists(imageFileForChecking)) {
 
-                            //Creating target
-                            target = createTarget();
-                            //Creating progress dialog
-                            createProgressDialog();
-                            //Show downloading progress dialog
-                            downloadProgressDialog.show();
+                        //Creating target
+                        target = createTarget();
+                        //Creating progress dialog
+                        createProgressDialog();
+                        //Show downloading progress dialog
+                        downloadProgressDialog.show();
 
-                            downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
-                        } else {
-                            //if it exists, just set it as wallpaper
-                            setWallpaper(activityInstance, imageFileForChecking);
-                        }
+                        downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
+                    } else {
+                        //if it exists, just set it as wallpaper
+                        setWallpaper(activityInstance, imageFileForChecking);
                     }
                 }
-            });
+            }
+        });
 
 
-            //-----------------------------------------------------------------------------------------
-            // Download button
-            //-----------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
+        // Download button
+        //-----------------------------------------------------------------------------------------
 
-            downloadButton = (Button) rootView.findViewById(R.id.download_button);
+        downloadButton = (Button) rootView.findViewById(R.id.download_button);
 
-            downloadButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Check if network is available
-                    if (checkNetworkConnection(activityInstance)) {
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Check if network is available
+                if (checkNetworkConnection(activityInstance)) {
 
 
-                        //Downloading image
-                        // if it already exists Toast message, saying that it does
-                        operation = Operation.DOWNLOAD;
+                    //Downloading image
+                    // if it already exists Toast message, saying that it does
+                    operation = Operation.DOWNLOAD;
 
-                        if (fileExists(imageFileForChecking)) {
-                            showToast(getActivity().getApplicationContext(),
-                                    getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
-                        } else {
-                            //Creating target
-                            target = createTarget();
-                            //Create Progress dialog
-                            createProgressDialog();
-                            //Show downloading progress dialog
-                            downloadProgressDialog.show();
-                            //If it doesn't exist, download it, but first check if we have permission to do it
-                            downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
-                        }
+                    if (fileExists(imageFileForChecking)) {
+                        showToast(getActivity().getApplicationContext(),
+                                getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
+                    } else {
+                        //Creating target
+                        target = createTarget();
+                        //Create Progress dialog
+                        createProgressDialog();
+                        //Show downloading progress dialog
+                        downloadProgressDialog.show();
+                        //If it doesn't exist, download it, but first check if we have permission to do it
+                        downloadImageIfPermitted(activityInstance, fragmentInstance, currentImageUrl, target);
                     }
                 }
-            });
+            }
+        });
 
 
-        }
         return rootView;
     }
 
     private void createProgressDialog() {
         //Creating progress dialog
         downloadProgressDialog = new ProgressDialog(activityInstance, R.style.AppCompatAlertDialogStyle);
+        downloadProgressDialog.setTitle(activityInstance.getString(R.string.title_downloading_image));
         downloadProgressDialog.setMessage(activityInstance.getString(R.string.message_downloading_image));
         downloadProgressDialog.setCancelable(true);
         downloadProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -328,7 +321,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             public void onCancel(DialogInterface dialog) {
                 //Cancel the task if user presses back while mDownloadProgressDialog
                 // is shown
-                if(downloadImageTask != null) {
+                if (downloadImageTask != null) {
                     downloadImageTask.cancel(true);
                 } else {
                     downloadImageTaskCancelled = true;
@@ -342,7 +335,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                         downloadProgressDialog.dismiss();
                         //If downloadImageTask exists, cancel it, if it doesn't exist yet, update
                         //the boolean so that it never gets started from Target's onResourceReady
-                        if(downloadImageTask != null) {
+                        if (downloadImageTask != null) {
                             downloadImageTask.cancel(true);
                         } else {
                             downloadImageTaskCancelled = true;
@@ -447,7 +440,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
             @Override
             public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
-                if(!downloadImageTaskCancelled){
+                if (!downloadImageTaskCancelled) {
                     downloadImageTask = new DownloadImageAsyncTask(activityInstance, operation, currentImageName,
                             imageFileForChecking, bitmap, downloadProgressDialog);
                     downloadImageTask.execute();
