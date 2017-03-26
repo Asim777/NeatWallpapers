@@ -1,45 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="us.asimgasimzade.android.neatwallpapers.SingleCategoryActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true">
-    <GridView
-        android:id="@+id/gridView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:columnWidth="150dp"
-        android:drawSelectorOnTop="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:listSelector="@android:color/transparent"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_above="@+id/categories_adView">
 
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/categories_adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center|bottom"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/ad_unit_id_single_category_activity" />
+            <GridView
+                android:id="@+id/gridView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:columnWidth="150dp"
+                android:drawSelectorOnTop="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:listSelector="@android:color/transparent"
+                android:numColumns="auto_fit"
+                android:stretchMode="columnWidth" />
+        </FrameLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/categories_adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center|bottom"
+            ads:adSize="SMART_BANNER"
+            ads:adUnitId="@string/ad_unit_id_single_category_activity" />
     </RelativeLayout>
 
 </us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout>

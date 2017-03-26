@@ -19,26 +19,32 @@
         android:text="@string/unfortunately_there_are_no_results_for_this_request"
         android:textSize="@dimen/no_results_text_size" />
 
-    <GridView
-        android:id="@+id/gridView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:columnWidth="150dp"
-        android:drawSelectorOnTop="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:listSelector="@android:color/transparent"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/search_adView">
+
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:columnWidth="150dp"
+            android:drawSelectorOnTop="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:listSelector="@android:color/transparent"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth" />
+
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:visibility="gone" />
-
+        android:visibility="gone"/>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/search_adView"
