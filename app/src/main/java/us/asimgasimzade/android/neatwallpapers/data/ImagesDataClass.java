@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ImagesDataClass {
 
-    public static ArrayList<GridItem> imageslist = new ArrayList<>();
+    public static ArrayList<GridItem> defaultImagesList = new ArrayList<>();
     public static ArrayList<GridItem> popularImagesList = new ArrayList<>();
     public static ArrayList<GridItem> recentImagesList = new ArrayList<>();
     public static ArrayList<GridItem> favoriteImagesList = new ArrayList<>();

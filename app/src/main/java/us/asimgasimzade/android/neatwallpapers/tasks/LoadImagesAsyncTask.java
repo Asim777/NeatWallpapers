@@ -131,7 +131,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         switch (mSource) {
             case "popular": {
                 ImagesDataClass.popularImagesList = mGridData;
-                ImagesDataClass.imageslist = mGridData;
+                ImagesDataClass.defaultImagesList = mGridData;
             }
             break;
             case "recent": {
@@ -147,7 +147,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             }
             break;
             case "default": {
-                ImagesDataClass.imageslist = mGridData;
+                ImagesDataClass.defaultImagesList = mGridData;
             }
             break;
         }

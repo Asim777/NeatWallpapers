@@ -3,8 +3,10 @@ package us.asimgasimzade.android.neatwallpapers;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
@@ -17,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +35,11 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
@@ -87,6 +93,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     private ProgressBar loadingAnimationProgressBar;
     DownloadImageAsyncTask downloadImageTask;
     private boolean downloadImageTaskCancelled;
+    SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,6 +108,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         currentPosition = bundle.getInt("image_number");
         source = bundle.getString("image_source");
         url = bundle.getString("current_url");
+
+        sharedPreferences = activityInstance.getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
 
         assert source != null;
         switch (source) {
@@ -121,8 +130,20 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
             break;
             case "default": {
-                currentImagesList = ImagesDataClass.imageslist;
+                currentImagesList = ImagesDataClass.defaultImagesList;
             }
+        }
+
+        //If currentImageList is empty (It'll happen when user comes fragment comes back from background),
+        // get currentItem from sharedPreferences
+        if (currentImagesList.size() < 1) {
+            Log.d("AsimTag", "Fragment created, but currentImageList is empty");
+            Gson gson = new Gson();
+            String json = sharedPreferences.getString("CurrentImagesList", "");
+            Type listType = new TypeToken<ArrayList<GridItem>>() {
+            }.getType();
+            currentImagesList = gson.fromJson(json, listType);
+            Log.d("AsimTag", "currentImageList restored from sharedPreferences");
         }
 
         getImageAttributes();
@@ -135,6 +156,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         currentAuthorInfo = currentItem.getAuthor();
         currentImageLink = currentItem.getLink();
         currentImageName = currentItem.getName();
+        Log.d("AsimTag", "currentImageName is " + currentImageName);
     }
 
     @Nullable
@@ -306,7 +328,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
         });
 
-
+        Log.d("AsimTag", "onCreateView of fragment is executed");
         return rootView;
     }
 

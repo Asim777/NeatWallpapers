@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
@@ -54,7 +55,7 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
                 returnValue = ImagesDataClass.favoriteImagesList.size();
                 break;
             case "default":
-                returnValue = ImagesDataClass.imageslist.size();
+                returnValue = ImagesDataClass.defaultImagesList.size();
                 break;
             case "popular":
                 returnValue = ImagesDataClass.popularImagesList.size();
