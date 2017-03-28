@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.RelativeLayout;
 
 import com.google.gson.Gson;
 
@@ -24,8 +27,6 @@ public class SingleImageActivity extends AppCompatActivity {
 
     int imageNumber;
     String source;
-    ViewPager singleImageViewPager;
-    SingleImageViewPagerAdapter singleImageViewPagerAdapter;
     SharedPreferences sharedPreferences;
     ArrayList<GridItem> currentImagesList;
 
@@ -34,9 +35,22 @@ public class SingleImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_image);
 
+
         //Getting extras from intent
         imageNumber = getIntent().getIntExtra("number", 0);
         source = getIntent().getStringExtra("source");
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        SingleImageHolderFragment singleImageHolderFragment = new SingleImageHolderFragment();
+        Bundle args = new Bundle();
+        args.putInt("number", imageNumber);
+        args.putString("source", source);
+        singleImageHolderFragment.setArguments(args);
+        fragmentTransaction.add(R.id.single_image_holder_fragment_holder, singleImageHolderFragment,
+                "SingleImageHolderFragment");
+        fragmentTransaction.commit();
+
 
         //Get shared preferences instance
         sharedPreferences = getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
@@ -64,24 +78,6 @@ public class SingleImageActivity extends AppCompatActivity {
             }
 
         }
-
-        singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(getSupportFragmentManager(), source);
-        singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
-        singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
-        if(singleImageViewPager != null){
-            Log.d("AsimTag", "singleImageViewPager is not null");
-        } else {
-            Log.d("AsimTag", "singleImageViewPager is null");
-        }
-        if(singleImageViewPagerAdapter != null ){
-            Log.d("AsimTag", "singleImageViewPagerAdapter is not null");
-        } else {
-            Log.d("AsimTag", "singleImageViewPagerAdapter is null");
-        }
-
-        // how many images to load into memory from the either side of current page
-        singleImageViewPager.setOffscreenPageLimit(3);
-        singleImageViewPager.setCurrentItem(imageNumber);
     }
 
     @Override
