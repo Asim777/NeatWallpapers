@@ -9,7 +9,7 @@ import android.widget.Toast;
 public class Category {
     private String categoryName;
     private int categoryThumbnail;
-    private String categoryApiName;
+    private String categoryKeyword;
 
     public int getCategoryThumbnail() {
         return categoryThumbnail;
@@ -27,12 +27,12 @@ public class Category {
         this.categoryName = categoryName;
     }
 
-    public String getCategoryApiName() {
-        return categoryApiName;
+    public String getCategoryKeyword() {
+        return categoryKeyword;
     }
 
-    public void setCategoryApiName(String getCategoryApiName) {
-        this.categoryApiName = getCategoryApiName;
+    public void setCategoryKeyword(String getCategoryApiName) {
+        this.categoryKeyword = getCategoryApiName;
     }
 
 }

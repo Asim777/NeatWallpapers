@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,10 +104,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         currentPosition = bundle.getInt("image_number");
         source = bundle.getString("image_source");
         url = bundle.getString("current_url");
-
+        //Get instance of SharedPreferences
         sharedPreferences = activityInstance.getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
-
-        Log.d("AsimTag", "SingleImageFragment onCreate() is called");
     }
 
     public void getImageAttributes() {
@@ -117,7 +114,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         currentAuthorInfo = currentItem.getAuthor();
         currentImageLink = currentItem.getLink();
         currentImageName = currentItem.getName();
-        /*Log.d("AsimTag", "currentImageName is " + currentImageName);*/
     }
 
     @Nullable
@@ -313,7 +309,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
         });
 
-        Log.d("AsimTag", "SingleImageFragment onCreateView() is called");
         return rootView;
     }
 
@@ -400,19 +395,17 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     @Override
     public void onPause() {
         super.onPause();
-
+        //Remove download progress dialog when fragment goes to background
         if (downloadProgressDialog != null) {
             downloadProgressDialog.dismiss();
         }
-        Log.d("AsimTag", "SingleImageFragment onPause() is called");
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        //When coming back from FullImageActivity we need to update favorite state of image
         new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
-        Log.d("AsimTag", "SingleImageFragment onResume() is called");
-
     }
 
     @Override
@@ -465,18 +458,5 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         DOWNLOAD, SET_AS_WALLPAPER
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d("AsimTag", "SingleImageFragment onActivityCreated() is called");
-        super.onActivityCreated(savedInstanceState);
-
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d("AsimTag", "SingleImageFragment onStart() is called");
-    }
 }
 

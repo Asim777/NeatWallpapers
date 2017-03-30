@@ -35,6 +35,7 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
     private Bitmap mBitmap;
     private OutputStream outputStream;
     private ProgressDialog mDownloadProgressDialog;
+    private boolean directoryExists;
 
     public DownloadImageAsyncTask(final Activity thisActivity,
                                   final SingleImageFragment.Operation operation, final String currentImageName,
@@ -59,44 +60,46 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected final Boolean doInBackground(Void... voids) {
 
-            //Specifying path to our app's directory
-            File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
-            //Creating imageFile using path to our custom album
-            File imageFile = new File(path, "NEATWALLPAPERS_" + mCurrentImageName + ".jpg");
+        //Specifying path to our app's directory
+        File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
+        //Creating imageFile using path to our custom album
+        File imageFile = new File(path, "NEATWALLPAPERS_" + mCurrentImageName + ".jpg");
 
+        //If custom album directory doesn't exists create it,
+        // if it's not created, toast error message
+        directoryExists = path.exists() || path.mkdirs();
 
+        //We are checking if there is ExternalStorage mounted on device and is it
+        //readable
+        if (Utils.isExternalStorageWritable()) {
+            try {
+                outputStream = new FileOutputStream(imageFile);
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
-            //We are checking if there is ExternalStorage mounted on device and is it
-            //readable
-            if (Utils.isExternalStorageWritable()) {
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
-                    outputStream = new FileOutputStream(imageFile);
-                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-
+                    if (outputStream != null) {
+                        outputStream.flush();
+                        outputStream.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
-                } finally {
-                    try {
-                        if (outputStream != null) {
-                            outputStream.flush();
-                            outputStream.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
-                // Tell the media scanner about the new file so that it is
-                // immediately available to the user.
-                MediaScannerConnection.scanFile(mThisActivity.getApplicationContext(),
-                        new String[]{imageFile.getAbsolutePath()},
-                        null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            public void onScanCompleted(String path, Uri uri) {
-
-                            }
-                        }
-                );
             }
+            // Tell the media scanner about the new file so that it is
+            // immediately available to the user.
+            MediaScannerConnection.scanFile(mThisActivity.getApplicationContext(),
+                    new String[]{imageFile.getAbsolutePath()},
+                    null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+
+                        }
+                    }
+            );
+        }
 
         return null;
     }
@@ -108,7 +111,11 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
                 != null) {
             mDownloadProgressDialog
                     .dismiss();
+        }
 
+        if(!directoryExists){
+            showToast(mThisActivity, "There was a problem while creating app folder. Please try again",
+                    Toast.LENGTH_SHORT);
         }
 
         if (mOperation == SingleImageFragment.Operation.DOWNLOAD) {

@@ -46,6 +46,7 @@ public class WallpaperManagerActivity extends AppCompatActivity {
     CropImageView cropImageView;
     Intent intent;
     Uri imageUri;
+    SuccessDialogFragment successDialogFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -140,7 +141,8 @@ public class WallpaperManagerActivity extends AppCompatActivity {
                 try {
                     resultBitmap = result.getBitmap();
                     wallpaperManager.setBitmap(resultBitmap);
-                    new SuccessDialogFragment().show(getSupportFragmentManager(), "Success");
+                    successDialogFragment = new SuccessDialogFragment();
+                    successDialogFragment.show(getSupportFragmentManager(), "Success");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -238,6 +240,14 @@ public class WallpaperManagerActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //Remove success dialog fragment when activity goes to background
+        if (successDialogFragment != null) {
+            successDialogFragment.dismiss();
+        }
 
+    }
 }
 

@@ -28,7 +28,7 @@ import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
 public class SingleCategoryActivity extends AppCompatActivity {
     String url;
-    String categoryApiName;
+    String categoryKeyword;
     String categoryName;
     String callingFragment;
     private MultiSwipeRefreshLayout swipeContainer;
@@ -49,15 +49,18 @@ public class SingleCategoryActivity extends AppCompatActivity {
                 .build();
         mAdView.loadAd(adRequest);
 
-        //Get categoryApiName to use in URL and Category name to use in activity title from intent
-        categoryApiName = getIntent().getStringExtra("categoryApiName");
+        //Get categoryKeyword
+        // to use in URL and Category name to use in activity title from intent
+        categoryKeyword = getIntent().getStringExtra("categoryKeyword");
         categoryName = getIntent().getStringExtra("categoryName");
         callingFragment = getIntent().getStringExtra("id");
 
         //Set Category name as title
         setTitle(categoryName);
-        //Set categoryApiName as URL extension
-        constructUrl("popular", categoryApiName);
+        //Set categoryKeyword
+        // as URL extension
+        constructUrl("popular", categoryKeyword
+        );
 
         // Lookup the swipe container view
         swipeContainer = (MultiSwipeRefreshLayout) findViewById(R.id.rootView);
@@ -97,9 +100,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
 
             case R.id.action_sort:
 
-                String[] sortOptionArray = new String[]{
-                        "Popular", "Latest",
-                };
+                String[] sortOptionArray = new String[]{"Popular", "Latest",};
 
                 final Dialog dialog = new Dialog(this);
                 dialog.setContentView(R.layout.sort_dialog);
@@ -114,11 +115,13 @@ public class SingleCategoryActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         switch (i) {
                             case 0: {
-                                constructUrl("popular", categoryApiName);
+                                constructUrl("popular", categoryKeyword
+                                );
                                 break;
                             }
                             case 1: {
-                                constructUrl("latest", categoryApiName);
+                                constructUrl("latest", categoryKeyword
+                                );
                                 break;
                             }
                         }
@@ -171,10 +174,13 @@ public class SingleCategoryActivity extends AppCompatActivity {
         });
     }
 
-    private void constructUrl(String order, String categoryApiName) {
+    private void constructUrl(String order, String categoryKeyword) {
         switch (callingFragment) {
             case "CategoriesFragment": {
-                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryApiName;
+                if (categoryName.equals("animals") || categoryName.equals("people") ){
+                    url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryKeyword;
+                } else {
+                    url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryKeyword;                }
                 break;
             }
             case "ColorsFragment": {

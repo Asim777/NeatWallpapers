@@ -6,14 +6,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-
 import us.asimgasimzade.android.neatwallpapers.adapters.SingleImageViewPagerAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
@@ -99,7 +95,6 @@ public class SingleImageActivity extends AppCompatActivity {
             }
 
             currentImagesList = gson.fromJson(json, listType);
-            Log.d("AsimTagFragment", "currentImageList restored from sharedPreferences");
         }
 
         //Getting instance of ViewPager and Adapter and setting adapter to viewpager
@@ -107,17 +102,9 @@ public class SingleImageActivity extends AppCompatActivity {
         singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(getSupportFragmentManager(), source);
         singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
 
-        Log.d("AsimTag", "SingleImageHolderFragment onCreateView() is called, currentImagesList has "
-                + currentImagesList.size() + " items and Adapter instantiated with "
-                +  singleImageViewPagerAdapter.getCount() + " items");
-
         // how many images to load into memory from the either side of current page
         singleImageViewPager.setOffscreenPageLimit(3);
         singleImageViewPager.setCurrentItem(imageNumber);
-
-
-        Log.d("AsimTag", "SingleImageActivity onCreate() is called");
-
 
     }
 
@@ -131,26 +118,6 @@ public class SingleImageActivity extends AppCompatActivity {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putString("CurrentImagesList", currentImagesListJson);
         sharedPreferencesEditor.apply();
-        Log.d("AsimTag", "SingleImageActivity onSaveInstanceState() is called");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("AsimTag", "SingleImageActivity onResume() is called");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d("AsimTag", "SingleImageActivity onPause() is called");
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d("AsimTag", "SingleImageActivity onStart() is called");
     }
 }
 

@@ -61,4 +61,46 @@
     <string name="success_dialog_negative_button">Stay</string>
     <string name="success_dialog_title">SUCCESS</string>
     <string name="download_cancelled_message">Download is cancelled</string>
+    <string-array name="categories_names">
+        <item>Animals</item>
+        <item>Art</item>
+        <item>Buildings</item>
+        <item>Cars</item>
+        <item>Colors</item>
+        <item>Fantasy</item>
+        <item>Food</item>
+        <item>HD</item>
+        <item>Love</item>
+        <item>Music</item>
+        <item>Monuments</item>
+        <item>Nature</item>
+        <item>Patterns</item>
+        <item>People</item>
+        <item>Space</item>
+        <item>Sports</item>
+        <item>Textures</item>
+        <item>Travel</item>
+        <item>Vintage</item>
+    </string-array>
+    <string-array name="categories_keywords">
+        <item>animals</item>
+        <item>oil paintings</item>
+        <item>building</item>
+        <item>car</item>
+        <item>colors</item>
+        <item>fantasy</item>
+        <item>food</item>
+        <item>user:unsplash</item>
+        <item>love</item>
+        <item>music</item>
+        <item>monuments</item>
+        <item>nature landscape</item>
+        <item>material background</item>
+        <item>people</item>
+        <item>space stars</item>
+        <item>sports</item>
+        <item>textures</item>
+        <item>travel</item>
+        <item>vintage</item>
+    </string-array>
 </resources>

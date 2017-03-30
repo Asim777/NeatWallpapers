@@ -141,7 +141,6 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         imageFileForChecking = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
 
 
-
     }
 
     @Override
@@ -285,7 +284,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
             public void onCancel(DialogInterface dialog) {
                 //Cancel the task if user presses back while mDownloadProgressDialog
                 // is shown
-                if(downloadImageTask != null) {
+                if (downloadImageTask != null) {
                     downloadImageTask.cancel(true);
                 } else {
                     downloadImageTaskCancelled = true;
@@ -299,7 +298,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                         downloadProgressDialog.dismiss();
                         //If downloadImageTask exists, cancel it, if it doesn't exist yet, update
                         //the boolean so that it never gets started from Target's onResourceReady
-                        if(downloadImageTask != null) {
+                        if (downloadImageTask != null) {
                             downloadImageTask.cancel(true);
                         } else {
                             downloadImageTaskCancelled = true;
@@ -330,6 +329,14 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
     }
 
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        //Remove download progress dialog when fragment goes to background
+        if (downloadProgressDialog != null) {
+            downloadProgressDialog.dismiss();
+        }
+    }
 
     @Override
     public void updateImageIsFavorite(boolean response) {

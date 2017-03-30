@@ -1,6 +1,7 @@
 package us.asimgasimzade.android.neatwallpapers;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,10 +11,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 import us.asimgasimzade.android.neatwallpapers.adapters.CategoriesListViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.Category;
-
-import java.util.ArrayList;
 
 /**
  * This fragment holds categories list
@@ -22,58 +23,55 @@ import java.util.ArrayList;
 public class CategoriesFragment extends Fragment {
 
     //String array for holding list of categories
-    public String[] categoryNames = new String[]{
-            "Nature", "Textures", "Technology", "Monuments", "Animals", "Feelings", "Travel",
-            "Computers", "Music", "People", "Religion", "Buildings", "Sports", "Food", "Industry",
-            "Fashion", "Business", "Education", "Health", "Transportation"
-    };
-    public String[] categoryAPInames = new String[]{
-            "nature", "backgrounds", "science", "places", "animals", "feelings", "travel",
-            "computer", "music", "people", "religion", "buildings", "sports", "food", "industry",
-            "fashion", "business", "education", "health", "transportation"
-    };
+    public String[] categoryNames;
+    public String[] categoryKeywords;
+
     public int[] categoryThumbnails = new int[]{
-            R.drawable.nature,
-            R.drawable.textures_backgrounds,
-            R.drawable.technology_science,
-            R.drawable.monuments_places,
             R.drawable.animals,
-            R.drawable.emotions_feelings,
-            R.drawable.travel,
-            R.drawable.communication_computers,
-            R.drawable.music,
-            R.drawable.people,
-            R.drawable.religion,
+            R.drawable.art,
             R.drawable.architecture,
+            R.drawable.cars,
+            R.drawable.colors,
+            R.drawable.fantasy,
+            R.drawable.food,
+            R.drawable.hd,
+            R.drawable.love,
+            R.drawable.music,
+            R.drawable.monuments_places,
+            R.drawable.nature,
+            R.drawable.patterns,
+            R.drawable.people,
+            R.drawable.space,
             R.drawable.sports,
-            R.drawable.food_drinks,
-            R.drawable.industry,
-            R.drawable.fashion,
-            R.drawable.business,
-            R.drawable.education,
-            R.drawable.health,
-            R.drawable.transportation,
+            R.drawable.textures_backgrounds,
+            R.drawable.travel,
+            R.drawable.vintage
     };
+
     ListView mCategoriesListView;
     private ArrayList<Category> mCategoryData = new ArrayList<>();
 
-
+    //Empty constructor
     public CategoriesFragment() {
-        // We need to set mCategoryData only once when Fragment is started so ListView doesn't get
-        //populated with the same data again when Fragment is relaunched
-        for (int i = 0; i < categoryNames.length; i++) {
-            Category category = new Category();
-            category.setCategoryName(categoryNames[i]);
-            category.setCategoryThumbnail(categoryThumbnails[i]);
-            category.setCategoryApiName(categoryAPInames[i]);
-            mCategoryData.add(category);
-        }
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        categoryNames = getActivity().getResources().getStringArray(R.array.categories_names);
+        categoryKeywords = getActivity().getResources().getStringArray(R.array.categories_keywords);
+
+        // We need to set mCategoryData only once when Fragment is started so ListView doesn't get
+        //populated with the same data again when Fragment is relaunched
+        for (int i = 0; i < categoryNames.length; i++) {
+            Category category = new Category();
+            category.setCategoryName(categoryNames[i]);
+            category.setCategoryThumbnail(categoryThumbnails[i]);
+            category.setCategoryKeyword(categoryKeywords[i]);
+            mCategoryData.add(category);
+        }
     }
 
     @Override
@@ -99,7 +97,7 @@ public class CategoriesFragment extends Fragment {
                 Category category = (Category) parent.getItemAtPosition(position);
 
                 Intent openCategoryIntent = new Intent(getActivity(), SingleCategoryActivity.class);
-                openCategoryIntent.putExtra("categoryApiName", category.getCategoryApiName());
+                openCategoryIntent.putExtra("categoryKeyword", category.getCategoryKeyword());
                 openCategoryIntent.putExtra("categoryName", category.getCategoryName());
                 openCategoryIntent.putExtra("id", "CategoriesFragment");
                 startActivity(openCategoryIntent);
