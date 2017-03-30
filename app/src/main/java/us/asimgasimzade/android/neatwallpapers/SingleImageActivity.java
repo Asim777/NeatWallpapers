@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import us.asimgasimzade.android.neatwallpapers.adapters.SingleImageViewPagerAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 
@@ -27,14 +28,13 @@ public class SingleImageActivity extends AppCompatActivity {
     String source;
     SharedPreferences sharedPreferences;
     ArrayList<GridItem> currentImagesList;
-    FragmentTransaction fragmentTransaction;
-    SingleImageHolderFragment singleImageHolderFragment;
+    ViewPager singleImageViewPager;
+    SingleImageViewPagerAdapter singleImageViewPagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_image);
-
 
         //Getting extras from intent
         imageNumber = getIntent().getIntExtra("number", 0);
@@ -67,7 +67,7 @@ public class SingleImageActivity extends AppCompatActivity {
 
         }
 
-        //If currentImageList is empty (It'll happen when user comes fragment comes back from background),
+        //If currentImageList is empty (It'll happen when fragment comes back from background),
         // get currentItem from sharedPreferences
         if (currentImagesList.size() < 1) {
 
@@ -102,16 +102,21 @@ public class SingleImageActivity extends AppCompatActivity {
             Log.d("AsimTagFragment", "currentImageList restored from sharedPreferences");
         }
 
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        singleImageHolderFragment = new SingleImageHolderFragment();
-        Bundle args = new Bundle();
-        args.putInt("number", imageNumber);
-        args.putString("source", source);
+        //Getting instance of ViewPager and Adapter and setting adapter to viewpager
+        singleImageViewPager = (ViewPager) findViewById(R.id.single_image_viewpager);
+        singleImageViewPagerAdapter = new SingleImageViewPagerAdapter(getSupportFragmentManager(), source);
+        singleImageViewPager.setAdapter(singleImageViewPagerAdapter);
+
+        Log.d("AsimTag", "SingleImageHolderFragment onCreateView() is called, currentImagesList has "
+                + currentImagesList.size() + " items and Adapter instantiated with "
+                +  singleImageViewPagerAdapter.getCount() + " items");
+
+        // how many images to load into memory from the either side of current page
+        singleImageViewPager.setOffscreenPageLimit(3);
+        singleImageViewPager.setCurrentItem(imageNumber);
+
+
         Log.d("AsimTag", "SingleImageActivity onCreate() is called");
-        singleImageHolderFragment.setArguments(args);
-        fragmentTransaction.add(R.id.single_image_holder_fragment_holder, singleImageHolderFragment,
-                "SingleImageHolderFragment");
-        fragmentTransaction.commit();
 
 
     }
@@ -127,7 +132,6 @@ public class SingleImageActivity extends AppCompatActivity {
         sharedPreferencesEditor.putString("CurrentImagesList", currentImagesListJson);
         sharedPreferencesEditor.apply();
         Log.d("AsimTag", "SingleImageActivity onSaveInstanceState() is called");
-        fragmentTransaction.remove(singleImageHolderFragment);
     }
 
     @Override
