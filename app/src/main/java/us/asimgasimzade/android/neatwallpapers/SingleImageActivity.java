@@ -4,18 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.RelativeLayout;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import us.asimgasimzade.android.neatwallpapers.adapters.SingleImageViewPagerAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 
@@ -29,6 +27,8 @@ public class SingleImageActivity extends AppCompatActivity {
     String source;
     SharedPreferences sharedPreferences;
     ArrayList<GridItem> currentImagesList;
+    FragmentTransaction fragmentTransaction;
+    SingleImageHolderFragment singleImageHolderFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,18 +39,6 @@ public class SingleImageActivity extends AppCompatActivity {
         //Getting extras from intent
         imageNumber = getIntent().getIntExtra("number", 0);
         source = getIntent().getStringExtra("source");
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        SingleImageHolderFragment singleImageHolderFragment = new SingleImageHolderFragment();
-        Bundle args = new Bundle();
-        args.putInt("number", imageNumber);
-        args.putString("source", source);
-        singleImageHolderFragment.setArguments(args);
-        fragmentTransaction.add(R.id.single_image_holder_fragment_holder, singleImageHolderFragment,
-                "SingleImageHolderFragment");
-        fragmentTransaction.commit();
-
 
         //Get shared preferences instance
         sharedPreferences = getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
@@ -78,6 +66,54 @@ public class SingleImageActivity extends AppCompatActivity {
             }
 
         }
+
+        //If currentImageList is empty (It'll happen when user comes fragment comes back from background),
+        // get currentItem from sharedPreferences
+        if (currentImagesList.size() < 1) {
+
+            Gson gson = new Gson();
+            String json = sharedPreferences.getString("CurrentImagesList", "");
+            Type listType = new TypeToken<ArrayList<GridItem>>() {
+            }.getType();
+
+            switch (source) {
+                case "popular": {
+                    ImagesDataClass.popularImagesList = gson.fromJson(json, listType);
+                }
+                break;
+                case "recent": {
+                    ImagesDataClass.recentImagesList = gson.fromJson(json, listType);
+                }
+                break;
+                case "favorites": {
+                    ImagesDataClass.favoriteImagesList = gson.fromJson(json, listType);
+                }
+                break;
+                case "search": {
+                    ImagesDataClass.searchResultImagesList = gson.fromJson(json, listType);
+                }
+                break;
+                case "default": {
+                    ImagesDataClass.defaultImagesList = gson.fromJson(json, listType);
+                }
+            }
+
+            currentImagesList = gson.fromJson(json, listType);
+            Log.d("AsimTagFragment", "currentImageList restored from sharedPreferences");
+        }
+
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        singleImageHolderFragment = new SingleImageHolderFragment();
+        Bundle args = new Bundle();
+        args.putInt("number", imageNumber);
+        args.putString("source", source);
+        Log.d("AsimTag", "SingleImageActivity onCreate() is called");
+        singleImageHolderFragment.setArguments(args);
+        fragmentTransaction.add(R.id.single_image_holder_fragment_holder, singleImageHolderFragment,
+                "SingleImageHolderFragment");
+        fragmentTransaction.commit();
+
+
     }
 
     @Override
@@ -90,13 +126,27 @@ public class SingleImageActivity extends AppCompatActivity {
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putString("CurrentImagesList", currentImagesListJson);
         sharedPreferencesEditor.apply();
-        Log.d("AsimTag", "currentImagesList is saved to sharedPreferences");
+        Log.d("AsimTag", "SingleImageActivity onSaveInstanceState() is called");
+        fragmentTransaction.remove(singleImageHolderFragment);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("AsimTag", "SingleImageActivity is resumed");
+        Log.d("AsimTag", "SingleImageActivity onResume() is called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("AsimTag", "SingleImageActivity onPause() is called");
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("AsimTag", "SingleImageActivity onStart() is called");
     }
 }
 

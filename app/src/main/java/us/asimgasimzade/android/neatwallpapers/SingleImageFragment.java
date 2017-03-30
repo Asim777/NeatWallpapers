@@ -35,11 +35,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
@@ -111,6 +108,23 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
         sharedPreferences = activityInstance.getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
 
+        Log.d("AsimTag", "SingleImageFragment onCreate() is called");
+    }
+
+    public void getImageAttributes() {
+        currentItem = currentImagesList.get(currentPosition);
+        currentImageUrl = currentItem.getImage();
+        currentAuthorInfo = currentItem.getAuthor();
+        currentImageLink = currentItem.getLink();
+        currentImageName = currentItem.getName();
+        /*Log.d("AsimTag", "currentImageName is " + currentImageName);*/
+    }
+
+    @Nullable
+    @Override
+
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         assert source != null;
         switch (source) {
             case "popular": {
@@ -134,36 +148,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
         }
 
-        //If currentImageList is empty (It'll happen when user comes fragment comes back from background),
-        // get currentItem from sharedPreferences
-        if (currentImagesList.size() < 1) {
-            Log.d("AsimTag", "Fragment created, but currentImageList is empty");
-            Gson gson = new Gson();
-            String json = sharedPreferences.getString("CurrentImagesList", "");
-            Type listType = new TypeToken<ArrayList<GridItem>>() {
-            }.getType();
-            currentImagesList = gson.fromJson(json, listType);
-            Log.d("AsimTag", "currentImageList restored from sharedPreferences");
-        }
-
         getImageAttributes();
-
-    }
-
-    public void getImageAttributes() {
-        currentItem = currentImagesList.get(currentPosition);
-        currentImageUrl = currentItem.getImage();
-        currentAuthorInfo = currentItem.getAuthor();
-        currentImageLink = currentItem.getLink();
-        currentImageName = currentItem.getName();
-        Log.d("AsimTag", "currentImageName is " + currentImageName);
-    }
-
-    @Nullable
-    @Override
-
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
 
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
@@ -328,7 +313,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
         });
 
-        Log.d("AsimTag", "onCreateView of fragment is executed");
+        Log.d("AsimTag", "SingleImageFragment onCreateView() is called");
         return rootView;
     }
 
@@ -419,12 +404,14 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         if (downloadProgressDialog != null) {
             downloadProgressDialog.dismiss();
         }
+        Log.d("AsimTag", "SingleImageFragment onPause() is called");
     }
 
     @Override
     public void onResume() {
         super.onResume();
         new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
+        Log.d("AsimTag", "SingleImageFragment onResume() is called");
 
     }
 
@@ -476,6 +463,20 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
     public enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d("AsimTag", "SingleImageFragment onActivityCreated() is called");
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("AsimTag", "SingleImageFragment onStart() is called");
     }
 }
 
