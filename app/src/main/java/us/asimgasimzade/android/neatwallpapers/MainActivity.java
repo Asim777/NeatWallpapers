@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+        //We want our viewpager save state of child fragments, not load them each time when swiping
+        viewPager.setOffscreenPageLimit(4);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
