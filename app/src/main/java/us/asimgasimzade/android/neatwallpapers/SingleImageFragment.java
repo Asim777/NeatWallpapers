@@ -68,6 +68,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     String currentImageUrl;
     String currentAuthorInfo;
     String currentImageLink;
+    String currentImageThumbnail;
     String currentImageName;
     String source;
     String url;
@@ -110,10 +111,11 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
     public void getImageAttributes() {
         currentItem = currentImagesList.get(currentPosition);
-        currentImageUrl = currentItem.getImage();
-        currentAuthorInfo = currentItem.getAuthor();
-        currentImageLink = currentItem.getLink();
         currentImageName = currentItem.getName();
+        currentAuthorInfo = currentItem.getAuthor();
+        currentImageUrl = currentItem.getImage();
+        currentImageThumbnail = currentItem.getThumbnail();
+        currentImageLink = currentItem.getLink();
     }
 
     @Nullable
@@ -159,6 +161,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                         putExtra("author", currentAuthorInfo).
                         putExtra("link", currentImageLink).
                         putExtra("name", currentImageName).
+                        putExtra("thumbnail", currentImageThumbnail).
                         putExtra("image_is_favorite", imageIsFavorite);
                 startActivityForResult(fullImageIntent, FULL_IMAGE_REQUEST_CODE);
             }
@@ -235,7 +238,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                 //When favorite button inside SingleImageActivity is clicked, we are adding this
                 //image to Favorites database and changing background of a button
                 new AddOrRemoveFavoriteAsyncTask(fragmentInstance, imageIsFavorite, getActivity(),
-                        currentImageName, currentImageUrl, currentAuthorInfo, currentImageLink).execute();
+                        currentImageName, currentImageUrl, currentAuthorInfo, currentImageThumbnail,
+                        currentImageLink).execute();
                 //Setting delegate back to this instance of SingleImageFragment
                 sendFavoritesOKResult(Activity.RESULT_OK);
             }

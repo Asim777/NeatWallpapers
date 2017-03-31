@@ -28,6 +28,9 @@ import android.provider.BaseColumns;
         //Column for storing image author
         public static final String IMAGE_AUTHOR = "image_author";
 
+        //Column for storing image thumbnail
+        public static final String IMAGE_THUMBNAIL = "image_thumbnail";
+
         //Column for storing image link
         public static final String IMAGE_LINK = "image_link";
 

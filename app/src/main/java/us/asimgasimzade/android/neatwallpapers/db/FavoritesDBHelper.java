@@ -12,9 +12,10 @@ import us.asimgasimzade.android.neatwallpapers.db.FavoritesDBContract.FavoritesE
 
 public class FavoritesDBHelper extends SQLiteOpenHelper {
 
+    private String SQL_DELETE_ENTRIES;
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private static final String DATABASE_NAME = "favorites.db";
 
@@ -34,10 +35,11 @@ public class FavoritesDBHelper extends SQLiteOpenHelper {
                  FavoritesEntry.IMAGE_NAME + " TEXT NOT NULL, " +
                  FavoritesEntry.IMAGE_URL + " TEXT NOT NULL, " +
                  FavoritesEntry.IMAGE_AUTHOR + " TEXT NOT NULL, " +
+                 FavoritesEntry.IMAGE_THUMBNAIL+ " TEXT NOT NULL, " +
                  FavoritesEntry.IMAGE_LINK + " TEXT NOT NULL " + ");";
 
         //Use it when implementing "Clear favorites" functionality
-        /*String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + FavoritesEntry.TABLE_NAME;*/
+        SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + FavoritesEntry.TABLE_NAME;
 
         //Execute SQL to create Favorites table
         sqLiteDatabase.execSQL(SQL_CREATE_FAVORITES_TABLE);
@@ -52,8 +54,8 @@ public class FavoritesDBHelper extends SQLiteOpenHelper {
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
 
-        /*sqLiteDatabase.execSQL(SQL_DELETE_ENTRIES);
-        onCreate(sqLiteDatabase);*/
+        sqLiteDatabase.execSQL(SQL_DELETE_ENTRIES);
+        onCreate(sqLiteDatabase);
 
     }
 }

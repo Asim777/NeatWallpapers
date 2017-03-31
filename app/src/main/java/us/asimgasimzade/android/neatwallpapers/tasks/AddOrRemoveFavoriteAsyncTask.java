@@ -24,18 +24,21 @@ public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<String, Void, Void> 
     private String mCurrentImageName;
     private String mCurrentImageUrl;
     private String mCurrentAuthorInfo;
+    private String mCurrentImageThumbnail;
     private String mCurrentImageLink;
     private IsImageFavoriteResponseInterface mDelegate;
 
     public AddOrRemoveFavoriteAsyncTask(IsImageFavoriteResponseInterface delegate, boolean imageIsFavorite,
                                         Activity activity, String currentImageName, String currentImageUrl,
-                                        String currentAuthorInfo, String currentImageLink) {
+                                        String currentAuthorInfo, String currentImageThumbnail,
+                                        String currentImageLink) {
         mDelegate = delegate;
         mImageIsFavorite = imageIsFavorite;
         mActivity = activity;
         mCurrentImageName = currentImageName;
         mCurrentImageUrl = currentImageUrl;
         mCurrentAuthorInfo = currentAuthorInfo;
+        mCurrentImageThumbnail = currentImageThumbnail;
         mCurrentImageLink = currentImageLink;
     }
 
@@ -57,6 +60,7 @@ public class AddOrRemoveFavoriteAsyncTask extends AsyncTask<String, Void, Void> 
             values.put(FavoritesDBContract.FavoritesEntry.IMAGE_NAME, mCurrentImageName);
             values.put(FavoritesDBContract.FavoritesEntry.IMAGE_URL, mCurrentImageUrl);
             values.put(FavoritesDBContract.FavoritesEntry.IMAGE_AUTHOR, mCurrentAuthorInfo);
+            values.put(FavoritesDBContract.FavoritesEntry.IMAGE_THUMBNAIL, mCurrentImageThumbnail);
             values.put(FavoritesDBContract.FavoritesEntry.IMAGE_LINK, mCurrentImageLink);
 
             // Insert the new row using our values

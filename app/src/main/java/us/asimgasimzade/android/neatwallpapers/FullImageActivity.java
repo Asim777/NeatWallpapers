@@ -63,6 +63,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
     String imageUrl;
     String imageAuthor;
     String imageLink;
+    String imageThumbnail;
     String imageName;
     MenuItem favoriteActionButton;
     SingleImageFragment.Operation operation;
@@ -105,10 +106,12 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         photoViewAttacher.update();
 
         //Get image attributes from the intent
-        imageUrl = getIntent().getStringExtra("url");
-        imageAuthor = getIntent().getStringExtra("author");
-        imageLink = getIntent().getStringExtra("link");
-        imageName = getIntent().getStringExtra("name");
+        Intent intent = getIntent();
+        imageUrl = intent.getStringExtra("url");
+        imageAuthor = intent.getStringExtra("author");
+        imageLink = intent.getStringExtra("link");
+        imageThumbnail = intent.getStringExtra("thumbnail");
+        imageName = intent.getStringExtra("name");
 
         loadingAnimationProgressBar = (ProgressBar) findViewById(R.id.loading_progress_bar);
         loadingAnimationProgressBar.setVisibility(View.VISIBLE);
@@ -216,7 +219,8 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                 //When favorite button inside FullImageActivity is clicked, we are adding this
                 //image to Favorites database and changing background of a button
                 new AddOrRemoveFavoriteAsyncTask(FullImageActivity.this, imageIsFavorite,
-                        FullImageActivity.this, imageName, imageUrl, imageAuthor, imageLink).execute();
+                        FullImageActivity.this, imageName, imageUrl, imageAuthor, imageThumbnail,
+                        imageLink).execute();
                 //Setting delegate back to this instance of SingleImageFragment
                 //Sending back return intent to FullImageActivity so that it calls callback
                 // in FavoritesFragment to update it's GridView with new data

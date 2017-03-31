@@ -40,6 +40,7 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
             FavoritesEntry.IMAGE_NAME,
             FavoritesEntry.IMAGE_URL,
             FavoritesEntry.IMAGE_AUTHOR,
+            FavoritesEntry.IMAGE_THUMBNAIL,
             FavoritesEntry.IMAGE_LINK
     };
 
@@ -70,12 +71,12 @@ public class LoadImagesFromFavoritesDatabaseTask extends AsyncTask<String, Void,
                 FavoritesEntry.TABLE_NAME, projection, null, null, null, null, "_id DESC")) {
             while (cursor.moveToNext()) {
                 GridItem item = new GridItem();
+                item.setNumber(i);
                 item.setName(cursor.getString(1));
                 item.setImage(cursor.getString(2));
-                item.setThumbnail(cursor.getString(2));
-                item.setNumber(i);
                 item.setAuthor(cursor.getString(3));
-                item.setLink(cursor.getString(4));
+                item.setThumbnail(cursor.getString(4));
+                item.setLink(cursor.getString(5));
                 mGridData.add(item);
                 i++;
             }
