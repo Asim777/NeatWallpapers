@@ -142,4 +142,14 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."
     </string>
     <string name="login_logo_content_description">Login page logo</string>
+    <string name="account_action_title">Account</string>
+    <string name="title_activity_account">Account</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="settings_action_title">Settings</string>
+    <string name="account_profile_picture">Profile picture</string>
+    <string name="account_logout_button_text">Log out</string>
+    <string name="hint_account_name">Name</string>
+    <string name="hint_account_email">Email</string>
+    <string name="account_change_profile_picture_button_text">Change Picture</string>
+    <string name="account_save_changes_text">Save Changes</string>
 </resources>
