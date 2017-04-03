@@ -1,6 +1,10 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -18,6 +24,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 
 import static android.os.Build.VERSION_CODES.M;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
@@ -27,10 +40,14 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
  */
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText emailEditText, passwordEditText;
+    private EditText passwordEditText;
+    private AutoCompleteTextView emailAutoCompleteTextView;
     private Button signInButton, signUpButton, resetPasswordButton;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
+    private static ArrayList<String> savedEmails;
+    private SharedPreferences sharedPreferences;
+    private Gson gson;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,13 +68,34 @@ public class LoginActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         //Getting references to views
         signInButton = (Button) findViewById(R.id.sign_in_button);
         signUpButton = (Button) findViewById(R.id.sign_up_button);
         resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
-        emailEditText = (EditText) findViewById(R.id.email_editText);
+        emailAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.email_editText);
         passwordEditText = (EditText) findViewById(R.id.password_editText);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        //Get shared preferences instance
+        sharedPreferences = getSharedPreferences("EMAILS_SP", Context.MODE_PRIVATE);
+        gson = new Gson();
+        //Getting saved emails list from shared preferences and showing them as
+        // autocomplete in emailAutoCompleteTextView
+        String savedEmailsJson = sharedPreferences.getString("SavedEmailsList", "");
+        Type listType = new TypeToken<ArrayList<String>>() {}.getType();
+        savedEmails = new ArrayList<>();
+        ArrayList<String> savedEmailsFromJson = gson.fromJson(savedEmailsJson, listType);
+        if(savedEmailsFromJson != null){
+            savedEmails = savedEmailsFromJson;
+        }
+
+        if(savedEmails.size() > 0){
+            ArrayAdapter<String> savedEmailsAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_dropdown_item_1line, savedEmails);
+            emailAutoCompleteTextView.setAdapter(savedEmailsAdapter);
+        }
+
 
         //Get Firebase auth instance (again?)
         auth = FirebaseAuth.getInstance();
@@ -79,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailEditText.getText().toString();
+                String email = emailAutoCompleteTextView.getText().toString();
                 final String password = passwordEditText.getText().toString();
 
                 if (TextUtils.isEmpty(email)) {
@@ -110,8 +148,23 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 showToast(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG);
                             }
+
+
                         } else {
-                            //Login successfull
+                            //Login successful
+                            //Save emails to sharedpreferences for using in email AutoCompleteTextView in future
+                            if(auth.getCurrentUser() != null){
+                                String currentEmail = auth.getCurrentUser().getEmail();
+                                if(!savedEmails.contains(currentEmail)) {
+                                    savedEmails.add(currentEmail);
+                                }
+                            }
+                            SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+                            String savedEmailsListJson = gson.toJson(savedEmails);
+                            sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
+                            sharedPreferencesEditor.apply();
+
+                            //Go to MainActivity
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
@@ -120,5 +173,13 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+
+
+        super.onSaveInstanceState(outState);
     }
 }

@@ -1,12 +1,11 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Path;
-import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -15,10 +14,20 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import static android.R.id.message;
+import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
  * This activity displays account information of user and allows to edit it
@@ -33,6 +42,10 @@ public class AccountActivity extends AppCompatActivity {
     Button logOutButton;
     Button changeProfilePictureButton;
     Button saveChangesButton;
+    Button removeAccountButton;
+    FirebaseAuth auth;
+    FirebaseUser user;
+    FirebaseAuth.AuthStateListener authListener;
 
 
     @Override
@@ -58,13 +71,36 @@ public class AccountActivity extends AppCompatActivity {
         logOutButton = (Button) findViewById(R.id.account_logout_button);
         changeProfilePictureButton = (Button) findViewById(R.id.account_change_picture_button);
         saveChangesButton = (Button) findViewById(R.id.account_save_changes_button);
+        removeAccountButton = (Button) findViewById(R.id.account_remove_account_button);
 
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_pressed}, // pressed
-                new int[] { android.R.attr.state_focused}, // focused
-                new int[] {}
+
+        //Getting FirebaseAuth object instance
+        auth = FirebaseAuth.getInstance();
+        //Getting FirebaseUser for current user
+        user = auth.getCurrentUser();
+        // this listener will be called when there is change in firebase user session
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // user auth state is changed - user is null
+                    // launch login activity
+                    startActivity(new Intent(AccountActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
         };
-        int[] colors = new int[] {
+
+
+        //Dynamically change logOut and changeProfilePicture button textColors
+        // when focused and pressed
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_pressed}, // pressed
+                new int[]{android.R.attr.state_focused}, // focused
+                new int[]{}
+        };
+        int[] colors = new int[]{
                 ContextCompat.getColor(this, R.color.white), // white
                 ContextCompat.getColor(this, R.color.white), // white
                 ContextCompat.getColor(this, R.color.colorAccent), // pink
@@ -73,6 +109,52 @@ public class AccountActivity extends AppCompatActivity {
         ColorStateList list = new ColorStateList(states, colors);
         logOutButton.setTextColor(list);
         changeProfilePictureButton.setTextColor(list);
+
+
+        //Log Out button
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                auth.signOut();
+            }
+        });
+
+        //Remove Account button
+        removeAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder removeAccountDialog =
+                        new AlertDialog.Builder(AccountActivity.this, R.style.AppCompatAlertDialogStyle);
+                removeAccountDialog.setMessage(R.string.account_remove_account_dialog_message)
+                        .setTitle(R.string.account_remove_account_dialog_title)
+                        .setPositiveButton(R.string.account_remove_dialog_positive_button,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (user != null) {
+                                            user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        showToast(getBaseContext(),
+                                                                getString(R.string.profile_removed_success_message),
+                                                                Toast.LENGTH_LONG);
+                                                    } else {
+                                                        showToast(getBaseContext(),
+                                                                getString(R.string.profile_removed_fail_message),
+                                                                Toast.LENGTH_LONG);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                })
+                        .setNegativeButton(R.string.account_remove_dialog_negative_button, null)
+                        .create()
+                        .show();
+            }
+        });
+
 
         //Get user data from FireBase database and populate views
 
@@ -104,7 +186,7 @@ public class AccountActivity extends AppCompatActivity {
 
 
     //TODO: Move it to Utils.java if it works
-    public Bitmap getRoundedShape(Bitmap scaleBitmapImage) {
+   /* public Bitmap getRoundedShape(Bitmap scaleBitmapImage) {
         int targetWidth = 50;
         int targetHeight = 50;
         Bitmap targetBitmap = Bitmap.createBitmap(targetWidth,
@@ -125,5 +207,19 @@ public class AccountActivity extends AppCompatActivity {
                         sourceBitmap.getHeight()),
                 new Rect(0, 0, targetWidth, targetHeight), null);
         return targetBitmap;
+    }*/
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
     }
 }

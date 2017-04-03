@@ -1,6 +1,8 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +19,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -29,6 +36,9 @@ public class SignUpActivity extends AppCompatActivity {
     private Button signInButton, signUpButton, resetPasswordButton;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
+    SharedPreferences sharedPreferences;
+    ArrayList<String> savedEmails;
+    Gson gson;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +54,20 @@ public class SignUpActivity extends AppCompatActivity {
         emailEditText = (EditText) findViewById(R.id.email_editText);
         passwordEditText = (EditText) findViewById(R.id.password_editText);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        //Get shared preferences instance
+        sharedPreferences = getSharedPreferences("EMAILS_SP", Context.MODE_PRIVATE);
+        gson = new Gson();
+
+        //Getting saved emails list from shared preferences and showing them as
+        // autocomplete in emailAutoCompleteTextView
+        String savedEmailsJson = sharedPreferences.getString("SavedEmailsList", "");
+        Type listType = new TypeToken<ArrayList<String>>() {}.getType();
+        savedEmails = new ArrayList<>();
+        ArrayList<String> savedEmailsFromJson = gson.fromJson(savedEmailsJson, listType);
+        if(savedEmailsFromJson != null){
+            savedEmails = savedEmailsFromJson;
+        }
 
         resetPasswordButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -88,13 +112,25 @@ public class SignUpActivity extends AppCompatActivity {
                         new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                showToast(SignUpActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT);
                                 // If sign in fails, display a message to the user. If sign in succeeds
                                 // the auth state listener will be notified and logic to handle the
                                 // signed in user can be handled in the listener.
                                 if (!task.isSuccessful()) {
                                     showToast(SignUpActivity.this, "Authentication failed", Toast.LENGTH_SHORT);
                                 } else {
+                                    //Sign up successful
+                                    //Save emails to sharedpreferences for using in email AutoCompleteTextView in future
+                                    if(auth.getCurrentUser() != null){
+                                        String currentEmail = auth.getCurrentUser().getEmail();
+                                        if(!savedEmails.contains(currentEmail)) {
+                                            savedEmails.add(currentEmail);
+                                        }
+                                    }
+                                    SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+                                    String savedEmailsListJson = gson.toJson(savedEmails);
+                                    sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
+                                    sharedPreferencesEditor.apply();
+
                                     startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                                     finish();
                                 }

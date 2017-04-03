@@ -94,27 +94,27 @@
 
                     <Button
                         android:id="@+id/account_logout_button"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:background="@drawable/transparent_button"
                         android:minHeight="30dp"
                         android:text="@string/account_logout_button_text"
                         android:textSize="11sp"
-
-                        tools:ignore="SmallSp" />
+                        android:layout_weight="0.4"
+                        tools:ignore="ButtonStyle,SmallSp" />
 
                     <Button
                         android:id="@+id/account_change_picture_button"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:layout_marginStart="5dp"
-                        android:layout_weight="0.36"
+                        android:layout_weight="0.6"
                         android:background="@drawable/transparent_button"
                         android:minHeight="30dp"
                         android:text="@string/account_change_profile_picture_button_text"
                         android:textSize="11sp"
-                        tools:ignore="SmallSp" />
+                        tools:ignore="ButtonStyle,SmallSp" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -170,10 +170,20 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="30dp"
             android:background="@color/colorAccent"
-            android:paddingRight="10dp"
             android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:text="@string/account_save_changes_text"
             android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/account_remove_account_button"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:text="@string/account_remove_account_text"
+            android:textColor="@color/colorAccent" />
 
     </LinearLayout>
 

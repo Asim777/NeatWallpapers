@@ -137,8 +137,8 @@ public class Utils {
     }
 
     public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(thisActivity)
-                .setMessage(message)
+        AlertDialog.Builder showMessageOKCancelDialog = new AlertDialog.Builder(thisActivity, R.style.AppCompatAlertDialogStyle);
+        showMessageOKCancelDialog.setMessage(message)
                 .setPositiveButton(R.string.permission_dialog_positive_button, okListener)
                 .setNegativeButton(R.string.permission_dialog_negative_button, null)
                 .create()

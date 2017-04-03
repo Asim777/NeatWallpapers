@@ -120,10 +120,10 @@
     <string name="hint_password">Password</string>
     <string name="hint_name">Fullname</string>
     <string name="btn_login">LOGIN</string>
-    <string name="btn_link_to_register">Not a member? Get registered in Neat Wallpapers now!</string>
+    <string name="btn_link_to_register">New here? Sign up!</string>
     <string name="btn_link_to_login">Already registered. Login Me!</string>
     <string name="title_activity_reset_password">ResetPasswordActivity</string>
-    <string name="btn_forgot_password">Forgot your password?</string>
+    <string name="btn_forgot_password">Forgot password?</string>
     <string name="btn_reset_password">Reset Password</string>
     <string name="btn_back"><![CDATA[<< Back]]></string>
     <string name="hint_new_email">New Email</string>
@@ -152,4 +152,13 @@
     <string name="hint_account_email">Email</string>
     <string name="account_change_profile_picture_button_text">Change Picture</string>
     <string name="account_save_changes_text">Save Changes</string>
+    <string name="account_remove_account_text">Remove account</string>
+    <string name="profile_removed_success_message">Your account is removed. Create new account now!</string>
+    <string name="profile_removed_fail_message">Failed to remove your account!</string>
+    <string name="btn_login_with_google">Sign in with Google</string>
+    <string name="btn_login_with_facebook">Sign in with Facebook</string>
+    <string name="account_remove_dialog_positive_button">Remove</string>
+    <string name="account_remove_dialog_negative_button">Cancel</string>
+    <string name="account_remove_account_dialog_message">Are you sure you want to remove your account and lose all your favorite images?</string>
+    <string name="account_remove_account_dialog_title">Remove account</string>
 </resources>
