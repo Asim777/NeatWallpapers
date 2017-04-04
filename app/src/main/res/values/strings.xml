@@ -107,6 +107,7 @@
 
     <!-- Sign in, Sign up related strings -->
     <string name="email">Email</string>
+    <string name="fullname">Full Name</string>
     <string name="minimum_password">Password too short, enter minimum 6 characters!</string>
     <string name="auth_failed">Authentication failed, check your email and password or sign up</string>
     <string name="change_email">Change Email</string>

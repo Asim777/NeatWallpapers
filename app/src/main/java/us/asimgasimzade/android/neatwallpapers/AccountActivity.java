@@ -1,16 +1,24 @@
 package us.asimgasimzade.android.neatwallpapers;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,8 +33,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import static android.R.id.message;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+import us.asimgasimzade.android.neatwallpapers.data.User;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
+
+import static android.R.attr.value;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
@@ -34,6 +53,7 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
  */
 
 public class AccountActivity extends AppCompatActivity {
+    private static final int PICK_IMAGE_INTENT_KEY = 109;
     ImageView profilePicture;
     TextView userNameTextView;
     TextView userEmailTextView;
@@ -44,8 +64,11 @@ public class AccountActivity extends AppCompatActivity {
     Button saveChangesButton;
     Button removeAccountButton;
     FirebaseAuth auth;
-    FirebaseUser user;
+    FirebaseUser authUser;
     FirebaseAuth.AuthStateListener authListener;
+    String userId;
+    DatabaseReference database;
+    User currentUser;
 
 
     @Override
@@ -57,9 +80,13 @@ public class AccountActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //Enable up button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        final Drawable upArrow = ContextCompat.getDrawable(this, R.mipmap.ic_up);
+        upArrow.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         //Getting references to views
@@ -72,26 +99,6 @@ public class AccountActivity extends AppCompatActivity {
         changeProfilePictureButton = (Button) findViewById(R.id.account_change_picture_button);
         saveChangesButton = (Button) findViewById(R.id.account_save_changes_button);
         removeAccountButton = (Button) findViewById(R.id.account_remove_account_button);
-
-
-        //Getting FirebaseAuth object instance
-        auth = FirebaseAuth.getInstance();
-        //Getting FirebaseUser for current user
-        user = auth.getCurrentUser();
-        // this listener will be called when there is change in firebase user session
-        authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null) {
-                    // user auth state is changed - user is null
-                    // launch login activity
-                    startActivity(new Intent(AccountActivity.this, LoginActivity.class));
-                    finish();
-                }
-            }
-        };
-
 
         //Dynamically change logOut and changeProfilePicture button textColors
         // when focused and pressed
@@ -111,6 +118,46 @@ public class AccountActivity extends AppCompatActivity {
         changeProfilePictureButton.setTextColor(list);
 
 
+        //Getting FirebaseAuth object instance
+        auth = FirebaseAuth.getInstance();
+        //Getting FirebaseUser for current user
+        authUser = auth.getCurrentUser();
+        //Getting userId from authUser
+        userId = authUser != null ? authUser.getUid() : null;
+        //Get user data from FireBase database
+        database = FirebaseDatabase.getInstance().getReference();
+
+
+        // This event listener is triggered whenever there is a change in user profile data
+        database.child("users").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currentUser = dataSnapshot.getValue(User.class);
+                updateUI(currentUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Failed to read value
+                Log.d("AsimTag", "Failed to read value.", databaseError.toException());
+            }
+        });
+
+        // This listener will be called when there is change in FireBase user session
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser authUser = firebaseAuth.getCurrentUser();
+                if (authUser == null) {
+                    // user auth state is changed - user is null
+                    // launch login activity
+                    startActivity(new Intent(AccountActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+
         //Log Out button
         logOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,28 +172,17 @@ public class AccountActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder removeAccountDialog =
                         new AlertDialog.Builder(AccountActivity.this, R.style.AppCompatAlertDialogStyle);
+
                 removeAccountDialog.setMessage(R.string.account_remove_account_dialog_message)
                         .setTitle(R.string.account_remove_account_dialog_title)
                         .setPositiveButton(R.string.account_remove_dialog_positive_button,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        if (user != null) {
-                                            user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        showToast(getBaseContext(),
-                                                                getString(R.string.profile_removed_success_message),
-                                                                Toast.LENGTH_LONG);
-                                                    } else {
-                                                        showToast(getBaseContext(),
-                                                                getString(R.string.profile_removed_fail_message),
-                                                                Toast.LENGTH_LONG);
-                                                    }
-                                                }
-                                            });
-                                        }
+                                        //Removing user data from FireBase database, if removing user
+                                        // from FireBase authentication fails, we'll put this user
+                                        // node back to database
+                                        removeUser();
                                     }
                                 })
                         .setNegativeButton(R.string.account_remove_dialog_negative_button, null)
@@ -155,11 +191,98 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
+        //Change picture button
+        changeProfilePictureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Starting image chooser
+                Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                getIntent.setType("image/*");
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/*");
+                Intent chooserIntent = Intent.createChooser(pickIntent, "Select Image");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
+                startActivityForResult(chooserIntent, PICK_IMAGE_INTENT_KEY);
+            }
+        });
 
-        //Get user data from FireBase database and populate views
 
+        //Save changes button
+        saveChangesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Getting entered text
+                String newName = userNameEditText.getText().toString();
+                String newEmail = userEmailEditText.getText().toString();
+
+                //Updating data if entries are not empty
+                if (!newEmail.isEmpty()) {
+                    database.child("users").child(userId).child("email").setValue(newEmail);
+                }
+                if (!newName.isEmpty()) {
+                    database.child("users").child(userId).child("fullname").setValue(newName);
+                }
+                //Toasting success message and clearing editTexts
+                if (!(newEmail.isEmpty() & newName.isEmpty())) {
+                    showToast(AccountActivity.this, "Your account data successfully changed", Toast.LENGTH_SHORT);
+                }
+                userEmailEditText.setText("");
+                userNameEditText.setText("");
+
+            }
+        });
 
     }
+
+    private void removeUser() {
+        database.child("users").child(userId).removeValue();
+        if (authUser != null) {
+            authUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        showToast(AccountActivity.this.getBaseContext(), AccountActivity.this.getString
+                                        (R.string.profile_removed_success_message), Toast.LENGTH_LONG);
+
+                    } else {
+                        showToast(AccountActivity.this.getBaseContext(), AccountActivity.this.getString
+                                        (R.string.profile_removed_fail_message), Toast.LENGTH_LONG);
+                        database.child("users").child(userId).setValue(currentUser);
+                    }
+                }
+            });
+        }
+    }
+
+    private void updateUI(User mCurrentUser) {
+        if (mCurrentUser == null) return;
+        userNameTextView.setText(mCurrentUser.getFullname());
+        userEmailTextView.setText(mCurrentUser.getEmail());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            //If user has chosen image, get this image as Bitmap and set to profilePicture imageView
+            case PICK_IMAGE_INTENT_KEY:
+                if (resultCode == RESULT_OK) {
+                    try {
+                        final Uri profileImageUri = data.getData();
+                        final InputStream profileImageStream = getContentResolver().openInputStream(profileImageUri);
+                        final Bitmap selectedProfileImage = BitmapFactory.decodeStream(profileImageStream);
+                        Drawable circledDrawable = Utils.getCircleImage(this, selectedProfileImage);
+                        profilePicture.setImageDrawable(circledDrawable);
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        showToast(this, "There was a problem with picking image. Please try again", Toast.LENGTH_LONG);
+                    }
+                }
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -183,31 +306,6 @@ public class AccountActivity extends AppCompatActivity {
                 return super.onContextItemSelected(item);
         }
     }
-
-
-    //TODO: Move it to Utils.java if it works
-   /* public Bitmap getRoundedShape(Bitmap scaleBitmapImage) {
-        int targetWidth = 50;
-        int targetHeight = 50;
-        Bitmap targetBitmap = Bitmap.createBitmap(targetWidth,
-                targetHeight, Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(targetBitmap);
-        Path path = new Path();
-        path.addCircle(((float) targetWidth - 1) / 2,
-                ((float) targetHeight - 1) / 2,
-                (Math.min(((float) targetWidth),
-                        ((float) targetHeight)) / 2),
-                Path.Direction.CCW);
-
-        canvas.clipPath(path);
-        Bitmap sourceBitmap = scaleBitmapImage;
-        canvas.drawBitmap(sourceBitmap,
-                new Rect(0, 0, sourceBitmap.getWidth(),
-                        sourceBitmap.getHeight()),
-                new Rect(0, 0, targetWidth, targetHeight), null);
-        return targetBitmap;
-    }*/
 
     @Override
     public void onStart() {

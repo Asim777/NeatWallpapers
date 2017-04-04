@@ -10,20 +10,27 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import us.asimgasimzade.android.neatwallpapers.AccountActivity;
 import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
 import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
@@ -187,5 +195,40 @@ public class Utils {
         return networkIsAvailable;
     }
 
+
+    public static Drawable getCircleImage(Context context, Bitmap sourceBitmap) {
+        Bitmap resultBitmap;
+        //Cropping square out of selected bitmap
+        if (sourceBitmap.getWidth() >= sourceBitmap.getHeight()){
+
+            resultBitmap = Bitmap.createBitmap(
+                    sourceBitmap,
+                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2,
+                    0,
+                    sourceBitmap.getHeight(),
+                    sourceBitmap.getHeight()
+            );
+
+        }else{
+
+            resultBitmap = Bitmap.createBitmap(
+                    sourceBitmap,
+                    0,
+                    sourceBitmap.getHeight()/2 - sourceBitmap.getWidth()/2,
+                    sourceBitmap.getWidth(),
+                    sourceBitmap.getWidth()
+            );
+        }
+        Bitmap squareBitmap = resultBitmap;
+        //Getting rounded bitmap
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(
+                context.getResources(), squareBitmap);
+        //setting radius
+        roundedBitmapDrawable.setCornerRadius(Math.max(sourceBitmap.getWidth(),
+                sourceBitmap.getHeight()) / 2.0f);
+        roundedBitmapDrawable.setAntiAlias(true);
+        return roundedBitmapDrawable;
+
+    }
 
 }

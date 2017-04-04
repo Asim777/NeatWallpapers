@@ -19,11 +19,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.data.User;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -32,9 +37,11 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
  */
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText emailEditText, passwordEditText;
+    private EditText fullnameEditText, emailEditText, passwordEditText;
     private Button signInButton, signUpButton, resetPasswordButton;
     private ProgressBar progressBar;
+    private FirebaseUser authUser;
+    String userId;
     private FirebaseAuth auth;
     SharedPreferences sharedPreferences;
     ArrayList<String> savedEmails;
@@ -51,6 +58,7 @@ public class SignUpActivity extends AppCompatActivity {
         signInButton = (Button) findViewById(R.id.sign_in_button);
         signUpButton = (Button) findViewById(R.id.sign_up_button);
         resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
+        fullnameEditText = (EditText) findViewById(R.id.name_editText);
         emailEditText = (EditText) findViewById(R.id.email_editText);
         passwordEditText = (EditText) findViewById(R.id.password_editText);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -112,14 +120,21 @@ public class SignUpActivity extends AppCompatActivity {
                         new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                // If sign in fails, display a message to the user. If sign in succeeds
+                                // If sign up fails, display a message to the user. If sign up succeeds
                                 // the auth state listener will be notified and logic to handle the
-                                // signed in user can be handled in the listener.
+                                // signed up user can be handled in the listener. We also create new entry
+                                // in FireBase database for this user if sign up succeeds
                                 if (!task.isSuccessful()) {
-                                    showToast(SignUpActivity.this, "Authentication failed", Toast.LENGTH_SHORT);
+                                    showToast(SignUpActivity.this, "Sign up failed", Toast.LENGTH_SHORT);
                                 } else {
-                                    //Sign up successful
-                                    //Save emails to sharedpreferences for using in email AutoCompleteTextView in future
+                                    // Sign up successful
+                                    // Creating new user object
+                                    User user = new User(fullnameEditText.getText().toString(),
+                                            emailEditText.getText().toString(), "");
+
+                                    // Save emails to sharedpreferences for using in email AutoCompleteTextView in future
+                                    // And save new User object to sharedPreferences to use in AccountActivity to populate
+                                    // the views while FireBase database syncs.
                                     if(auth.getCurrentUser() != null){
                                         String currentEmail = auth.getCurrentUser().getEmail();
                                         if(!savedEmails.contains(currentEmail)) {
@@ -130,6 +145,21 @@ public class SignUpActivity extends AppCompatActivity {
                                     String savedEmailsListJson = gson.toJson(savedEmails);
                                     sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
                                     sharedPreferencesEditor.apply();
+
+
+                                    // Add new user to FirebaseDatabase under the "users" node
+                                    // Creating new user node, which returns the unique key value
+                                    // new user node would be /users/$userid/
+
+                                    //Get FireBase database reference instance
+                                    DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+                                    //Getting FirebaseAuth object instance
+                                    auth = FirebaseAuth.getInstance();
+                                    //Getting FirebaseUser for current user
+                                    authUser = auth.getCurrentUser();
+                                    userId = authUser != null ? authUser.getUid() : null;
+                                    // pushing user to 'users' node using the userId
+                                    database.child("users").child(userId).setValue(user);
 
                                     startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                                     finish();

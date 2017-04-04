@@ -22,6 +22,7 @@
         android:icon="@mipmap/ic_launcher"
         android:installLocation="internalOnly"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/MainTheme"
         tools:ignore="GoogleAppIndexingWarning">
@@ -79,7 +80,7 @@
         <activity
             android:name=".FullImageActivity"
             android:parentActivityName=".SingleImageActivity"
-            android:theme="@style/MainTheme.ActionBarStyle.Transparent" />
+            android:theme="@style/MainTheme.TransparentActionBar" />
         <activity
             android:name=".WallpaperManagerActivity"
             android:exported="true"
@@ -115,24 +116,26 @@
 
         <activity
             android:name=".AccountActivity"
-            android:label="@string/title_activity_account"/>
+            android:label="@string/title_activity_account"
+            android:theme="@style/MainTheme.TransparentActionBar" />
 
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"/>
+            android:label="@string/title_activity_settings" />
 
         <activity
             android:name=".SignUpActivity"
-            android:label="@string/title_activity_login"/>
+            android:label="@string/title_activity_login"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".LoginActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_login"/>
+            android:label="@string/title_activity_login"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ResetPasswordActivity"
-            android:label="@string/title_activity_login"/>
+            android:label="@string/title_activity_login" />
     </application>
 
 </manifest>
