@@ -203,8 +203,7 @@ public class Utils {
 
             resultBitmap = Bitmap.createBitmap(
                     sourceBitmap,
-                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2,
-                    0,
+                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2, 0,
                     sourceBitmap.getHeight(),
                     sourceBitmap.getHeight()
             );

@@ -120,11 +120,11 @@
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="hint_name">Fullname</string>
-    <string name="btn_login">LOGIN</string>
+    <string name="btn_login">Sign in</string>
     <string name="btn_link_to_register">New here? Sign up!</string>
-    <string name="btn_link_to_login">Already registered. Login Me!</string>
+    <string name="btn_link_to_login">Already registered? Sign in!</string>
     <string name="title_activity_reset_password">ResetPasswordActivity</string>
-    <string name="btn_forgot_password">Forgot password?</string>
+    <string name="btn_forgot_password">Forgot password</string>
     <string name="btn_reset_password">Reset Password</string>
     <string name="btn_back"><![CDATA[<< Back]]></string>
     <string name="hint_new_email">New Email</string>
@@ -135,7 +135,7 @@
     <string name="lbl_forgot_password">Forgot password?</string>
     <string name="forgot_password_msg">We just need your registered Email Id to sent you password reset instructions.</string>
     <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Register</string>
+    <string name="action_sign_up">Register</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
@@ -162,4 +162,7 @@
     <string name="account_remove_dialog_negative_button">Cancel</string>
     <string name="account_remove_account_dialog_message">Are you sure you want to remove your account and lose all your favorite images?</string>
     <string name="account_remove_account_dialog_title">Remove account</string>
+    <string name="empty_email_error_message">Please, enter email address!</string>
+    <string name="empty_password_error_message">Please, enter password!</string>
+    <string name="firebase_web_client_id">709828608877–8p2vakdp21cjdbitu7uv1bqumts9gs3j.apps.googleusercontent.com</string>
 </resources>

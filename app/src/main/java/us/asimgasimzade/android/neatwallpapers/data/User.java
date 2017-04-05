@@ -1,7 +1,7 @@
 package us.asimgasimzade.android.neatwallpapers.data;
 
 /**
- * Created by asim on 4/3/17.
+ * This class holds User info
  */
 
 public class User {

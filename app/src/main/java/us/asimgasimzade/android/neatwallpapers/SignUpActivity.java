@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -132,9 +133,8 @@ public class SignUpActivity extends AppCompatActivity {
                                     User user = new User(fullnameEditText.getText().toString(),
                                             emailEditText.getText().toString(), "");
 
-                                    // Save emails to sharedpreferences for using in email AutoCompleteTextView in future
-                                    // And save new User object to sharedPreferences to use in AccountActivity to populate
-                                    // the views while FireBase database syncs.
+                                    // Save emails to sharedpreferences for using in email
+                                    // AutoCompleteTextView in future
                                     if(auth.getCurrentUser() != null){
                                         String currentEmail = auth.getCurrentUser().getEmail();
                                         if(!savedEmails.contains(currentEmail)) {
@@ -170,6 +170,18 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    //Making passwordEditText to click signUpButton when ACTION_DONE pressed on keyboard
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            if (passwordEditText.hasFocus()) {
+                // user presses done button on keyboardand signUpButton gets clicked
+                signUpButton.callOnClick();
+            }
+        }
+        return false;
     }
 
     @Override

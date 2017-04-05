@@ -12,13 +12,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,6 +27,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,8 +46,8 @@ import java.io.InputStream;
 import us.asimgasimzade.android.neatwallpapers.data.User;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
-import static android.R.attr.value;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
+
 
 /**
  * This activity displays account information of user and allows to edit it
@@ -69,6 +70,7 @@ public class AccountActivity extends AppCompatActivity {
     String userId;
     DatabaseReference database;
     User currentUser;
+    Bitmap profileImageBitmap;
 
 
     @Override
@@ -118,14 +120,20 @@ public class AccountActivity extends AppCompatActivity {
         changeProfilePictureButton.setTextColor(list);
 
 
+
         //Getting FirebaseAuth object instance
         auth = FirebaseAuth.getInstance();
         //Getting FirebaseUser for current user
         authUser = auth.getCurrentUser();
+
         //Getting userId from authUser
         userId = authUser != null ? authUser.getUid() : null;
         //Get user data from FireBase database
         database = FirebaseDatabase.getInstance().getReference();
+
+
+
+
 
 
         // This event listener is triggered whenever there is a change in user profile data
@@ -243,11 +251,11 @@ public class AccountActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
                         showToast(AccountActivity.this.getBaseContext(), AccountActivity.this.getString
-                                        (R.string.profile_removed_success_message), Toast.LENGTH_LONG);
+                                (R.string.profile_removed_success_message), Toast.LENGTH_LONG);
 
                     } else {
                         showToast(AccountActivity.this.getBaseContext(), AccountActivity.this.getString
-                                        (R.string.profile_removed_fail_message), Toast.LENGTH_LONG);
+                                (R.string.profile_removed_fail_message), Toast.LENGTH_LONG);
                         database.child("users").child(userId).setValue(currentUser);
                     }
                 }
@@ -257,8 +265,26 @@ public class AccountActivity extends AppCompatActivity {
 
     private void updateUI(User mCurrentUser) {
         if (mCurrentUser == null) return;
+        //Update user full name
         userNameTextView.setText(mCurrentUser.getFullname());
+        //Update user email
         userEmailTextView.setText(mCurrentUser.getEmail());
+        //Update user profile picture
+        String profileImageString = currentUser.getProfilePicture();
+        Uri profileImageUri = Uri.parse(profileImageString);
+        //Loading image with glide
+        Glide.with(this.getApplicationContext()).
+                load(profileImageUri).
+                asBitmap().
+                into(new SimpleTarget<Bitmap>(500,500) {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        profileImageBitmap = resource;
+                        Drawable circledProfileDrawable = Utils.getCircleImage(AccountActivity.this, profileImageBitmap);
+                        profilePicture.setImageDrawable(circledProfileDrawable);
+                    }
+                });
+
     }
 
     @Override
@@ -319,5 +345,19 @@ public class AccountActivity extends AppCompatActivity {
         if (authListener != null) {
             auth.removeAuthStateListener(authListener);
         }
+    }
+
+    //Making emailAutoCompleteTextView to focus on passwordEditText when ACTION_NEXT pressed
+    //And passwordEditText to click signInButton when ACTION_DONE pressed
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            if (userEmailEditText.hasFocus()) {
+                // sends focus to passwordEditText field if user pressed "Next"
+                saveChangesButton.performClick();
+                return true;
+            }
+        }
+        return false;
     }
 }
