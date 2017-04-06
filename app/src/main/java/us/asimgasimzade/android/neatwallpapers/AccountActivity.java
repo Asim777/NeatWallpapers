@@ -30,6 +30,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,6 +49,7 @@ import us.asimgasimzade.android.neatwallpapers.data.User;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
+
 
 
 /**
@@ -147,7 +150,6 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Failed to read value
-                Log.d("AsimTag", "Failed to read value.", databaseError.toException());
             }
         });
 
@@ -171,6 +173,7 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 auth.signOut();
+                LoginManager.getInstance().logOut();
             }
         });
 
@@ -243,6 +246,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void removeUser() {
+
         database.child("users").child(userId).removeValue();
         if (authUser != null) {
             authUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -261,6 +265,7 @@ public class AccountActivity extends AppCompatActivity {
                 }
             });
         }
+        LoginManager.getInstance().logOut();
     }
 
     private void updateUI(User mCurrentUser) {

@@ -40,11 +40,6 @@
     <string name="permission_granted_message">Permission is granted</string>
     <string name="permission_message">You need to grant permission to save image into your device in order to download it. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
     <string name="problem_while_creating_directory_message">There was a problem while creating directory!</string>
-    <string name="admob_app_id">ca-app-pub-5015291550861860~9287306639</string>
-    <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
-    <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
-    <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>
-    z
     <string name="unfortunately_there_are_no_results_for_this_request">Unfortunately there are no results for this request.</string>
     <string name="full_image_description">Full image</string>
     <string name="favorites_action_title">Favorites</string>
@@ -165,4 +160,12 @@
     <string name="empty_email_error_message">Please, enter email address!</string>
     <string name="empty_password_error_message">Please, enter password!</string>
     <string name="firebase_web_client_id">709828608877–8p2vakdp21cjdbitu7uv1bqumts9gs3j.apps.googleusercontent.com</string>
+    <string name="facebook_app_id">1942959899268807</string>
+    <string name="admob_app_id">ca-app-pub-5015291550861860~9287306639</string>
+    <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
+    <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
+    <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>
+    <string name="google_sign_in_fail_message">Google sign in failed</string>
+    <string name="facebook_sign_in_fail_message">Facebook sign failed</string>
+    <string name="facebook_sign_in_cancelled_message">Facebook sign in cancelled</string>
 </resources>
