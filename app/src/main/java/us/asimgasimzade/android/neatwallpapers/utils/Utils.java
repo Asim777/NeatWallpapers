@@ -2,7 +2,6 @@ package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,13 +10,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -26,25 +22,14 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import us.asimgasimzade.android.neatwallpapers.AccountActivity;
 import us.asimgasimzade.android.neatwallpapers.R;
-import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
 import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
-import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
-
-import static java.lang.Thread.sleep;
 
 /**
  * This class has utility methods that can be accessed from everywhere
@@ -229,5 +214,7 @@ public class Utils {
         return roundedBitmapDrawable;
 
     }
+
+
 
 }

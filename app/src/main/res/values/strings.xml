@@ -164,4 +164,8 @@
     <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>
     <string name="google_sign_in_fail_message">Google sign in failed</string>
     <string name="message_login">Logging in</string>
+    <string name="reset_password_success_message">Check your email for instructions to reset your password</string>
+    <string name="reset_password_fail_message">Failed to send reset email! Please try again.</string>
+    <string name="message_reset_password">Sending reset email</string>
+    <string name="reset_password_empty_email_message">Enter your registered email address!</string>
 </resources>

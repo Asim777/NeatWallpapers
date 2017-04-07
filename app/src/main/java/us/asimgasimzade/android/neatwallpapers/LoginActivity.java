@@ -2,21 +2,27 @@ package us.asimgasimzade.android.neatwallpapers;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -41,6 +47,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -62,7 +69,9 @@ public class LoginActivity extends AppCompatActivity {
     String userEmail;
     String userProfilePicture;
     User user;
-    private ProgressDialog loginProgressDialog;
+    private ProgressDialog progressDialog;
+    String resetPasswordEmail;
+    ArrayAdapter<String> savedEmailsAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
         //Getting references to views
         signInButton = (Button) findViewById(R.id.sign_in_button);
         Button signUpButton = (Button) findViewById(R.id.sign_up_button);
-        Button resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
+        final Button resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
         Button googleSignInButton = (Button) findViewById(R.id.sign_in_with_google_button);
 
         emailAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.email_editText);
@@ -107,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
             savedEmails = savedEmailsFromJson;
         }
         if (savedEmails.size() > 0) {
-            ArrayAdapter<String> savedEmailsAdapter = new ArrayAdapter<>(this,
+            savedEmailsAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_dropdown_item_1line, savedEmails);
             emailAutoCompleteTextView.setAdapter(savedEmailsAdapter);
         }
@@ -145,7 +154,66 @@ public class LoginActivity extends AppCompatActivity {
         resetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
+
+                AlertDialog.Builder forgotPasswordDialog = new AlertDialog.Builder(LoginActivity.this);
+
+                forgotPasswordDialog.setTitle("Forgot password");
+                //Create container view to set margins
+                FrameLayout container = new FrameLayout(LoginActivity.this);
+                // Set up the input
+                final AutoCompleteTextView emailEditText = new AutoCompleteTextView(LoginActivity.this);
+                emailEditText.setSingleLine();
+                // Specify the type of input expected;
+                FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.leftMargin = 40;
+                params.rightMargin = 40;
+                params.topMargin = 40;
+                emailEditText.setLayoutParams(params);
+                container.addView(emailEditText);
+                emailEditText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                emailEditText.setAdapter(savedEmailsAdapter);
+                emailEditText.requestFocus();
+
+                forgotPasswordDialog.setView(container);
+                // Set positive button
+                forgotPasswordDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        resetPasswordEmail = emailEditText.getText().toString();
+                        if(resetPasswordEmail.isEmpty()){
+                            showToast(LoginActivity.this.getApplicationContext(),
+                                    getString(R.string.reset_password_empty_email_message), Toast.LENGTH_LONG);
+                        } else {
+                            showProgressDialog(getString(R.string.message_reset_password));
+                            auth.sendPasswordResetEmail(resetPasswordEmail).
+                                    addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        showToast(LoginActivity.this.getApplicationContext(),
+                                                getString(R.string.reset_password_success_message), Toast.LENGTH_LONG);
+                                    } else {
+                                        showToast(LoginActivity.this.getApplicationContext(),
+                                                getString(R.string.reset_password_fail_message), Toast.LENGTH_LONG);
+                                    }
+                                    progressDialog.dismiss();
+                                }
+                            });
+                        }
+                    }
+                });
+                //Set negative button
+                forgotPasswordDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog alertDialog = forgotPasswordDialog.create();
+                if (alertDialog.getWindow() != null){
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                }
+                alertDialog.show();
             }
         });
 
@@ -153,7 +221,7 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showProgressDialog();
+                showProgressDialog(getString(R.string.message_login));
                 signInWithGoogle();
 
             }
@@ -177,7 +245,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                showProgressDialog();
+                showProgressDialog(getString(R.string.message_login));
 
                 //authenticate the user
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(LoginActivity.this,
@@ -187,7 +255,7 @@ public class LoginActivity extends AppCompatActivity {
                                 // If sign in fails, display a message to the user. If sign in succeeds
                                 // the auth state listener will be notified and logic to handle the
                                 // signed in user can be handled in the listener.
-                                loginProgressDialog.dismiss();
+                                progressDialog.dismiss();
                                 if (!task.isSuccessful()) {
                                     //Login task failed
                                     if (password.length() < 6) {
@@ -210,7 +278,7 @@ public class LoginActivity extends AppCompatActivity {
                                     String savedEmailsListJson = gson.toJson(savedEmails);
                                     sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
                                     sharedPreferencesEditor.apply();
-                                    loginProgressDialog.dismiss();
+                                    progressDialog.dismiss();
                                     goToMainActivity();
 
 
@@ -248,7 +316,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void handleGoogleSignInResult(GoogleSignInResult result) {
         Log.d("AsimTag", "Sign in attempt status is " + result.getStatus());
-        loginProgressDialog.dismiss();
+        progressDialog.dismiss();
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount googleSignInAccount = result.getSignInAccount();
@@ -336,15 +404,15 @@ public class LoginActivity extends AppCompatActivity {
         goToMainActivity();
     }
 
-    private void showProgressDialog() {
+    private void showProgressDialog(String message) {
         //Creating progress dialog
-        loginProgressDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
-        loginProgressDialog.setMessage(this.getString(R.string.message_login));
-        loginProgressDialog.setCancelable(false);
-        loginProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        loginProgressDialog.setIndeterminate(false);
-        loginProgressDialog.setMax(100);
-        loginProgressDialog.show();
+         progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setMax(100);
+        progressDialog.show();
     }
 
 
@@ -368,7 +436,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loginProgressDialog.dismiss();
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
     }
 
 

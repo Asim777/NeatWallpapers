@@ -1,25 +1,33 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -30,6 +38,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -47,6 +56,8 @@ public class SignUpActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     ArrayList<String> savedEmails;
     Gson gson;
+    private String resetPasswordEmail;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,10 +89,69 @@ public class SignUpActivity extends AppCompatActivity {
             savedEmails = savedEmailsFromJson;
         }
 
-        resetPasswordButton.setOnClickListener(new OnClickListener() {
+        resetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SignUpActivity.this, ResetPasswordActivity.class));
+
+                AlertDialog.Builder forgotPasswordDialog = new AlertDialog.Builder(SignUpActivity.this);
+
+                forgotPasswordDialog.setTitle("Forgot password");
+                //Create container view to set margins
+                FrameLayout container = new FrameLayout(SignUpActivity.this);
+                // Set up the input
+                final AutoCompleteTextView emailEditText = new AutoCompleteTextView(SignUpActivity.this);
+                emailEditText.setSingleLine();
+                // Specify the type of input expected;
+                FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.leftMargin = 40;
+                params.rightMargin = 40;
+                params.topMargin = 40;
+                emailEditText.setLayoutParams(params);
+                container.addView(emailEditText);
+                emailEditText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                emailEditText.requestFocus();
+
+                forgotPasswordDialog.setView(container);
+                // Set positive button
+                forgotPasswordDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        resetPasswordEmail = emailEditText.getText().toString();
+                        if(resetPasswordEmail.isEmpty()){
+                            showToast(SignUpActivity.this.getApplicationContext(),
+                                    getString(R.string.reset_password_empty_email_message), Toast.LENGTH_LONG);
+                        } else {
+
+                            showProgressDialog(getString(R.string.message_reset_password));
+                            auth.sendPasswordResetEmail(resetPasswordEmail).
+                                    addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                showToast(SignUpActivity.this.getApplicationContext(),
+                                                        getString(R.string.reset_password_success_message), Toast.LENGTH_LONG);
+                                            } else {
+                                                showToast(SignUpActivity.this.getApplicationContext(),
+                                                        getString(R.string.reset_password_fail_message), Toast.LENGTH_LONG);
+                                            }
+                                            progressDialog.dismiss();
+                                        }
+                                    });
+                        }
+                    }
+                });
+                //Set negative button
+                forgotPasswordDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog alertDialog = forgotPasswordDialog.create();
+                if (alertDialog.getWindow() != null){
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                }
+                alertDialog.show();
             }
         });
 
@@ -170,6 +240,17 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void showProgressDialog(String message) {
+        //Creating progress dialog
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setMax(100);
+        progressDialog.show();
     }
 
     //Making passwordEditText to click signUpButton when ACTION_DONE pressed on keyboard
