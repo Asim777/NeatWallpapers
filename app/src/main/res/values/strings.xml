@@ -135,8 +135,7 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="login_logo_content_description">Login page logo</string>
     <string name="account_action_title">Account</string>
     <string name="title_activity_account">Account</string>
@@ -152,7 +151,6 @@
     <string name="profile_removed_success_message">Your account is removed. Create new account now!</string>
     <string name="profile_removed_fail_message">Failed to remove your account!</string>
     <string name="btn_login_with_google">Sign in with Google</string>
-    <string name="btn_login_with_facebook">Sign in with Facebook</string>
     <string name="account_remove_dialog_positive_button">Remove</string>
     <string name="account_remove_dialog_negative_button">Cancel</string>
     <string name="account_remove_account_dialog_message">Are you sure you want to remove your account and lose all your favorite images?</string>
@@ -160,12 +158,10 @@
     <string name="empty_email_error_message">Please, enter email address!</string>
     <string name="empty_password_error_message">Please, enter password!</string>
     <string name="firebase_web_client_id">709828608877–8p2vakdp21cjdbitu7uv1bqumts9gs3j.apps.googleusercontent.com</string>
-    <string name="facebook_app_id">1942959899268807</string>
     <string name="admob_app_id">ca-app-pub-5015291550861860~9287306639</string>
     <string name="ad_unit_id_main_activity">ca-app-pub-5015291550861860/4577905431</string>
     <string name="ad_unit_id_single_category_activity">ca-app-pub-5015291550861860/4485017037</string>
     <string name="ad_unit_id_search_results_activity">ca-app-pub-5015291550861860/2982663830</string>
     <string name="google_sign_in_fail_message">Google sign in failed</string>
-    <string name="facebook_sign_in_fail_message">Facebook sign failed</string>
-    <string name="facebook_sign_in_cancelled_message">Facebook sign in cancelled</string>
+    <string name="message_login">Logging in</string>
 </resources>

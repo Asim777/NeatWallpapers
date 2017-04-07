@@ -1,9 +1,9 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,19 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.Profile;
-import com.facebook.ProfileTracker;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -40,7 +29,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -49,36 +37,32 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
- * Login screen that offers log in via email/password or using google/facebook account
+ * Login screen that offers log in via email/password or using google account
  */
 
 public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 116;
     private EditText passwordEditText;
     private AutoCompleteTextView emailAutoCompleteTextView;
-    private ProgressBar progressBar;
     private FirebaseAuth auth;
-    private FirebaseAuth.AuthStateListener authListener;
     private static ArrayList<String> savedEmails;
     private SharedPreferences sharedPreferences;
     private Gson gson;
     Button signInButton;
     GoogleApiClient mGoogleApiClient;
-    CallbackManager facebookCallbackManager;
-    ProfileTracker mProfileTracker;
-    Profile currentProfile;
+    String userName;
+    String userEmail;
+    String userProfilePicture;
+    User user;
+    private ProgressDialog loginProgressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,9 +70,6 @@ public class LoginActivity extends AppCompatActivity {
 
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
-
-        //Initialize Facebook CallbackManager
-        facebookCallbackManager = CallbackManager.Factory.create();
 
         //If user is currently signed in, just start the MainActivity
         if (auth.getCurrentUser() != null) {
@@ -107,12 +88,9 @@ public class LoginActivity extends AppCompatActivity {
         Button signUpButton = (Button) findViewById(R.id.sign_up_button);
         Button resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
         Button googleSignInButton = (Button) findViewById(R.id.sign_in_with_google_button);
-        LoginButton facebookSignInButton = (LoginButton) findViewById(R.id.sign_in_with_facebook);
-        facebookSignInButton.setReadPermissions(Arrays.asList("public_profile", "email"));
 
         emailAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.email_editText);
         passwordEditText = (EditText) findViewById(R.id.password_editText);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 
         //Get shared preferences instance
@@ -138,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.firebase_web_client_id))
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
@@ -153,20 +131,6 @@ public class LoginActivity extends AppCompatActivity {
                 })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-
-
-        authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    //User is signed in
-
-                } else {
-                    // User is signed out
-                }
-            }
-        };
 
 
         //Sign up button
@@ -189,39 +153,12 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressDialog();
                 signInWithGoogle();
 
             }
         });
 
-        //Facebook sign in button
-/*        facebookSignInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signInWithFacebook();
-            }
-        });*/
-
-        facebookSignInButton.registerCallback(facebookCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-
-                String token = loginResult.getAccessToken().getToken();
-                AccessToken accessToken = loginResult.getAccessToken();
-                signInWithFacebook(token, accessToken);
-
-            }
-
-            @Override
-            public void onCancel() {
-                showToast(LoginActivity.this.getApplicationContext(), getString(R.string.facebook_sign_in_cancelled_message), Toast.LENGTH_SHORT);
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                showToast(LoginActivity.this.getApplicationContext(), getString(R.string.facebook_sign_in_fail_message), Toast.LENGTH_SHORT);
-            }
-        });
 
         //Sign in button
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -240,7 +177,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                progressBar.setVisibility(View.VISIBLE);
+                showProgressDialog();
 
                 //authenticate the user
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(LoginActivity.this,
@@ -250,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
                                 // If sign in fails, display a message to the user. If sign in succeeds
                                 // the auth state listener will be notified and logic to handle the
                                 // signed in user can be handled in the listener.
-                                progressBar.setVisibility(View.GONE);
+                                loginProgressDialog.dismiss();
                                 if (!task.isSuccessful()) {
                                     //Login task failed
                                     if (password.length() < 6) {
@@ -273,6 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                                     String savedEmailsListJson = gson.toJson(savedEmails);
                                     sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
                                     sharedPreferencesEditor.apply();
+                                    loginProgressDialog.dismiss();
                                     goToMainActivity();
 
 
@@ -281,24 +219,6 @@ public class LoginActivity extends AppCompatActivity {
                         });
             }
         });
-    }
-
-    private void createNewUserFromFacebook(AuthCredential credential) {
-        auth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this.getApplicationContext(), "Facebook sign in failed",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
     }
 
     private void goToMainActivity() {
@@ -313,67 +233,6 @@ public class LoginActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private void signInWithFacebook(String uToken, AccessToken accessToken) {
-
-        final AuthCredential credential = FacebookAuthProvider.getCredential(uToken);
-
-        GraphRequest request = GraphRequest.newMeRequest(accessToken,
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.v("LoginActivity", response.toString());
-
-                        // Application code
-                        try {
-                            String fbEmail = response.getJSONObject().getString("email");
-                            String fbFullName = response.getJSONObject().getString("name");
-
-                            //Getting facebook profile
-
-                            if (Profile.getCurrentProfile() == null) {
-                                mProfileTracker = new ProfileTracker() {
-                                    @Override
-                                    protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
-                                        // profile2 is the new profile
-                                        mProfileTracker.stopTracking();
-                                        currentProfile = profile2;
-                                    }
-                                };
-                                // no need to call startTracking() on mProfileTracker
-                                // because it is called by its constructor, internally.
-                            } else {
-                                currentProfile = Profile.getCurrentProfile();
-                            }
-
-                            //Getting profile picture
-                            String fbProfilePicture = "";
-                            //Getting facebook profile picture
-                            if (currentProfile != null) {
-                                Uri fbProfilePictureUri = currentProfile.getProfilePictureUri(200, 200);
-                                fbProfilePicture = fbProfilePictureUri.toString();
-                            }
-
-                            //Create new user
-                            createNewUserFromFacebook(credential);
-                            //Adding new user to the database
-                            addNewUserInfoToDatabase(fbFullName, fbEmail, fbProfilePicture);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email,gender,birthday");
-        request.setParameters(parameters);
-        request.executeAsync();
-
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -385,12 +244,11 @@ public class LoginActivity extends AppCompatActivity {
             handleGoogleSignInResult(result);
         }
 
-        // Result returned from facebook login
-        facebookCallbackManager.onActivityResult(requestCode, resultCode, data);
-
     }
 
     private void handleGoogleSignInResult(GoogleSignInResult result) {
+        Log.d("AsimTag", "Sign in attempt status is " + result.getStatus());
+        loginProgressDialog.dismiss();
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount googleSignInAccount = result.getSignInAccount();
@@ -443,9 +301,14 @@ public class LoginActivity extends AppCompatActivity {
                         profilePictureUriString = googleSignInAccount.getPhotoUrl().toString();
                     }
                     String profilePictureUriStringHD = profilePictureUriString.replace("s96-c", "s500-c");
-                    addNewUserInfoToDatabase(googleSignInAccount.getDisplayName(),
-                            googleSignInAccount.getEmail(), profilePictureUriStringHD);
-                    goToMainActivity();
+                    userName = googleSignInAccount.getDisplayName();
+                    userEmail = googleSignInAccount.getEmail();
+                    userProfilePicture = profilePictureUriStringHD;
+                    user = new User(userName, userEmail, userProfilePicture);
+                    //Add new user to database
+                    addNewUserInfoToDatabase();
+
+
                 }
                 //If the call to signInWithCredential succeeds, the AuthStateListener runs the
                 // onAuthStateChanged callback
@@ -453,13 +316,10 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void addNewUserInfoToDatabase(String mUserName, String mUserEmail, String mUserImage) {
+    private void addNewUserInfoToDatabase() {
         // Add new user to FirebaseDatabase under the "users" node
         // Creating new user node, which returns the unique key value
         // new user node would be /users/$userid/
-
-        // Creating new user object
-        User user = new User(mUserName, mUserEmail, mUserImage);
 
         //Get FireBase database reference instance
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -471,6 +331,20 @@ public class LoginActivity extends AppCompatActivity {
         if (userId != null) {
             database.child("users").child(userId).setValue(user);
         }
+
+        //Go to main activity
+        goToMainActivity();
+    }
+
+    private void showProgressDialog() {
+        //Creating progress dialog
+        loginProgressDialog = new ProgressDialog(this, R.style.AppCompatAlertDialogStyle);
+        loginProgressDialog.setMessage(this.getString(R.string.message_login));
+        loginProgressDialog.setCancelable(false);
+        loginProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        loginProgressDialog.setIndeterminate(false);
+        loginProgressDialog.setMax(100);
+        loginProgressDialog.show();
     }
 
 
@@ -494,22 +368,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        progressBar.setVisibility(View.GONE);
+        loginProgressDialog.dismiss();
     }
 
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        auth.addAuthStateListener(authListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (authListener != null) {
-            auth.removeAuthStateListener(authListener);
-        }
-    }
 
 }

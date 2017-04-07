@@ -86,19 +86,6 @@
             android:text="@string/btn_login_with_google"
             android:textColor="@color/colorAccent" />
 
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/sign_in_with_facebook"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:background="@color/white"
-            android:backgroundTint="@color/white"
-            android:drawableLeft="@drawable/facebook_logo"
-            android:drawableStart="@drawable/facebook_logo"
-            android:text="@string/btn_login_with_facebook"
-            android:textAllCaps="true"
-            android:textColor="@color/colorAccent" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

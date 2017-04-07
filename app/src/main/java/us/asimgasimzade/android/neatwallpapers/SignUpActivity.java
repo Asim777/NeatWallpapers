@@ -177,7 +177,7 @@ public class SignUpActivity extends AppCompatActivity {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
             if (passwordEditText.hasFocus()) {
-                // user presses done button on keyboardand signUpButton gets clicked
+                // user presses done button on keyboard and signUpButton gets clicked
                 signUpButton.callOnClick();
             }
         }

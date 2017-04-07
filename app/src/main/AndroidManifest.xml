@@ -27,10 +27,6 @@
         android:theme="@style/MainTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
-
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustPan">
@@ -141,11 +137,6 @@
         <activity
             android:name=".ResetPasswordActivity"
             android:label="@string/title_activity_login" />
-
-        <activity
-            android:name="com.facebook.FacebookActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name" />
 
     </application>
 

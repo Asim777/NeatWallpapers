@@ -30,8 +30,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -122,21 +120,17 @@ public class AccountActivity extends AppCompatActivity {
         logOutButton.setTextColor(list);
         changeProfilePictureButton.setTextColor(list);
 
-
-
         //Getting FirebaseAuth object instance
         auth = FirebaseAuth.getInstance();
+        Log.d("AsimTag", "FirebaseAuth instance is " + auth);
         //Getting FirebaseUser for current user
         authUser = auth.getCurrentUser();
-
+        Log.d("AsimTag", "authUser is " + authUser);
         //Getting userId from authUser
         userId = authUser != null ? authUser.getUid() : null;
+        Log.d("AsimTag", "userId is " + userId);
         //Get user data from FireBase database
         database = FirebaseDatabase.getInstance().getReference();
-
-
-
-
 
 
         // This event listener is triggered whenever there is a change in user profile data
@@ -173,7 +167,6 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 auth.signOut();
-                LoginManager.getInstance().logOut();
             }
         });
 
@@ -265,7 +258,6 @@ public class AccountActivity extends AppCompatActivity {
                 }
             });
         }
-        LoginManager.getInstance().logOut();
     }
 
     private void updateUI(User mCurrentUser) {
