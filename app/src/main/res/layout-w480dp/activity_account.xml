@@ -26,7 +26,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/account_info_holder"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -35,16 +35,13 @@
             android:baselineAligned="false"
             android:orientation="vertical">
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="80dp" />
-
 
             <LinearLayout
                 android:id="@+id/account_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_centerInParent="true"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -61,8 +58,8 @@
 
                     <ImageView
                         android:id="@+id/profile_picture_imageView"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
                         android:contentDescription="@string/account_profile_picture"
                         android:scaleType="fitXY"
                         android:src="@drawable/default_profile_picture" />
@@ -83,14 +80,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:textSize="18sp" />
+                        android:textSize="25sp" />
 
                     <TextView
                         android:id="@+id/account_email_textView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:textSize="13sp" />
+                        android:textSize="20sp" />
 
                     <LinearLayout
                         style="?android:attr/buttonBarStyle"
@@ -106,9 +103,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="0.4"
                             android:background="@drawable/transparent_button"
-                            android:minHeight="30dp"
+                            android:minHeight="45dp"
                             android:text="@string/account_logout_button_text"
-                            android:textSize="11sp"
+                            android:textSize="13sp"
                             tools:ignore="ButtonStyle,SmallSp" />
 
                         <Button
@@ -119,16 +116,16 @@
                             android:layout_marginStart="5dp"
                             android:layout_weight="0.6"
                             android:background="@drawable/transparent_button"
-                            android:minHeight="30dp"
+                            android:minHeight="45dp"
                             android:text="@string/account_change_profile_picture_button_text"
-                            android:textSize="11sp"
+                            android:textSize="13sp"
                             tools:ignore="ButtonStyle,SmallSp" />
 
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-        </LinearLayout>
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/edit_account_settings"

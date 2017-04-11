@@ -100,4 +100,11 @@ public class FavoritesFragment extends Fragment{
             updateGridView();
         }
     }
+
+    @Override
+    public void onResume() {
+        updateGridView();
+        super.onResume();
+
+    }
 }
