@@ -260,7 +260,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(this, getString(R.string.permission_message),
+                        showMessageOKCancel(this, getString(R.string.download_permission_message),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {

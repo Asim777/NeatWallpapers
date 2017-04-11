@@ -13,7 +13,9 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -115,6 +117,13 @@ public class Utils {
 
     private static boolean isPermissionWriteToExternalStorageGranted(Activity thisActivity) {
         return (ActivityCompat.checkSelfPermission(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+                == PackageManager.PERMISSION_GRANTED);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public static boolean isPermissionReadFromExternalStorageGranted(Activity thisActivity) {
+        return (ActivityCompat.checkSelfPermission(thisActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
 
                 == PackageManager.PERMISSION_GRANTED);
     }

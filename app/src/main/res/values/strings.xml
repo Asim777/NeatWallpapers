@@ -38,7 +38,8 @@
     <string name="color_icon">color_icon</string>
     <string name="image_already_exists_message">Image already exists. Check your Gallery.</string>
     <string name="permission_granted_message">Permission is granted</string>
-    <string name="permission_message">You need to grant permission to save image into your device in order to download it. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
+    <string name="download_permission_message">You need to grant permission to save image into your device in order to download it. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
+    <string name="upload_permission_message">You need to grant permission to read image from your device in order to update your profile image. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
     <string name="problem_while_creating_directory_message">There was a problem while creating directory!</string>
     <string name="unfortunately_there_are_no_results_for_this_request">Unfortunately there are no results for this request.</string>
     <string name="full_image_description">Full image</string>

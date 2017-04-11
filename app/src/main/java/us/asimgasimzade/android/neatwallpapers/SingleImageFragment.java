@@ -365,7 +365,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
+                // If request is not granted, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
@@ -376,7 +376,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(activityInstance, getString(R.string.permission_message),
+                        showMessageOKCancel(activityInstance, getString(R.string.download_permission_message),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {

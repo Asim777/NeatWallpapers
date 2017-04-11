@@ -2,21 +2,25 @@ package us.asimgasimzade.android.neatwallpapers;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,14 +51,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.view.View.GONE;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -65,6 +68,8 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 public class AccountActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_INTENT_KEY = 109;
+    private static final int READ_EXTERNAL_STORAGE_REQUEST_CODE = 5893;
+    private static final int PERMISSION_SETTING_REQUEST_CODE = 9083;
     ImageView profilePicture;
     TextView userNameTextView;
     TextView userEmailTextView;
@@ -89,6 +94,7 @@ public class AccountActivity extends AppCompatActivity {
     boolean emailChangeSuccessful;
     boolean nameChangeSuccessful;
     boolean profileImageChangeSuccessful;
+    private Intent uploadIntent;
 
 
     @Override
@@ -159,8 +165,6 @@ public class AccountActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUser = dataSnapshot.getValue(User.class);
                 updateUI(currentUser);
-                Log.d("AsimTag", "on onDataChange " + currentUser.getProfilePicture());
-                Log.d("AsimTag", "on onDataChange " + profilePicture.getDrawable());
             }
 
             @Override
@@ -257,7 +261,6 @@ public class AccountActivity extends AppCompatActivity {
                     database.child("users").child(userId).child("fullname").setValue(newName);
                     nameChangeSuccessful = true;
                 }
-                /*if (profilePicture.getDrawable() != currentUser.getProfilePicture())*/
                 //Create reference to our profile image
                 StorageReference profilePictureStorageReference = storageRef.child(userId).child("profile.jpg");
                 // Get the data from profilePicture ImageView as bytes
@@ -270,16 +273,6 @@ public class AccountActivity extends AppCompatActivity {
                 byte[] data = baos.toByteArray();
 
                 UploadTask uploadTask = profilePictureStorageReference.putBytes(data);
-                /*InputStream stream = null;
-                try {
-                    stream = new FileInputStream(new File("path/to/images/rivers.jpg"));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                UploadTask uploadTask = null;
-                if (stream != null) {
-                    uploadTask = profilePictureStorageReference.putStream(stream);
-                }*/
                 profilePicture.setDrawingCacheEnabled(false);
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -296,8 +289,6 @@ public class AccountActivity extends AppCompatActivity {
                         if (profilePictureDownloadUrl != null) {
                             //Putting profile picture's url to database
                             database.child("users").child(userId).child("profilePicture").setValue(profilePictureDownloadUrl.toString());
-                            Log.d("AsimTag", "on UploadTask onSuccess " + currentUser.getProfilePicture());
-                            Log.d("AsimTag", "on UploadTask onSuccess " + profilePicture.getDrawable());
                         }
 
                     }
@@ -355,8 +346,6 @@ public class AccountActivity extends AppCompatActivity {
         //Update user profile picture
         String profileImageString = currentUser.getProfilePicture();
         Uri profileImageUri = Uri.parse(profileImageString);
-        Log.d("AsimTag", "on updateUI " + currentUser.getProfilePicture());
-        Log.d("AsimTag", "on updateUI " + profilePicture.getDrawable());
         //Loading image with glide
         Glide.with(this.getApplicationContext()).
                 load(profileImageUri).
@@ -374,23 +363,42 @@ public class AccountActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        uploadIntent = data;
         switch (requestCode) {
             //If user has chosen image, get this image as Bitmap and set to profilePicture imageView
             case PICK_IMAGE_INTENT_KEY:
                 if (resultCode == RESULT_OK) {
-                    try {
-                        final Uri profileImageUri = data.getData();
-                        final InputStream profileImageStream = getContentResolver().openInputStream(profileImageUri);
-                        final Bitmap selectedProfileImage = BitmapFactory.decodeStream(profileImageStream);
-                        newCircledDrawable = Utils.getCircleImage(this, selectedProfileImage);
-                        profilePicture.setImageDrawable(newCircledDrawable);
-                        profileImageChangeSuccessful = true;
-
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        showToast(this, getString(R.string.change_image_error_message), Toast.LENGTH_LONG);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        uploadIfPermissionGranted();
                     }
+
                 }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private void uploadIfPermissionGranted() {
+
+
+        //Checking if permission to READ_EXTERNAL_STORAGE is granted by user
+        if (Utils.isPermissionReadFromExternalStorageGranted(this)) {
+            //If it's granted, just upload the image
+            try {
+                final Uri profileImageUri = uploadIntent.getData();
+                final InputStream profileImageStream = getContentResolver().openInputStream(profileImageUri);
+                final Bitmap selectedProfileImage = BitmapFactory.decodeStream(profileImageStream);
+                newCircledDrawable = Utils.getCircleImage(this, selectedProfileImage);
+                profilePicture.setImageDrawable(newCircledDrawable);
+                profileImageChangeSuccessful = true;
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                showToast(this, getString(R.string.change_image_error_message), Toast.LENGTH_LONG);
+            }
+        } else {
+            //If it's not granted, request it
+            ActivityCompat.requestPermissions(
+                    this, new String[]{WRITE_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST_CODE);
         }
     }
 
@@ -439,9 +447,46 @@ public class AccountActivity extends AppCompatActivity {
                 // Disable userEmailEditText
                 TextInputLayout emailTextInputLayout = (TextInputLayout) findViewById(R.id.email_textinputlayout);
                 emailTextInputLayout.setVisibility(GONE);
-                /*userEmailEditText.setInputType(InputType.TYPE_NULL);*/
             }
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean showRationale = false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            showRationale = shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        switch (requestCode) {
+
+            case READ_EXTERNAL_STORAGE_REQUEST_CODE:
+                // If request is not granted, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    showToast(this.getApplicationContext(), getString(R.string.permission_granted_message),
+                            Toast.LENGTH_SHORT);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        uploadIfPermissionGranted();
+                    }
+                    break;
+                } else {
+                    //Permission is not granted, but did the user also check "Never ask again"?
+                    if (!showRationale) {
+                        // user denied permission and also checked "Never ask again"
+                        Utils.showMessageOKCancel(this, getString(R.string.upload_permission_message),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        Uri uri = Uri.fromParts("package", AccountActivity.this.getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivityForResult(intent, PERMISSION_SETTING_REQUEST_CODE);
+                                    }
+                                });
+                    }
+                }
+        }
+
+    }
 }
