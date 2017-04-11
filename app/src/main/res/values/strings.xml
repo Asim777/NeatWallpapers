@@ -128,7 +128,7 @@
     <string name="btn_remove">Remove</string>
     <string name="btn_sign_out">Sign Out</string>
     <string name="lbl_forgot_password">Forgot password?</string>
-    <string name="forgot_password_msg">We just need your registered Email Id to sent you password reset instructions.</string>
+    <string name="forgot_password_msg">Enter email associated with your account and we will send you password reset link</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_up">Register</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -168,4 +168,8 @@
     <string name="reset_password_fail_message">Failed to send reset email! Please try again.</string>
     <string name="message_reset_password">Sending reset email</string>
     <string name="reset_password_empty_email_message">Enter your registered email address!</string>
+    <string name="change_image_error_message">There was a problem with picking image. Please try again</string>
+    <string name="account_data_changed_success_message">Your account data successfully changed</string>
+    <string name="profile_picture_upload_fail_message">There was a problem while uploading your profile picture. Please try again</string>
+    <string name="account_data_changed_fail_message">There was a problem while saving your data</string>
 </resources>

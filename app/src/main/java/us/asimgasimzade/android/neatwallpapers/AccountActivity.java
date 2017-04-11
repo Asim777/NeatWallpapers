@@ -11,12 +11,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,23 +31,32 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
+import static android.view.View.GONE;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
-
 
 
 /**
@@ -68,10 +77,18 @@ public class AccountActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseUser authUser;
     FirebaseAuth.AuthStateListener authListener;
+    StorageReference storageRef;
     String userId;
     DatabaseReference database;
     User currentUser;
     Bitmap profileImageBitmap;
+    Uri profilePictureDownloadUrl;
+    String newName;
+    String newEmail;
+    Drawable newCircledDrawable;
+    boolean emailChangeSuccessful;
+    boolean nameChangeSuccessful;
+    boolean profileImageChangeSuccessful;
 
 
     @Override
@@ -120,18 +137,21 @@ public class AccountActivity extends AppCompatActivity {
         logOutButton.setTextColor(list);
         changeProfilePictureButton.setTextColor(list);
 
+
         //Getting FirebaseAuth object instance
         auth = FirebaseAuth.getInstance();
-        Log.d("AsimTag", "FirebaseAuth instance is " + auth);
         //Getting FirebaseUser for current user
         authUser = auth.getCurrentUser();
-        Log.d("AsimTag", "authUser is " + authUser);
         //Getting userId from authUser
         userId = authUser != null ? authUser.getUid() : null;
-        Log.d("AsimTag", "userId is " + userId);
-        //Get user data from FireBase database
+        //Get FireBase database instance reference
         database = FirebaseDatabase.getInstance().getReference();
+        //Get FireBase storage instance
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        // Create a storage reference from our app
+        storageRef = storage.getReference();
 
+        isGoogleUser();
 
         // This event listener is triggered whenever there is a change in user profile data
         database.child("users").child(userId).addValueEventListener(new ValueEventListener() {
@@ -139,6 +159,8 @@ public class AccountActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUser = dataSnapshot.getValue(User.class);
                 updateUI(currentUser);
+                Log.d("AsimTag", "on onDataChange " + currentUser.getProfilePicture());
+                Log.d("AsimTag", "on onDataChange " + profilePicture.getDrawable());
             }
 
             @Override
@@ -216,23 +238,87 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //Getting entered text
-                String newName = userNameEditText.getText().toString();
-                String newEmail = userEmailEditText.getText().toString();
+                newName = userNameEditText.getText().toString();
+                newEmail = userEmailEditText.getText().toString();
 
                 //Updating data if entries are not empty
                 if (!newEmail.isEmpty()) {
-                    database.child("users").child(userId).child("email").setValue(newEmail);
+                    authUser.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                database.child("users").child(userId).child("email").setValue(newEmail);
+                                emailChangeSuccessful = true;
+                            }
+                        }
+                    });
                 }
                 if (!newName.isEmpty()) {
                     database.child("users").child(userId).child("fullname").setValue(newName);
+                    nameChangeSuccessful = true;
                 }
-                //Toasting success message and clearing editTexts
-                if (!(newEmail.isEmpty() & newName.isEmpty())) {
-                    showToast(AccountActivity.this, "Your account data successfully changed", Toast.LENGTH_SHORT);
-                }
-                userEmailEditText.setText("");
-                userNameEditText.setText("");
+                /*if (profilePicture.getDrawable() != currentUser.getProfilePicture())*/
+                //Create reference to our profile image
+                StorageReference profilePictureStorageReference = storageRef.child(userId).child("profile.jpg");
+                // Get the data from profilePicture ImageView as bytes
+                profilePicture.setDrawingCacheEnabled(true);
+                profilePicture.buildDrawingCache();
 
+                final Bitmap profilePictureBitmap = profilePicture.getDrawingCache();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                profilePictureBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = profilePictureStorageReference.putBytes(data);
+                /*InputStream stream = null;
+                try {
+                    stream = new FileInputStream(new File("path/to/images/rivers.jpg"));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                UploadTask uploadTask = null;
+                if (stream != null) {
+                    uploadTask = profilePictureStorageReference.putStream(stream);
+                }*/
+                profilePicture.setDrawingCacheEnabled(false);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        showToast(AccountActivity.this.getApplicationContext(),
+                                getString(R.string.profile_picture_upload_fail_message), Toast.LENGTH_SHORT);
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                        //noinspection VisibleForTests
+                        profilePictureDownloadUrl = taskSnapshot.getDownloadUrl();
+                        if (profilePictureDownloadUrl != null) {
+                            //Putting profile picture's url to database
+                            database.child("users").child(userId).child("profilePicture").setValue(profilePictureDownloadUrl.toString());
+                            Log.d("AsimTag", "on UploadTask onSuccess " + currentUser.getProfilePicture());
+                            Log.d("AsimTag", "on UploadTask onSuccess " + profilePicture.getDrawable());
+                        }
+
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        //Toasting success message and clearing editTexts
+                        if (emailChangeSuccessful | nameChangeSuccessful | profileImageChangeSuccessful) {
+                            showToast(AccountActivity.this.getApplicationContext(),
+                                    getString(R.string.account_data_changed_success_message), Toast.LENGTH_SHORT);
+                        } else {
+                            showToast(AccountActivity.this.getApplicationContext(),
+                                    getString(R.string.account_data_changed_fail_message), Toast.LENGTH_SHORT);
+                        }
+                        userEmailEditText.setText("");
+                        userNameEditText.setText("");
+                        nameChangeSuccessful = false;
+                        emailChangeSuccessful = false;
+                        profileImageChangeSuccessful = false;
+                    }
+                });
             }
         });
 
@@ -269,11 +355,13 @@ public class AccountActivity extends AppCompatActivity {
         //Update user profile picture
         String profileImageString = currentUser.getProfilePicture();
         Uri profileImageUri = Uri.parse(profileImageString);
+        Log.d("AsimTag", "on updateUI " + currentUser.getProfilePicture());
+        Log.d("AsimTag", "on updateUI " + profilePicture.getDrawable());
         //Loading image with glide
         Glide.with(this.getApplicationContext()).
                 load(profileImageUri).
                 asBitmap().
-                into(new SimpleTarget<Bitmap>(500,500) {
+                into(new SimpleTarget<Bitmap>(500, 500) {
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                         profileImageBitmap = resource;
@@ -281,7 +369,6 @@ public class AccountActivity extends AppCompatActivity {
                         profilePicture.setImageDrawable(circledProfileDrawable);
                     }
                 });
-
     }
 
     @Override
@@ -295,12 +382,13 @@ public class AccountActivity extends AppCompatActivity {
                         final Uri profileImageUri = data.getData();
                         final InputStream profileImageStream = getContentResolver().openInputStream(profileImageUri);
                         final Bitmap selectedProfileImage = BitmapFactory.decodeStream(profileImageStream);
-                        Drawable circledDrawable = Utils.getCircleImage(this, selectedProfileImage);
-                        profilePicture.setImageDrawable(circledDrawable);
+                        newCircledDrawable = Utils.getCircleImage(this, selectedProfileImage);
+                        profilePicture.setImageDrawable(newCircledDrawable);
+                        profileImageChangeSuccessful = true;
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
-                        showToast(this, "There was a problem with picking image. Please try again", Toast.LENGTH_LONG);
+                        showToast(this, getString(R.string.change_image_error_message), Toast.LENGTH_LONG);
                     }
                 }
         }
@@ -344,17 +432,16 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    //Making emailAutoCompleteTextView to focus on passwordEditText when ACTION_NEXT pressed
-    //And passwordEditText to click signInButton when ACTION_DONE pressed
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_ENTER) {
-            if (userEmailEditText.hasFocus()) {
-                // sends focus to passwordEditText field if user pressed "Next"
-                saveChangesButton.performClick();
-                return true;
+    public void isGoogleUser() {
+        for (UserInfo user : authUser.getProviderData()) {
+            if (user.getProviderId().equals("google.com")) {
+                //User signed in with google, we don't want him to change email
+                // Disable userEmailEditText
+                TextInputLayout emailTextInputLayout = (TextInputLayout) findViewById(R.id.email_textinputlayout);
+                emailTextInputLayout.setVisibility(GONE);
+                /*userEmailEditText.setInputType(InputType.TYPE_NULL);*/
             }
         }
-        return false;
     }
+
 }

@@ -38,8 +38,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -47,7 +50,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
-import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -69,6 +71,8 @@ public class LoginActivity extends AppCompatActivity {
     String userEmail;
     String userProfilePicture;
     User user;
+    DatabaseReference database;
+    String userId;
     private ProgressDialog progressDialog;
     String resetPasswordEmail;
     ArrayAdapter<String> savedEmailsAdapter;
@@ -157,7 +161,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 AlertDialog.Builder forgotPasswordDialog = new AlertDialog.Builder(LoginActivity.this);
 
-                forgotPasswordDialog.setTitle("Forgot password");
+                forgotPasswordDialog.setMessage(R.string.forgot_password_msg);
                 //Create container view to set margins
                 FrameLayout container = new FrameLayout(LoginActivity.this);
                 // Set up the input
@@ -337,12 +341,10 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 //Google signInAccount object is null. Sign in failed
                 showToast(LoginActivity.this, getString(R.string.google_sign_in_fail_message), Toast.LENGTH_SHORT);
-                Log.d("AsimTag", "google sign in account is null");
             }
         } else {
             //Google sign in failed
             showToast(LoginActivity.this, getString(R.string.google_sign_in_fail_message), Toast.LENGTH_SHORT);
-            Log.d("AsimTag", "google sign in result is false");
         }
     }
 
@@ -359,7 +361,6 @@ public class LoginActivity extends AppCompatActivity {
                 if (!task.isSuccessful()) {
                     //Google sign in failed
                     showToast(LoginActivity.this, getString(R.string.google_sign_in_fail_message), Toast.LENGTH_SHORT);
-                    Log.d("AsimTag", "google sign in task is unsuccessful");
                 } else {
                     //Google sign in was successful
                     //By default google gives us 96x96 photo for profile picture, we'll change the uri
@@ -372,9 +373,8 @@ public class LoginActivity extends AppCompatActivity {
                     userName = googleSignInAccount.getDisplayName();
                     userEmail = googleSignInAccount.getEmail();
                     userProfilePicture = profilePictureUriStringHD;
-                    user = new User(userName, userEmail, userProfilePicture);
                     //Add new user to database
-                    addNewUserInfoToDatabase();
+                    addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
 
 
                 }
@@ -384,21 +384,39 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void addNewUserInfoToDatabase() {
+    private void addNewUserInfoToDatabase(final String googleUserName,
+                                          final String googleUserEmail, final String googleUserProfilePicture) {
         // Add new user to FirebaseDatabase under the "users" node
         // Creating new user node, which returns the unique key value
         // new user node would be /users/$userid/
 
         //Get FireBase database reference instance
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database = FirebaseDatabase.getInstance().getReference();
 
         //Getting FirebaseUser for current user
         FirebaseUser authUser = auth.getCurrentUser();
-        String userId = authUser != null ? authUser.getUid() : null;
-        // pushing user to 'users' node using the userId
-        if (userId != null) {
-            database.child("users").child(userId).setValue(user);
-        }
+        userId = authUser != null ? authUser.getUid() : null;
+
+        // This event listener is triggered whenever there is a change in user profile data
+        database.child("users").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+                    user = new User(googleUserName, googleUserEmail, googleUserProfilePicture);
+
+                    // adding user to 'users' node using the userId
+                    if (userId != null) {
+                        database.child("users").child(userId).setValue(user);
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Failed to read value
+            }
+        });
 
         //Go to main activity
         goToMainActivity();

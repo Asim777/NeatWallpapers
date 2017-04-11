@@ -95,7 +95,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                 AlertDialog.Builder forgotPasswordDialog = new AlertDialog.Builder(SignUpActivity.this);
 
-                forgotPasswordDialog.setTitle("Forgot password");
+                forgotPasswordDialog.setMessage(R.string.forgot_password_msg);
                 //Create container view to set margins
                 FrameLayout container = new FrameLayout(SignUpActivity.this);
                 // Set up the input
