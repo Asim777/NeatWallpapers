@@ -76,6 +76,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     String resetPasswordEmail;
     ArrayAdapter<String> savedEmailsAdapter;
+    private ValueEventListener userListener;
+    private DatabaseReference userReference;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -396,9 +398,9 @@ public class LoginActivity extends AppCompatActivity {
         //Getting FirebaseUser for current user
         FirebaseUser authUser = auth.getCurrentUser();
         userId = authUser != null ? authUser.getUid() : null;
-
+        userReference = database.child("users").child(userId);
         // This event listener is triggered whenever there is a change in user profile data
-        database.child("users").child(userId).addValueEventListener(new ValueEventListener() {
+        userListener = userReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists()){
@@ -459,5 +461,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if( userListener != null && userReference != null){
+            userReference.removeEventListener(userListener);
+        }
+    }
 }

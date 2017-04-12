@@ -14,51 +14,46 @@ public class GridItem {
     private String thumbnail;
     private int number;
 
-    public String getThumbnail() {
-        return thumbnail;
+    public GridItem(String image, String name, String author, String link, String thumbnail) {
+        this.image = image;
+        this.name = name;
+        this.author = author;
+        this.link = link;
+        this.thumbnail = thumbnail;
     }
 
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+    // Default constructor required for calls to
+    // DataSnapshot.getValue(User.class)
+    public GridItem() {
+
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
     }
 
     public String getLink() {
         return link;
     }
 
-    public void setLink(String link) {
-        this.link = link;
-    }
-
     public String getAuthor() {
         return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public int getNumber() {
+        return number;
     }
 
     public String getImage() {
         return image;
     }
 
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
     public void setNumber(int number) {
         this.number = number;
     }
+
 }

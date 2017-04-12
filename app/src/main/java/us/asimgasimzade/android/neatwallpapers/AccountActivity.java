@@ -95,6 +95,8 @@ public class AccountActivity extends AppCompatActivity {
     boolean nameChangeSuccessful;
     boolean profileImageChangeSuccessful;
     private Intent uploadIntent;
+    private ValueEventListener eventListener;
+    private DatabaseReference userReference;
 
 
     @Override
@@ -160,7 +162,8 @@ public class AccountActivity extends AppCompatActivity {
         isGoogleUser();
 
         // This event listener is triggered whenever there is a change in user profile data
-        database.child("users").child(userId).addValueEventListener(new ValueEventListener() {
+        userReference = database.child("users").child(userId);
+        eventListener = userReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUser = dataSnapshot.getValue(User.class);
@@ -448,6 +451,14 @@ public class AccountActivity extends AppCompatActivity {
                 TextInputLayout emailTextInputLayout = (TextInputLayout) findViewById(R.id.email_textinputlayout);
                 emailTextInputLayout.setVisibility(GONE);
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (eventListener != null) {
+            userReference.removeEventListener(eventListener);
         }
     }
 

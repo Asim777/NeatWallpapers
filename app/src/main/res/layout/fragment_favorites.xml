@@ -1,4 +1,4 @@
-<us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/favorites_container_swipe"
     android:layout_width="match_parent"
@@ -8,8 +8,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true">
+        android:layout_height="match_parent">
 
         <GridView
             android:id="@+id/gridView"
@@ -32,4 +31,4 @@
             android:visibility="gone" />
     </RelativeLayout>
 
-</us.asimgasimzade.android.neatwallpapers.MultiSwipeRefreshLayout>
+</LinearLayout>

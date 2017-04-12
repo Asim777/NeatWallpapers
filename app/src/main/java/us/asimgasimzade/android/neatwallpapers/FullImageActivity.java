@@ -1,7 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,14 +33,22 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
-import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
-import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
-import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
@@ -55,16 +62,16 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
  * scrollable version of image
  */
 
-public class FullImageActivity extends AppCompatActivity implements IsImageFavoriteResponseInterface {
+public class FullImageActivity extends AppCompatActivity  {
 
     private static final int REQUEST_PERMISSION_SETTING = 43;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     boolean imageIsFavorite;
-    String imageUrl;
-    String imageAuthor;
-    String imageLink;
-    String imageThumbnail;
-    String imageName;
+    String currentImageUrl;
+    String currentImageAuthor;
+    String currentImageLink;
+    String currentImageThumbnail;
+    String currentImageName;
     MenuItem favoriteActionButton;
     SingleImageFragment.Operation operation;
     ProgressDialog downloadProgressDialog;
@@ -73,6 +80,8 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
     File imageFileForChecking;
     DownloadImageAsyncTask downloadImageTask;
     private boolean downloadImageTaskCancelled;
+    private DatabaseReference favoritesReference;
+    private ValueEventListener favoritesListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,8 +108,8 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //Get the imageview and wrap it in photoViewAttacher so that user can zoom, scroll
-        // and double tap the imageview
+        //Get the imageView and wrap it in photoViewAttacher so that user can zoom, scroll
+        // and double tap the imageView
         ImageView imageView = (ImageView) findViewById(R.id.fullImageView);
         PhotoViewAttacher photoViewAttacher;
         photoViewAttacher = new PhotoViewAttacher(imageView);
@@ -109,16 +118,16 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
 
         //Get image attributes from the intent
         Intent intent = getIntent();
-        imageUrl = intent.getStringExtra("url");
-        imageAuthor = intent.getStringExtra("author");
-        imageLink = intent.getStringExtra("link");
-        imageThumbnail = intent.getStringExtra("thumbnail");
-        imageName = intent.getStringExtra("name");
+        currentImageUrl = intent.getStringExtra("url");
+        currentImageAuthor = intent.getStringExtra("author");
+        currentImageLink = intent.getStringExtra("link");
+        currentImageThumbnail = intent.getStringExtra("thumbnail");
+        currentImageName = intent.getStringExtra("name");
 
         loadingAnimationProgressBar = (ProgressBar) findViewById(R.id.loading_progress_bar);
         loadingAnimationProgressBar.setVisibility(View.VISIBLE);
 
-        Glide.with(getApplicationContext()).load(imageUrl).
+        Glide.with(getApplicationContext()).load(currentImageUrl).
                 listener(new RequestListener<String, GlideDrawable>() {
                     @Override
                     public boolean onException(Exception e, String model,
@@ -143,7 +152,18 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         //Specifying path to our app's directory
         File path = Environment.getExternalStoragePublicDirectory("NeatWallpapers");
         //Creating imageFile using path to our custom album
-        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + imageName + ".jpg");
+        imageFileForChecking = new File(path, "NEATWALLPAPERS_" + currentImageName + ".jpg");
+
+        //Initiating FireBase database and getting reference to favorites
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser authUser = auth.getCurrentUser();
+        String userId = authUser != null ? authUser.getUid() : null;
+        //Get instance of FireBase database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        //Get reference to current user's favorites node
+        if (userId != null) {
+            favoritesReference = database.getReference("users").child(userId).child("favorites");
+        }
 
 
     }
@@ -187,7 +207,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                     //Show downloading progress dialog
                     downloadProgressDialog.show();
 
-                    downloadImageIfPermitted(this, imageUrl, target);
+                    downloadImageIfPermitted(this, currentImageUrl, target);
                 } else {
                     //if it exists, just set it as wallpaper
                     Utils.setWallpaper(this, imageFileForChecking);
@@ -211,23 +231,29 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                     downloadProgressDialog.show();
 
                     //If it doesn't exist, download it, but first check if we have permission to do it
-                    downloadImageIfPermitted(this, imageUrl, target);
+                    downloadImageIfPermitted(this, currentImageUrl, target);
                 }
                 return true;
 
             case R.id.action_favorite:
 
-                new ImageIsFavoriteTask(this, imageIsFavorite, this, imageName).execute();
                 //When favorite button inside FullImageActivity is clicked, we are adding this
                 //image to Favorites database and changing background of a button
-                new AddOrRemoveFavoriteAsyncTask(FullImageActivity.this, imageIsFavorite,
-                        FullImageActivity.this, imageName, imageUrl, imageAuthor, imageThumbnail,
-                        imageLink).execute();
-                //Setting delegate back to this instance of SingleImageFragment
-                //Sending back return intent to FullImageActivity so that it calls callback
-                // in FavoritesFragment to update it's GridView with new data
-                Intent databaseIsChangedIntent = new Intent();
-                FullImageActivity.this.setResult(Activity.RESULT_OK, databaseIsChangedIntent);
+                if (imageIsFavorite) {
+                    //Image is favorite, we are removing it from database
+                    favoritesReference.child(currentImageName).removeValue();
+                    showToast(getApplicationContext(), getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
+                } else {
+                    //Create new favorite image and put into FireBase database
+                    GridItem currentItem = new GridItem(currentImageUrl, currentImageName,
+                            currentImageAuthor, currentImageLink, currentImageThumbnail);
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
+                    String timestamp = simpleDateFormat.format(new Date());
+
+                    favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                    showToast(getApplicationContext(), this.getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
+                }
+
                 return true;
 
             default: {
@@ -240,7 +266,25 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
     @Override
     protected void onResume() {
         super.onResume();
+        favoritesListener = favoritesReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //Find out if this image exists in favorites node
+                imageIsFavorite = dataSnapshot.child(currentImageName).exists();
+                //We need to check favoriteActionButton not null, because if user clicks favorite button
+                //in SingleImageActivity and then immediately enters FullImageActivity, onDataChange
+                //is called before onCreateOptionsMenu where favoriteActionButton is instantiated and
+                //it causes nullPointerException in updateImageIsFavorite() method
+                if(favoriteActionButton != null){
+                    updateImageIsFavorite(imageIsFavorite);
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -255,7 +299,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
                     // permission was granted, yay!
                     showToast(getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
-                    downloadImage(this, imageUrl, target);
+                    downloadImage(this, currentImageUrl, target);
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
@@ -323,7 +367,7 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
             @Override
             public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
                 if (!downloadImageTaskCancelled) {
-                    downloadImageTask = new DownloadImageAsyncTask(FullImageActivity.this, operation, imageName,
+                    downloadImageTask = new DownloadImageAsyncTask(FullImageActivity.this, operation, currentImageName,
                             imageFileForChecking, bitmap, downloadProgressDialog);
                     downloadImageTask.execute();
                 } else {
@@ -342,9 +386,11 @@ public class FullImageActivity extends AppCompatActivity implements IsImageFavor
         if (downloadProgressDialog != null) {
             downloadProgressDialog.dismiss();
         }
+        if( favoritesListener != null && favoritesReference != null){
+            favoritesReference.removeEventListener(favoritesListener);
+        }
     }
 
-    @Override
     public void updateImageIsFavorite(boolean response) {
         imageIsFavorite = response;
 

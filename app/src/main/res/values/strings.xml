@@ -173,4 +173,5 @@
     <string name="account_data_changed_success_message">Your account data successfully changed</string>
     <string name="profile_picture_upload_fail_message">There was a problem while uploading your profile picture. Please try again</string>
     <string name="account_data_changed_fail_message">There was a problem while saving your data</string>
+    <string name="downloading_favorites_fail_message">There was a problem while fetching your favorites from database. Please try again</string>
 </resources>
