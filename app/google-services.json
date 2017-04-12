@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "709828608877-f89ifjlssn08c5sbnkqocn7v702dq4pc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "us.asimgasimzade.android.neatwallpapers",
+            "certificate_hash": "ff1b8e199d750b9d808bb18d23072e5d911e9f7b"
+          }
+        },
+        {
           "client_id": "709828608877-8p2vakdp21cjdbitu7uv1bqumts9gs3j.apps.googleusercontent.com",
           "client_type": 3
         }

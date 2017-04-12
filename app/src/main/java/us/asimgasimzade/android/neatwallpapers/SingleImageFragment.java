@@ -34,16 +34,23 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
-import us.asimgasimzade.android.neatwallpapers.tasks.AddOrRemoveFavoriteAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
-import us.asimgasimzade.android.neatwallpapers.tasks.ImageIsFavoriteTask;
-import us.asimgasimzade.android.neatwallpapers.utils.IsImageFavoriteResponseInterface;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
@@ -57,7 +64,7 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
  * Fragment that holds single image page in SingleImage view pager
  */
 
-public class SingleImageFragment extends Fragment implements IsImageFavoriteResponseInterface {
+public class SingleImageFragment extends Fragment {
 
     private static final int REQUEST_PERMISSION_SETTING = 43;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
@@ -66,7 +73,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
     boolean imageIsFavorite;
     String currentImageUrl;
-    String currentAuthorInfo;
+    String currentImageAuthor;
     String currentImageLink;
     String currentImageThumbnail;
     String currentImageName;
@@ -91,6 +98,8 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
     DownloadImageAsyncTask downloadImageTask;
     private boolean downloadImageTaskCancelled;
     SharedPreferences sharedPreferences;
+    private DatabaseReference favoritesReference;
+    private ValueEventListener favoritesListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,12 +116,23 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         url = bundle.getString("current_url");
         //Get instance of SharedPreferences
         sharedPreferences = activityInstance.getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser authUser = auth.getCurrentUser();
+        String userId = authUser != null ? authUser.getUid() : null;
+        //Get instance of FireBase database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        //Get reference to current user's favorites node
+        if (userId != null) {
+            favoritesReference = database.getReference("users").child(userId).child("favorites");
+        }
+
     }
 
     public void getImageAttributes() {
         currentItem = currentImagesList.get(currentPosition);
         currentImageName = currentItem.getName();
-        currentAuthorInfo = currentItem.getAuthor();
+        currentImageAuthor = currentItem.getAuthor();
         currentImageUrl = currentItem.getImage();
         currentImageThumbnail = currentItem.getThumbnail();
         currentImageLink = currentItem.getLink();
@@ -158,7 +178,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             public void onClick(View v) {
                 Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
                         putExtra("url", currentImageUrl).
-                        putExtra("author", currentAuthorInfo).
+                        putExtra("author", currentImageAuthor).
                         putExtra("link", currentImageLink).
                         putExtra("name", currentImageName).
                         putExtra("thumbnail", currentImageThumbnail).
@@ -188,7 +208,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
         //Setting author info
         TextView authorInfoTextView = (TextView) rootView.findViewById(R.id.author_info_text_view);
-        authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), currentAuthorInfo));
+        authorInfoTextView.setText(String.format(getResources().getString(R.string.author_info), currentImageAuthor));
 
         //Setting image link
         TextView imageLinkTextView = (TextView) rootView.findViewById(R.id.image_link_text_view);
@@ -229,7 +249,6 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         //-----------------------------------------------------------------------------------------
 
         favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
-        new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
 
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,11 +256,21 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
 
                 //When favorite button inside SingleImageActivity is clicked, we are adding this
                 //image to Favorites database and changing background of a button
-                new AddOrRemoveFavoriteAsyncTask(fragmentInstance, imageIsFavorite, getActivity(),
-                        currentImageName, currentImageUrl, currentAuthorInfo, currentImageThumbnail,
-                        currentImageLink).execute();
-                //Setting delegate back to this instance of SingleImageFragment
-                sendFavoritesOKResult(Activity.RESULT_OK);
+                if (imageIsFavorite) {
+                    //Image is favorite, we are removing it from database
+                    favoritesReference.child(currentImageName).removeValue();
+                    showToast(getActivity(), getActivity().getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
+                } else {
+                    //Create new favorite image and put into FireBase database
+                    GridItem currentItem = new GridItem(currentImageUrl, currentImageName,
+                            currentImageAuthor, currentImageLink, currentImageThumbnail);
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
+                    String timestamp = simpleDateFormat.format(new Date());
+
+                    favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                    showToast(getActivity(), getActivity().getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
+
+                }
             }
 
         });
@@ -313,6 +342,21 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
             }
         });
 
+
+        favoritesListener = favoritesReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //Find out if this image exists in favorites node
+                imageIsFavorite = dataSnapshot.child(currentImageName).exists();
+                updateImageIsFavorite(imageIsFavorite);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         return rootView;
     }
 
@@ -353,19 +397,13 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         downloadProgressDialog.setMax(100);
     }
 
-    public void sendFavoritesOKResult(int result) {
-        //Sending back return intent to FavoritesFragment to update it's GridView with new data
-        Intent databaseIsChangedIntent = new Intent();
-        getActivity().setResult(result, databaseIsChangedIntent);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
+                // If request is not granted, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
@@ -376,7 +414,7 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(activityInstance, getString(R.string.permission_message),
+                        showMessageOKCancel(activityInstance, getString(R.string.download_permission_message),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -405,37 +443,22 @@ public class SingleImageFragment extends Fragment implements IsImageFavoriteResp
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //When coming back from FullImageActivity we need to update favorite state of image
-        new ImageIsFavoriteTask(this, imageIsFavorite, getActivity(), currentImageName).execute();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && requestCode == FULL_IMAGE_REQUEST_CODE) {
-            sendFavoritesOKResult(Activity.RESULT_OK);
-        }
-    }
-
-    @Override
     public void updateImageIsFavorite(boolean response) {
         imageIsFavorite = response;
 
         if (imageIsFavorite) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                favoriteButton.setBackground(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite_selected));
+                favoriteButton.setBackground(ContextCompat.getDrawable(activityInstance, R.mipmap.ic_favorite_selected));
             } else {
                 //noinspection deprecation
-                favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite_selected));
+                favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(activityInstance, R.mipmap.ic_favorite_selected));
             }
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                favoriteButton.setBackground(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite));
+                favoriteButton.setBackground(ContextCompat.getDrawable(activityInstance, R.mipmap.ic_favorite));
             } else {
                 //noinspection deprecation
-                favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite));
+                favoriteButton.setBackgroundDrawable(ContextCompat.getDrawable(activityInstance, R.mipmap.ic_favorite));
             }
         }
     }

@@ -3,11 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="us.asimgasimzade.android.neatwallpapers.MainActivity">
+
     <item
-        android:id="@+id/search"
+        android:id="@+id/action_search"
         android:icon="@mipmap/ic_search"
         android:orderInCategory="100"
         android:title="@string/search_action_title"
         app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_account"
+        android:orderInCategory="200"
+        android:title="@string/account_action_title"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="300"
+        android:title="@string/settings_action_title"
+        app:showAsAction="never" />
 </menu>

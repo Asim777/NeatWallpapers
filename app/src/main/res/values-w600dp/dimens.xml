@@ -1,0 +1,7 @@
+<resources>
+    <!-- Customization of dimensions originally defined in res/values/dimens.xml
+         for screens with more than 600dp of available width. This would include 6" devices  -->
+    <dimen name="activity_horizontal_margin">48dp</dimen>
+    <dimen name="login_horizontal_margin">120dp</dimen>
+    <dimen name="login_logo_size">200dp</dimen>
+</resources>

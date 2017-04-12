@@ -8,4 +8,6 @@
     <dimen name="tab_label">14sp</dimen>
     <dimen name="custom_tab_layout_height">72dp</dimen>
     <dimen name="no_results_text_size">24sp</dimen>
+    <dimen name="login_horizontal_margin">50dp</dimen>
+    <dimen name="login_logo_size">100dp</dimen>
 </resources>

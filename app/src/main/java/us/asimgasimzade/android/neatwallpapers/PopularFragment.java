@@ -50,7 +50,7 @@ public class PopularFragment extends Fragment {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshGridView();
+                updateGridView();
             }
         });
 
@@ -61,11 +61,11 @@ public class PopularFragment extends Fragment {
                 android.R.color.holo_red_light);
 
 
-        refreshGridView();
+        updateGridView();
         return rootView;
     }
 
-    private void refreshGridView() {
+    private void updateGridView() {
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
 

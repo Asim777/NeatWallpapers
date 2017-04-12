@@ -194,12 +194,11 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
                         height = image.getInt("imageHeight");
 
                         if (imageMeetsRequirements(width, height)) {
-                            item = new GridItem();
-                            item.setImage(image.getString("largeImageURL"));
-                            item.setThumbnail(image.getString("webformatURL"));
-                            item.setName(image.getString("id_hash"));
-                            item.setAuthor(image.getString("user"));
-                            item.setLink(image.getString("fullHDURL"));
+                            item = new GridItem(image.getString("largeImageURL"),
+                                    image.getString("id_hash"),
+                                    image.getString("user"),
+                                    image.getString("fullHDURL"),
+                                    image.getString("webformatURL"));
 
                             switch (pageNumber) {
                                 case 0:

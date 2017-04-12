@@ -2,7 +2,6 @@ package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,33 +9,29 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaScannerConnection;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import us.asimgasimzade.android.neatwallpapers.R;
-import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
 import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
-import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
-
-import static java.lang.Thread.sleep;
 
 /**
  * This class has utility methods that can be accessed from everywhere
@@ -126,6 +121,13 @@ public class Utils {
                 == PackageManager.PERMISSION_GRANTED);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public static boolean isPermissionReadFromExternalStorageGranted(Activity thisActivity) {
+        return (ActivityCompat.checkSelfPermission(thisActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+                == PackageManager.PERMISSION_GRANTED);
+    }
+
     public static void setWallpaper(Activity thisActivity, File imageFile) {
         /*Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
         setAsIntent.addCategory(Intent.CATEGORY_DEFAULT);*/
@@ -137,8 +139,8 @@ public class Utils {
     }
 
     public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(thisActivity)
-                .setMessage(message)
+        AlertDialog.Builder showMessageOKCancelDialog = new AlertDialog.Builder(thisActivity, R.style.AppCompatAlertDialogStyle);
+        showMessageOKCancelDialog.setMessage(message)
                 .setPositiveButton(R.string.permission_dialog_positive_button, okListener)
                 .setNegativeButton(R.string.permission_dialog_negative_button, null)
                 .create()
@@ -186,6 +188,42 @@ public class Utils {
         }
         return networkIsAvailable;
     }
+
+
+    public static Drawable getCircleImage(Context context, Bitmap sourceBitmap) {
+        Bitmap resultBitmap;
+        //Cropping square out of selected bitmap
+        if (sourceBitmap.getWidth() >= sourceBitmap.getHeight()){
+
+            resultBitmap = Bitmap.createBitmap(
+                    sourceBitmap,
+                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2, 0,
+                    sourceBitmap.getHeight(),
+                    sourceBitmap.getHeight()
+            );
+
+        }else{
+
+            resultBitmap = Bitmap.createBitmap(
+                    sourceBitmap,
+                    0,
+                    sourceBitmap.getHeight()/2 - sourceBitmap.getWidth()/2,
+                    sourceBitmap.getWidth(),
+                    sourceBitmap.getWidth()
+            );
+        }
+        Bitmap squareBitmap = resultBitmap;
+        //Getting rounded bitmap
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(
+                context.getResources(), squareBitmap);
+        //setting radius
+        roundedBitmapDrawable.setCornerRadius(Math.max(sourceBitmap.getWidth(),
+                sourceBitmap.getHeight()) / 2.0f);
+        roundedBitmapDrawable.setAntiAlias(true);
+        return roundedBitmapDrawable;
+
+    }
+
 
 
 }

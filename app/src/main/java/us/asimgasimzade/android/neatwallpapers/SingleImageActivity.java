@@ -27,6 +27,7 @@ public class SingleImageActivity extends AppCompatActivity {
     ViewPager singleImageViewPager;
     SingleImageViewPagerAdapter singleImageViewPagerAdapter;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +67,6 @@ public class SingleImageActivity extends AppCompatActivity {
         //If currentImageList is empty (It'll happen when fragment comes back from background),
         // get currentItem from sharedPreferences
         if (currentImagesList.size() < 1) {
-
             Gson gson = new Gson();
             String json = sharedPreferences.getString("CurrentImagesList", "");
             Type listType = new TypeToken<ArrayList<GridItem>>() {
@@ -111,9 +111,8 @@ public class SingleImageActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        //Saving currentItem into Shared Preference to retrieve back on onResume()
         Gson gson = new Gson();
+        //Saving currentItem into Shared Preference to retrieve back on onResume()
         String currentImagesListJson = gson.toJson(currentImagesList);
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         sharedPreferencesEditor.putString("CurrentImagesList", currentImagesListJson);
