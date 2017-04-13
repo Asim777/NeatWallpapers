@@ -257,16 +257,34 @@ public class SingleImageFragment extends Fragment {
                 //image to Favorites database and changing background of a button
                 if (imageIsFavorite) {
                     //Image is favorite, we are removing it from database
-                    favoritesReference.child(currentImageName).removeValue();
+                    //We are doing it in parallel thread so that user sees toast message immediately.
+                    // We are also changing favorite button background from here because addValueEventListener
+                    // might take some time to update it. If it's not removed successfully, favorite
+                    //button will be changed back anyway, when onDataChange in listener is triggered
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            favoritesReference.child(currentImageName).removeValue();
+                        }
+                    }).start();
+                    updateImageIsFavorite(false);
                     showToast(getActivity(), getActivity().getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
                 } else {
                     //Create new favorite image and put into FireBase database
-                    GridItem currentItem = new GridItem(currentImageUrl, currentImageName,
-                            currentImageAuthor, currentImageLink, currentImageThumbnail);
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
-                    String timestamp = simpleDateFormat.format(new Date());
-
-                    favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                    //Image is favorite, we are removing it from database
+                    //We are doing it in parallel thread so that user sees toast message immediately.
+                    // We are also changing favorite button background from here because addValueEventListener
+                    // might take some time to update it. If it's not added successfully, favorite
+                    //button will be changed back anyway, when onDataChange in listener is triggered
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
+                            String timestamp = simpleDateFormat.format(new Date());
+                            favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                        }
+                    }).start();
+                    updateImageIsFavorite(true);
                     showToast(getActivity(), getActivity().getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
 
                 }
