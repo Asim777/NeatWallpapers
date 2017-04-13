@@ -2,6 +2,8 @@ package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,9 +31,13 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
+import us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver;
+
+import static android.content.Context.ALARM_SERVICE;
 
 /**
  * This class has utility methods that can be accessed from everywhere
@@ -224,6 +230,80 @@ public class Utils {
 
     }
 
+
+    /**
+     * Sets notifications about new images showing after 3 days intially and then after every 7 days
+     * It will run only if user hasn't disabled notifications from settings (enabled by default)
+     */
+    public static void setNotifications(Context mContext) {
+        //Getting current date
+        Date date = new Date(System.currentTimeMillis());
+        //Setting AlarmManager
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+        //Setting intent to fire NotificationReceiver which will create the notification
+        Intent intent = new Intent(mContext, NotificationReceiver.class);
+        //Setting pending intent
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext.getApplicationContext(),
+                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
+        //after 3 days
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
+                AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+    }
+
+    /**
+     * Cancels repeating alarm that triggers regular notifications.
+     *
+     * @param mContext - context of calling Activity
+     */
+    public static void cancelNotifications(Activity mContext) {
+        //Getting pendingIntent equivalent to the one that started alarm
+        Intent intent = new Intent(mContext, NotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext.getApplicationContext(),
+                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //Getting instance of system alarmManager
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+        //Cancelling this pendingIntent from the alarm
+        alarmManager.cancel(pendingIntent);
+    }
+
+    public static void clearApplicationData(Context mContext) {
+        File cache = mContext.getCacheDir();
+        File appDir = new File(cache.getParent());
+        if (appDir.exists()) {
+            String[] children = appDir.list();
+            for (String s : children) {
+                if (!s.equals("lib")) {
+                    if (deleteDir(new File(appDir, s))) {
+                        Utils.showToast(mContext.getApplicationContext(), "Cache is cleared",
+                                Toast.LENGTH_SHORT);
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (String aChildren : children) {
+                boolean success = deleteDir(new File(dir, aChildren));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir != null && dir.delete();
+    }
+
+    public static long getCacheDirectorySize(Context mContext) {
+        long size = 0;
+        File[] files = mContext.getCacheDir().listFiles();
+        for (File f : files) {
+            size = size + f.length();
+        }
+        return size;
+    }
 
 
 }

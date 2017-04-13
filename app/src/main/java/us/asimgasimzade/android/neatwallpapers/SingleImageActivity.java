@@ -65,7 +65,7 @@ public class SingleImageActivity extends AppCompatActivity {
         }
 
         //If currentImageList is empty (It'll happen when fragment comes back from background),
-        // get currentItem from sharedPreferences
+        // get currentItem from sp
         if (currentImagesList.size() < 1) {
             Gson gson = new Gson();
             String json = sharedPreferences.getString("CurrentImagesList", "");

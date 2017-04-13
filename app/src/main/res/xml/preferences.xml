@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <PreferenceCategory
+        android:key="settings_category_general"
+        android:title="General">
+
+        <Preference
+            android:key="settings_account"
+            android:title="Account" />
+
+        <Preference
+            android:key="settings_clear_cache"
+            android:title="Clear cache"
+            android:summary="Clear locally cached content"/>
+
+        <Preference
+            android:key="settings_check_cache_usage"
+            android:title="Check Cache Usage"
+            android:summary="Display current size of local cache"/>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="settings_receive_notifications"
+            android:summary="Get regular notifications about new wallpapers"
+            android:title="Receive notifications" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="settings_category_neatwallpapers"
+        android:title="Neat Wallpapers">
+
+        <Preference
+            android:key="settings_version"
+            android:title="Version"
+            android:summary=""/>
+
+        <Preference
+            android:key="settings_send_feedback"
+            android:title="Send feedback"
+            android:summary="Contact us via email"/>
+
+        <Preference
+            android:key="settings_rate_app"
+            android:title="Rate this app"
+            android:summary="Rate the app in Google Play"/>
+
+        <Preference
+            android:key="settings_about"
+            android:title="About us"
+            android:summary="Learn more about Neat Wallpapers" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -99,7 +99,6 @@ public class SingleImageFragment extends Fragment {
     private boolean downloadImageTaskCancelled;
     SharedPreferences sharedPreferences;
     private DatabaseReference favoritesReference;
-    private ValueEventListener favoritesListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -343,7 +342,7 @@ public class SingleImageFragment extends Fragment {
         });
 
 
-        favoritesListener = favoritesReference.addValueEventListener(new ValueEventListener() {
+        favoritesReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Find out if this image exists in favorites node

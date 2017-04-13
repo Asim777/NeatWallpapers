@@ -1,14 +1,13 @@
 package us.asimgasimzade.android.neatwallpapers.broadcast_receivers;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
-import java.util.Date;
-
-import static android.content.Context.ALARM_SERVICE;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 /**
  * Broadcast Receiver to receive BOOT_COMPLETED system broadcast
@@ -18,20 +17,18 @@ import static android.content.Context.ALARM_SERVICE;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+
         if("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())){
-            //Getting current date
-            Date date = new Date(System.currentTimeMillis());
-            //Setting AlarmManager
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            //Setting intent to fire NotificationReceiver which will create the notification
-            Intent notificationIntent = new Intent(context, NotificationReceiver.class);
-            //Setting pending intent
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                    1, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
-            //after 3 days
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
-                    AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            //Set repeating alarm for showing notifications if user hasn't disabled notifications from
+            //settings
+            if (sharedPreferences.getBoolean("settings_receive_notifications", true)){
+                Utils.setNotifications(context);
+                Log.d("AsimTag", "Notifications set from BootReceiver");
+            } else {
+                Log.d("AsimTag", "Notifications not set from BootReceiver, because it was disabled by user");
+            }
         }
     }
 }

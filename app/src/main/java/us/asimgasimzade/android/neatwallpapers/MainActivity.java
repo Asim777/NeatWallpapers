@@ -1,8 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers;
 
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -25,13 +23,13 @@ import android.view.ViewGroup;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver;
+import us.asimgasimzade.android.neatwallpapers.utils.Utils;
+
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 /**
  * This is MainActivity, it holds ViewPager of populated by 5 fragments
@@ -79,14 +77,10 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         //We need this sharedPreference in order to automatically select the tab that was selected
-        // before exiting app last time
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                sharedPreferences = getPreferences(MODE_PRIVATE);
-                selectedTabPosition = sharedPreferences.getInt(TAB_SHARED_PREFERENCE_TAG, 1);
-            }
-        }).start();
+        // before exiting app last time and to decide whether or not to enable notifications or not
+
+        sharedPreferences = getDefaultSharedPreferences(getApplicationContext());
+        selectedTabPosition = sharedPreferences.getInt(TAB_SHARED_PREFERENCE_TAG, 1);
 
         intent = this.getIntent();
 
@@ -127,20 +121,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Getting current date
-        Date date = new Date(System.currentTimeMillis());
-        //Setting AlarmManager
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        //Setting intent to fire NotificationReceiver which will create the notification
-        Intent intent = new Intent(this, NotificationReceiver.class);
-        //Setting pending intent
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
-        //after 3 days
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
-                AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+        //Set repeating alarm for showing notifications if user hasn't disabled notifications from
+        //settings
+        if (sharedPreferences.getBoolean("settings_receive_notifications", true)) {
+            Utils.setNotifications(this);
+        }
     }
+
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -188,8 +175,12 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_account:
-                //Open Account Settings activity
+                //Open Account Activity
                 startActivity(new Intent(MainActivity.this, AccountActivity.class));
+                return true;
+            case R.id.action_settings:
+                //Open Settings Activity
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
             default:
                 return super.onContextItemSelected(item);

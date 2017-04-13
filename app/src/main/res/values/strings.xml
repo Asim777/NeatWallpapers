@@ -174,4 +174,5 @@
     <string name="profile_picture_upload_fail_message">There was a problem while uploading your profile picture. Please try again</string>
     <string name="account_data_changed_fail_message">There was a problem while saving your data</string>
     <string name="downloading_favorites_fail_message">There was a problem while fetching your favorites from database. Please try again</string>
+    <string name="settings_about_us_message">We are always trying to create unique wallpaper choosing experience for our users. \nIn Neat Wallpapers you will find thousands of beautiful images to decorate your screen. We appreciate your recommendations and advices and always are happy to hear them. The app is still fresh. \nSo if you think the app lacks some important functionality or needs to be improved in any way, or if you come across any bug, please kindly contact us pressing \"Send feedback\" button. \nCopyright © 2017. Asim Gasimzade. \nAll rights reserved.</string>
 </resources>
