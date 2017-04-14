@@ -14,6 +14,8 @@ import android.widget.ProgressBar;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
+import static android.R.attr.order;
+
 /**
  * This Fragment holds GridView of popular images
  */
@@ -21,7 +23,8 @@ import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 public class PopularFragment extends Fragment {
     GridView mGridView;
     View rootView;
-    String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&order=popular&per_page=200";
+    String url;
+
     private MultiSwipeRefreshLayout swipeContainer;
 
     public PopularFragment() {
@@ -31,6 +34,7 @@ public class PopularFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&order=popular&per_page=200";
     }
 
     @Override

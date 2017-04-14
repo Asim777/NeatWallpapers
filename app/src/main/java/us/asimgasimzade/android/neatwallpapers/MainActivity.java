@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Set repeating alarm for showing notifications if user hasn't disabled notifications from
         //settings
-        if (sharedPreferences.getBoolean("settings_receive_notifications", true)) {
+        if (sharedPreferences.getBoolean(getString(R.string.settings_receive_notification_sp_key), true)) {
             Utils.setNotifications(this);
         }
     }

@@ -112,7 +112,6 @@ public class FavoritesFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mGridData = new ArrayList<>();
-                /*int i = 0;*/
                 int i= ((int) dataSnapshot.getChildrenCount()) - 1;
                 //Loop through all favorite images and assign their values to gridItem
                 for (DataSnapshot child : dataSnapshot.getChildren()) {

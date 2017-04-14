@@ -178,13 +178,13 @@ public class SingleCategoryActivity extends AppCompatActivity {
         switch (callingFragment) {
             case "CategoriesFragment": {
                 if (categoryName.equals("animals") || categoryName.equals("people") ){
-                    url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryKeyword;
+                    url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryKeyword;
                 } else {
-                    url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryKeyword;                }
+                    url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryKeyword;                }
                 break;
             }
             case "ColorsFragment": {
-                url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryName;
+                url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryName;
                 break;
             }
         }

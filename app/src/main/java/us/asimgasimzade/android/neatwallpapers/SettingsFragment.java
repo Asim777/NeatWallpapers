@@ -100,11 +100,11 @@ public class SettingsFragment extends PreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
 
                 Intent sendFeedbackIntent = new Intent(Intent.ACTION_SENDTO);
-                String uriText = "mailto:" + Uri.encode("asim.qasimzade@gmail.com") +
-                        "?subject=" + Uri.encode("Neat Wallpapers feedback");
+                String uriText = "mailto:" + Uri.encode(getString(R.string.settings_feedback_email)) +
+                        "?subject=" + Uri.encode(getString(R.string.settings_feedback_email_subject));
                 Uri uri = Uri.parse(uriText);
                 sendFeedbackIntent.setData(uri);
-                startActivity(Intent.createChooser(sendFeedbackIntent, "Send feedback..."));
+                startActivity(Intent.createChooser(sendFeedbackIntent, getString(R.string.settings_feedback_chooser_header)));
 
                 return false;
             }
@@ -164,8 +164,8 @@ public class SettingsFragment extends PreferenceFragment {
         sharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals("settings_receive_notifications")) {
-                    if (!sharedPreferences.getBoolean("settings_receive_notifications", true)) {
+                if (key.equals(getString(R.string.settings_receive_notification_sp_key))) {
+                    if (!sharedPreferences.getBoolean(getString(R.string.settings_receive_notification_sp_key), true)) {
                         Utils.cancelNotifications(activityInstance);
                     } else {
                         Utils.setNotifications(activityInstance);

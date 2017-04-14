@@ -281,7 +281,10 @@ public class SingleImageFragment extends Fragment {
                         public void run() {
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
                             String timestamp = simpleDateFormat.format(new Date());
-                            favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                            //If image doesn't exist in database, add it
+                            if(favoritesReference.child(currentImageName) != null){
+                                favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                            }
                         }
                     }).start();
                     updateImageIsFavorite(true);

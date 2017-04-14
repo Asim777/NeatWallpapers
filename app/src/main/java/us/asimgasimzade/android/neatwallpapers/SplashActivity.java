@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.firebase.database.FirebaseDatabase;
 
 /**
- * Splash Screen Activity showing when launch take long
+ * Splash Screen Activity showing when launch takes long
  */
 
 public class SplashActivity extends AppCompatActivity {
@@ -17,7 +17,7 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
 
-        //To make first time data load on AccountActivity faster
+        //To make FireBase database persist state offline
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         finish();

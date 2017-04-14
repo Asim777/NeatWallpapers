@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 import us.asimgasimzade.android.neatwallpapers.MainActivity;
 import us.asimgasimzade.android.neatwallpapers.R;
@@ -50,7 +51,17 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
     @Override
     protected Integer doInBackground(String... params) {
 
-        String url = "https://pixabay.com/api/?key=3898774-ad29861c5699760086a93892b&image_type=photo&orientation=vertical&safesearch=true&order=latest&per_page=3";
+        String[] urls = {
+                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=nature%20landscape",
+                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=building",
+                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=monuments",
+                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=space%20stars",
+                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=user:unsplash",
+        };
+
+        Random random = new Random();
+        int randomCategory = random.nextInt(urls.length);
+        String url = urls[randomCategory];
         Integer result = 0;
 
         try {
@@ -66,12 +77,13 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
             //200 represent status is OK
             if (statusCode == 200) {
+                int randomImage = random.nextInt(3);
                 String response = streamToString(urlConnection.getInputStream());
                 try {
                     JSONObject rootJson = new JSONObject(response);
                     JSONArray hits = rootJson.optJSONArray("hits");
                     if (hits.length() > 0) {
-                        JSONObject image = hits.getJSONObject(0);
+                        JSONObject image = hits.getJSONObject(randomImage);
                         if (image != null) {
                             notificationImageURL = image.getString("webformatURL");
                             notificationImageWidth = image.getInt("webformatWidth");
@@ -110,11 +122,11 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
     protected void onPostExecute(Integer result) {
         Bitmap notificationLargIconBitmap;
         if (result == 1) {
-            int notificationLargIconBitmapSize = Double.valueOf(notificationImageWidth * 0.7).intValue();
 
             if (notificationBitmap != null) {
+                //noinspection SuspiciousNameCombination
                 notificationLargIconBitmap = Bitmap.createBitmap(notificationBitmap, 0, 0,
-                        notificationLargIconBitmapSize, notificationLargIconBitmapSize);
+                        notificationImageHeight, notificationImageHeight);
 
                 //Setting content of standard notification
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
