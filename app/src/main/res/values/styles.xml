@@ -44,9 +44,9 @@
 
     <!-- Transparent Action Bar style -->
     <style name="MainTheme.TransparentActionBar" parent="MainTheme">
+        <item name="android:windowActionBarOverlay">@null</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="colorPrimary">@android:color/transparent</item>
-        <item name="windowActionBarOverlay">@null</item>
         <item name="colorPrimaryDark">@android:color/black</item>
     </style>
 

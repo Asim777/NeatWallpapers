@@ -6,7 +6,9 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -103,9 +106,11 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_account);
         Toolbar toolbar = (Toolbar) findViewById(R.id.account_toolbar);
         setSupportActionBar(toolbar);
+
 
         //Enable up button
         final Drawable upArrow = ContextCompat.getDrawable(this, R.mipmap.ic_up);
@@ -116,6 +121,9 @@ public class AccountActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        //We need this to make action bar visible after adding app:elevation="0dp" to it in xml
+        findViewById(R.id.account_appBarLayout).bringToFront();
 
         //Getting references to views
         profilePicture = (ImageView) findViewById(R.id.profile_picture_imageView);
@@ -141,9 +149,11 @@ public class AccountActivity extends AppCompatActivity {
                 ContextCompat.getColor(this, R.color.colorAccent), // pink
 
         };
+
         ColorStateList list = new ColorStateList(states, colors);
         logOutButton.setTextColor(list);
         changeProfilePictureButton.setTextColor(list);
+
 
 
         //Getting FirebaseAuth object instance
@@ -158,7 +168,8 @@ public class AccountActivity extends AppCompatActivity {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
         storageRef = storage.getReference();
-
+        //Check if user is signed in with google account, if yes, we won't be showing editText
+        // to edit email address
         isGoogleUser();
 
         // This event listener is triggered whenever there is a change in user profile data

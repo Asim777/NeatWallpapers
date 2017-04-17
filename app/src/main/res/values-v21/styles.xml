@@ -20,9 +20,9 @@
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
 
-    <!-- Transparent Action Bar -->
+    <!-- Transparent Action Bar style -->
     <style name="MainTheme.TransparentActionBar" parent="MainTheme">
-        <item name="windowActionBarOverlay">@null</item>
+        <item name="android:windowActionBarOverlay">@null</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="colorPrimary">@android:color/transparent</item>
         <item name="colorPrimaryDark">@android:color/black</item>
