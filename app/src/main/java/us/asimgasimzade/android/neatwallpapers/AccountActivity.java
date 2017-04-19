@@ -1,5 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -395,7 +396,7 @@ public class AccountActivity extends AppCompatActivity {
 
 
         //Checking if permission to READ_EXTERNAL_STORAGE is granted by user
-        if (Utils.isPermissionReadFromExternalStorageGranted(this)) {
+        if (isPermissionReadFromExternalStorageGranted()) {
             //If it's granted, just upload the image
             try {
                 final Uri profileImageUri = uploadIntent.getData();
@@ -510,5 +511,12 @@ public class AccountActivity extends AppCompatActivity {
                 }
         }
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public boolean isPermissionReadFromExternalStorageGranted() {
+        return (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+
+                == PackageManager.PERMISSION_GRANTED);
     }
 }

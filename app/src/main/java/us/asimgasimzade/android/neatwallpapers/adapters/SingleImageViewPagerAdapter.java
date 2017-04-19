@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
+import android.view.ViewGroup;
 
 import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
@@ -21,10 +23,10 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
         mSource = source;
     }
 
-    @Override
+/*    @Override
     public int getItemPosition(Object object) {
         return POSITION_NONE;
-    }
+    }*/
 
     @Override
     public Fragment getItem(int position) {
@@ -62,5 +64,11 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
                 break;
         }
         return returnValue;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        super.destroyItem(container, position, object);
+        Log.d("AsimTag", "ViewPagerAdapter destroyItem() called");
     }
 }

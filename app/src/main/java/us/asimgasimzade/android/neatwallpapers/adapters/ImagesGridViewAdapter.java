@@ -16,6 +16,9 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import static com.bumptech.glide.load.engine.DiskCacheStrategy.ALL;
+import static java.lang.System.load;
+
 /**
  * ArrayAdapter that sets Image GridView items
  */
@@ -23,13 +26,11 @@ import java.util.ArrayList;
 public class ImagesGridViewAdapter extends ArrayAdapter<GridItem> {
 
     private Context mContext;
-    private int layoutResourceId;
     private ArrayList<GridItem> mGridData = new ArrayList<>();
 
-    public ImagesGridViewAdapter(Context mContext, int layoutResourceId, ArrayList<GridItem> mGridData) {
-        super(mContext, layoutResourceId, mGridData);
+    public ImagesGridViewAdapter(Context mContext, ArrayList<GridItem> mGridData) {
+        super(mContext, R.layout.image_grid_item_layout, mGridData);
         this.mContext = mContext;
-        this.layoutResourceId = layoutResourceId;
         this.mGridData = mGridData;
     }
 
@@ -50,7 +51,7 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem> {
         ViewHolder holder;
         if (row == null) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-            row = inflater.inflate(layoutResourceId, parent, false);
+            row = inflater.inflate( R.layout.image_grid_item_layout, parent, false);
             holder = new ViewHolder();
             holder.imageView = (ImageView) row.findViewById(R.id.grid_item_image);
             row.setTag(holder);
@@ -59,11 +60,13 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem> {
         }
 
         GridItem item = mGridData.get(position);
-        Glide.with(mContext).load(item.getThumbnail()).into(holder.imageView);
+        Glide.with(mContext).load(item.getThumbnail()).diskCacheStrategy(ALL).into(holder.imageView);
         return row;
     }
 
     private static class ViewHolder {
         ImageView imageView;
     }
+
+
 }

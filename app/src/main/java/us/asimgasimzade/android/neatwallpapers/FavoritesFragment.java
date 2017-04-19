@@ -89,10 +89,10 @@ public class FavoritesFragment extends Fragment {
                 //Get an item position
                 GridItem item = (GridItem) parent.getItemAtPosition(position);
 
-                //Pass image url and source to SingleImageActivity
+                //Pass image url and imageSource to SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-                intent.putExtra("source", "favorites");
+                intent.putExtra("imageSource", "favorites");
 
                 //Start SingleImageActivity
                 startActivity(intent);
@@ -124,7 +124,7 @@ public class FavoritesFragment extends Fragment {
                 //Reversing values in mGridData to show descending list of items in Favorites page
                 Collections.reverse(mGridData);
                 ImagesDataClass.favoriteImagesList = mGridData;
-                mGridAdapter = new ImagesGridViewAdapter(getActivity(), R.layout.image_grid_item_layout, mGridData);
+                mGridAdapter = new ImagesGridViewAdapter(getActivity(), mGridData);
                 mGridView.setAdapter(mGridAdapter);
                 mProgressBar.setVisibility(View.INVISIBLE);
 

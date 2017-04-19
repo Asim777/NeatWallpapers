@@ -1,5 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers.tasks;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -41,7 +42,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private ProgressBar mProgressBar;
     private ImagesGridViewAdapter mGridAdapter;
     private ArrayList<GridItem> mGridData;
-    private Context mContext;
+    private WeakReference<Activity> mActivityReference;
     private View mRootView;
     private String mUrl;
     private String mSource;
@@ -50,24 +51,24 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     private WeakReference<NoResultsCallbackInterface> noResultsCallbackReference;
 
 
-    public LoadImagesAsyncTask(Context context, View rootView, String url, SwipeRefreshLayout swipeContainer, String source) {
-        mContext = context;
+    public LoadImagesAsyncTask(Activity activity, View rootView, String url, SwipeRefreshLayout swipeContainer, String source) {
+        mActivityReference = new WeakReference<>(activity);
         mRootView = rootView;
         mUrl = url;
         mSwipeContainer = swipeContainer;
         mSource = source;
         if (mSource.equals("search")) {
-            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) context);
+            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) activity);
         }
     }
 
-    public LoadImagesAsyncTask(Context context, View rootView, String url, String source) {
-        mContext = context;
+    public LoadImagesAsyncTask(Activity activity, View rootView, String url, String source) {
+        mActivityReference = new WeakReference<>(activity);
         mRootView = rootView;
         mUrl = url;
         mSource = source;
         if (mSource.equals("search")) {
-            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) context);
+            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) activity);
         }
     }
 
@@ -79,7 +80,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
 
         //Initialize with empty data
         mGridData = new ArrayList<>();
-        mGridAdapter = new ImagesGridViewAdapter(mContext, R.layout.image_grid_item_layout, mGridData);
+        mGridAdapter = new ImagesGridViewAdapter(mActivityReference.get(), mGridData);
         mGridView.setAdapter(mGridAdapter);
     }
 
@@ -124,7 +125,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         if (result == 1) {
             mGridAdapter.setGridData(mGridData);
         } else {
-            checkNetworkConnection(mContext);
+            checkNetworkConnection(mActivityReference.get().getApplicationContext());
         }
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
         // other images from SingleImageActivity

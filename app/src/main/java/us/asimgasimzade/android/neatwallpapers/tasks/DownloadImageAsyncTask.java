@@ -2,6 +2,7 @@ package us.asimgasimzade.android.neatwallpapers.tasks;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -13,40 +14,41 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 
 import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
+import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
- * This task downloads the image into a SimpleTarget<Bitmap> and is called from Utils.createTarget
- * method
+ * This task downloads the image into a SimpleTarget<Bitmap>
  */
 
 
 public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
-    private Activity mThisActivity;
+    private WeakReference<Activity> mThisActivityReference;
     private SingleImageFragment.Operation mOperation;
     private String mCurrentImageName;
     private File mImageFile;
     private Bitmap mBitmap;
     private OutputStream outputStream;
-    private ProgressDialog mDownloadProgressDialog;
+    private WeakReference<ProgressDialog> mDownloadProgressDialog;
     private boolean directoryExists;
 
     public DownloadImageAsyncTask(final Activity thisActivity,
                                   final SingleImageFragment.Operation operation, final String currentImageName,
                                   final File imageFile, final Bitmap bitmap, final ProgressDialog downloadProgressDialog
     ) {
-        mThisActivity = thisActivity;
+        mThisActivityReference = new WeakReference<>(thisActivity);
         mOperation = operation;
         mCurrentImageName = currentImageName;
         mImageFile = imageFile;
         mBitmap = bitmap;
-        mDownloadProgressDialog = downloadProgressDialog;
+        mDownloadProgressDialog = new WeakReference<>(downloadProgressDialog);
 
     }
 
@@ -90,7 +92,7 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
             }
             // Tell the media scanner about the new file so that it is
             // immediately available to the user.
-            MediaScannerConnection.scanFile(mThisActivity.getApplicationContext(),
+            MediaScannerConnection.scanFile(mThisActivityReference.get().getApplicationContext(),
                     new String[]{imageFile.getAbsolutePath()},
                     null,
                     new MediaScannerConnection.OnScanCompletedListener() {
@@ -107,37 +109,45 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         //Dismiss the progress dialog
-        if (mDownloadProgressDialog
+        if (mDownloadProgressDialog.get()
                 != null) {
-            mDownloadProgressDialog
+            mDownloadProgressDialog.get()
                     .dismiss();
         }
 
         if(!directoryExists){
-            showToast(mThisActivity, "There was a problem while creating app folder. Please try again",
+            showToast(mThisActivityReference.get(), "There was a problem while creating app folder. Please try again",
                     Toast.LENGTH_SHORT);
         }
 
         if (mOperation == SingleImageFragment.Operation.DOWNLOAD) {
             if (Utils.fileExists(mImageFile)) {
-                showToast(mThisActivity.getApplicationContext(),
-                        mThisActivity.getString(R.string.image_successfully_saved_message),
+                showToast(mThisActivityReference.get().getApplicationContext(),
+                        mThisActivityReference.get().getString(R.string.image_successfully_saved_message),
                         Toast.LENGTH_SHORT);
             } else {
-                showToast(mThisActivity,
-                        mThisActivity.getString(R.string.problem_downloading_image_message),
+                showToast(mThisActivityReference.get(),
+                        mThisActivityReference.get().getString(R.string.problem_downloading_image_message),
                         Toast.LENGTH_SHORT);
             }
         } else if (mOperation == SingleImageFragment.Operation.SET_AS_WALLPAPER) {
             //Checking the result and giving feedback to user about success
             if (Utils.fileExists(mImageFile)) {
-                Utils.setWallpaper(mThisActivity, mImageFile);
+                setWallpaper(mImageFile);
             } else {
-                showToast(mThisActivity.getApplicationContext(),
-                        mThisActivity.getString(R.string.problem_while_setting_wallpaper_message),
+                showToast(mThisActivityReference.get().getApplicationContext(),
+                        mThisActivityReference.get().getString(R.string.problem_while_setting_wallpaper_message),
                         Toast.LENGTH_SHORT);
             }
         }
+    }
+
+    private void setWallpaper(File imageFile) {
+        Intent setAsIntent = new Intent(mThisActivityReference.get(), WallpaperManagerActivity.class);
+        Uri imageUri = Uri.fromFile(imageFile);
+        setAsIntent.setDataAndType(imageUri, "image/*");
+        setAsIntent.putExtra("mimeType", "image/*");
+        mThisActivityReference.get().startActivity(setAsIntent);
     }
 
 }

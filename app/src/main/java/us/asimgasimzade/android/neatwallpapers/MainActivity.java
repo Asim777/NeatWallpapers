@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     SearchView searchView;
     private TabLayout tabLayout;
     private int selectedTabPosition;
+    private TabLayout.OnTabSelectedListener onTabSelectedListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Each time when user changes tab, selectedTabPosition updates to according value
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        onTabSelectedListener = new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 selectedTabPosition = tabLayout.getSelectedTabPosition();
@@ -119,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
-        });
+        };
+        tabLayout.addOnTabSelectedListener(onTabSelectedListener);
 
         //Set repeating alarm for showing notifications if user hasn't disabled notifications from
         //settings
@@ -151,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
                 sharedPreferencesEditor.putInt(TAB_SHARED_PREFERENCE_TAG, selectedTabPosition);
                 sharedPreferencesEditor.apply();
+                tabLayout.removeOnTabSelectedListener(onTabSelectedListener);
             }
         }).start();
 

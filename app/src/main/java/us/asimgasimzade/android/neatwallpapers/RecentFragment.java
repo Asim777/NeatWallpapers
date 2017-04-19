@@ -84,7 +84,7 @@ public class RecentFragment extends Fragment{
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-                intent.putExtra("source", "recent");
+                intent.putExtra("imageSource", "recent");
                 //Start SingleImageActivity
                 startActivity(intent);
             }

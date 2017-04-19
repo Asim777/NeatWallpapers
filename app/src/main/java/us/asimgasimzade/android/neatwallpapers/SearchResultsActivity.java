@@ -181,7 +181,7 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(SearchResultsActivity.this, SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-                intent.putExtra("source", "search");
+                intent.putExtra("imageSource", "search");
 
                 //Start SingleImageActivity
                 startActivity(intent);
@@ -194,7 +194,7 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
     /**
      * This method constructs customized url using order and searchQuery
      *
-     * @param order       - Order in which grid items should be sorted
+     * @param order - Order in which grid items should be sorted
      * @param searchQuery - Search query entered by user in search view
      */
     private void constructUrl(String order, String searchQuery) {

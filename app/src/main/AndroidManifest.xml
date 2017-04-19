@@ -134,10 +134,6 @@
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait" />
 
-        <activity
-            android:name=".ResetPasswordActivity"
-            android:label="@string/title_activity_login" />
-
     </application>
 
 </manifest>

@@ -1,25 +1,18 @@
 package us.asimgasimzade.android.neatwallpapers.utils;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
@@ -46,7 +39,6 @@ import static android.content.Context.ALARM_SERVICE;
 public class Utils {
 
     private static Toast mToast;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
 
     /**
      * Method to prevent Toast accumulation. It cancel's current Toast (if it exists) before showing
@@ -81,67 +73,6 @@ public class Utils {
     public static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    /**
-     * This method checks if user granted a permission to download the image by calling
-     * isPermissionWriteToExternalStorageGranted, and if yes, it calls dowloadImage() method,
-     * if not, it shows Request Permission dialog
-     */
-    public static void downloadImageIfPermitted(Activity thisActivity, Fragment thisFragment, String currentImageUrl,
-                                                SimpleTarget<Bitmap> target) {
-        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
-        if (isPermissionWriteToExternalStorageGranted(thisActivity)) {
-            //If it's granted, just download the image
-            downloadImage(thisActivity, currentImageUrl, target);
-        } else {
-            //If it's not granted, request it
-            thisFragment.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
-    }
-
-    /**
-     * Overriding the same method as above without Fragment argument, for when it's called from Activity
-     */
-    public static void downloadImageIfPermitted(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
-        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
-        if (isPermissionWriteToExternalStorageGranted(thisActivity)) {
-            //If it's granted, just download the image
-            downloadImage(thisActivity, currentImageUrl, target);
-        } else {
-            //If it's not granted, request it
-            ActivityCompat.requestPermissions(thisActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
-    }
-
-    public static void downloadImage(Activity thisActivity, String currentImageUrl, SimpleTarget<Bitmap> target) {
-        //We have permission, so we can download the image
-        Glide.with(thisActivity.getApplicationContext()).load(currentImageUrl).asBitmap().into(target);
-    }
-
-    private static boolean isPermissionWriteToExternalStorageGranted(Activity thisActivity) {
-        return (ActivityCompat.checkSelfPermission(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-                == PackageManager.PERMISSION_GRANTED);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public static boolean isPermissionReadFromExternalStorageGranted(Activity thisActivity) {
-        return (ActivityCompat.checkSelfPermission(thisActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
-
-                == PackageManager.PERMISSION_GRANTED);
-    }
-
-    public static void setWallpaper(Activity thisActivity, File imageFile) {
-        /*Intent setAsIntent = new Intent(Intent.ACTION_ATTACH_DATA);
-        setAsIntent.addCategory(Intent.CATEGORY_DEFAULT);*/
-        Intent setAsIntent = new Intent(thisActivity, WallpaperManagerActivity.class);
-        Uri imageUri = Uri.fromFile(imageFile);
-        setAsIntent.setDataAndType(imageUri, "image/*");
-        setAsIntent.putExtra("mimeType", "image/*");
-        thisActivity.startActivity(setAsIntent);
     }
 
     public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {

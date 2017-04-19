@@ -38,7 +38,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
-import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 

@@ -166,7 +166,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
                 //Pass image url to x`SingleImageActivity
                 Intent intent = new Intent(SingleCategoryActivity.this, SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-                intent.putExtra("source", "default");
+                intent.putExtra("imageSource", "default");
 
                 //Start SingleImageActivity
                 startActivity(intent);

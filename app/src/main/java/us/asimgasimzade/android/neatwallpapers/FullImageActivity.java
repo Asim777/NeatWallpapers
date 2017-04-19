@@ -49,10 +49,7 @@ import java.util.Locale;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
-import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImage;
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.downloadImageIfPermitted;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
@@ -82,6 +79,7 @@ public class FullImageActivity extends AppCompatActivity  {
     private boolean downloadImageTaskCancelled;
     private DatabaseReference favoritesReference;
     private ValueEventListener favoritesListener;
+    private boolean permission;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -126,6 +124,9 @@ public class FullImageActivity extends AppCompatActivity  {
 
         loadingAnimationProgressBar = (ProgressBar) findViewById(R.id.loading_progress_bar);
         loadingAnimationProgressBar.setVisibility(View.VISIBLE);
+
+        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
+        permission = isPermissionWriteToExternalStorageGranted();
 
         Glide.with(getApplicationContext()).load(currentImageUrl).
                 listener(new RequestListener<String, GlideDrawable>() {
@@ -207,10 +208,10 @@ public class FullImageActivity extends AppCompatActivity  {
                     //Show downloading progress dialog
                     downloadProgressDialog.show();
 
-                    downloadImageIfPermitted(this, currentImageUrl, target);
+                    downloadImageIfPermitted(permission, currentImageUrl, target);
                 } else {
                     //if it exists, just set it as wallpaper
-                    Utils.setWallpaper(this, imageFileForChecking);
+                    setWallpaper(imageFileForChecking);
                 }
                 return true;
 
@@ -231,7 +232,7 @@ public class FullImageActivity extends AppCompatActivity  {
                     downloadProgressDialog.show();
 
                     //If it doesn't exist, download it, but first check if we have permission to do it
-                    downloadImageIfPermitted(this, currentImageUrl, target);
+                    downloadImageIfPermitted(permission, currentImageUrl, target);
                 }
                 return true;
 
@@ -299,7 +300,7 @@ public class FullImageActivity extends AppCompatActivity  {
                     // permission was granted, yay!
                     showToast(getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
-                    downloadImage(this, currentImageUrl, target);
+                    downloadImage(currentImageUrl, target);
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
@@ -399,6 +400,42 @@ public class FullImageActivity extends AppCompatActivity  {
         } else {
             favoriteActionButton.setIcon(ContextCompat.getDrawable(this, R.mipmap.ic_white_favorite));
         }
+    }
+
+    private boolean isPermissionWriteToExternalStorageGranted() {
+        return (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED);
+    }
+
+    /**
+     * This method checks if user granted a permission to download the image by calling
+     * isPermissionWriteToExternalStorageGranted, and if yes, it calls dowloadImage() method,
+     * if not, it shows Request Permission dialog
+     */
+    private void downloadImageIfPermitted(boolean isPermissionGranted,
+                                                String currentImageUrl, SimpleTarget<Bitmap> target) {
+        //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
+        if (isPermissionGranted) {
+            //If it's granted, just download the image
+            downloadImage(currentImageUrl, target);
+        } else {
+            //If it's not granted, request it
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    private void downloadImage(String currentImageUrl, SimpleTarget<Bitmap> target) {
+        //We have permission, so we can download the image
+        Glide.with(this).load(currentImageUrl).asBitmap().into(target);
+    }
+
+    private void setWallpaper(File imageFile) {
+        Intent setAsIntent = new Intent(this, WallpaperManagerActivity.class);
+        Uri imageUri = Uri.fromFile(imageFile);
+        setAsIntent.setDataAndType(imageUri, "image/*");
+        setAsIntent.putExtra("mimeType", "image/*");
+        startActivity(setAsIntent);
     }
 
 }

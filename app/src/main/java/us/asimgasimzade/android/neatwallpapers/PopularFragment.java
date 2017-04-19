@@ -14,8 +14,6 @@ import android.widget.ProgressBar;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
-import static android.R.attr.order;
-
 /**
  * This Fragment holds GridView of popular images
  */
@@ -87,7 +85,7 @@ public class PopularFragment extends Fragment {
                 //Pass image url to SingleImageActivity
                 Intent intent = new Intent(getActivity(), SingleImageActivity.class);
                 intent.putExtra("number", item.getNumber());
-                intent.putExtra("source", "popular");
+                intent.putExtra("imageSource", "popular");
 
                 //Start SingleImageActivity
                 startActivity(intent);
