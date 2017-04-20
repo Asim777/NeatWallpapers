@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,7 +45,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -89,16 +87,15 @@ public class SingleImageFragment extends Fragment {
     private boolean downloadImageTaskCancelled;
     SharedPreferences sharedPreferences;
     private DatabaseReference favoritesReference;
-    WeakReference<FragmentActivity> activityWeakReference;
+
     private boolean permission;
     private Drawable favoriteDrawable;
     private Drawable favoriteSelectedDrawable;
+    ImageView imageView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("AsimTag", "SingleImageFragment onCreate() called");
-        activityWeakReference = new WeakReference<>(getActivity());
         //Getting url of current selected image from ImagesDataClass using imageNumber from
         // intent and ViewPager page position
         Bundle bundle = getArguments();
@@ -106,7 +103,7 @@ public class SingleImageFragment extends Fragment {
         source = bundle.getString("image_source");
         url = bundle.getString("current_url");
         //Get instance of SharedPreferences
-        sharedPreferences = activityWeakReference.get().getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
+        sharedPreferences = getActivity().getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser authUser = auth.getCurrentUser();
@@ -127,7 +124,6 @@ public class SingleImageFragment extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        Log.d("AsimTag", "SingleImageFragment onCreateView() called");
         assert source != null;
         switch (source) {
             case "popular": {
@@ -151,8 +147,8 @@ public class SingleImageFragment extends Fragment {
             }
         }
 
-        favoriteDrawable = ContextCompat.getDrawable(activityWeakReference.get(), R.mipmap.ic_favorite);
-        favoriteSelectedDrawable = ContextCompat.getDrawable(activityWeakReference.get(), R.mipmap.ic_favorite_selected);
+        favoriteDrawable = ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite);
+        favoriteSelectedDrawable = ContextCompat.getDrawable(getActivity(), R.mipmap.ic_favorite_selected);
 
         final GridItem currentItem = currentImagesList.get(currentPosition);
         currentImageName = currentItem.getName();
@@ -165,11 +161,12 @@ public class SingleImageFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
 
         //Downloading and setting image
-        ImageView imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
+
+        imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent fullImageIntent = new Intent(activityWeakReference.get(), FullImageActivity.class).
+                Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
                         putExtra("url", currentImageUrl).
                         putExtra("author", currentImageAuthor).
                         putExtra("link", currentImageLink).
@@ -184,7 +181,7 @@ public class SingleImageFragment extends Fragment {
         final ProgressBar loadingAnimationProgressBar = (ProgressBar) rootView.findViewById(R.id.loading_progress_bar);
         loadingAnimationProgressBar.setVisibility(View.VISIBLE);
 
-        Glide.with(activityWeakReference.get().getApplicationContext()).load(currentImageUrl).
+        Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).
                 listener(new RequestListener<String, GlideDrawable>() {
                     @Override
                     public boolean onException(Exception e, String model,
@@ -236,7 +233,7 @@ public class SingleImageFragment extends Fragment {
 
                 //When back button inside SingleImageActivity is clicked, we are initiating
                 //back button pressed and automatically going back to the previous activity
-                activityWeakReference.get().onBackPressed();
+               getActivity().finish();
             }
         });
 
@@ -260,7 +257,7 @@ public class SingleImageFragment extends Fragment {
                     new RemoveFavoriteTask(favoritesReference, currentImageName).start();
 
                     updateImageIsFavorite(false, favoriteButton);
-                    showToast(activityWeakReference.get().getApplicationContext(), activityWeakReference.get().getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
+                    showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
                 } else {
                     //Create new favorite image and put into FireBase database
                     //Image is favorite, we are removing it from database
@@ -271,7 +268,7 @@ public class SingleImageFragment extends Fragment {
                     new AddFavoriteTask(favoritesReference, currentItem).start();
 
                     updateImageIsFavorite(true, favoriteButton);
-                    showToast(activityWeakReference.get().getApplicationContext(), activityWeakReference.get().getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
+                    showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
 
                 }
             }
@@ -288,7 +285,7 @@ public class SingleImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //Check if network is available
-                if (checkNetworkConnection(activityWeakReference.get().getApplicationContext())) {
+                if (checkNetworkConnection(getActivity().getApplicationContext())) {
                     //Change the current Wallpaper, if image doesn't exist then download it first
                     operation = Operation.SET_AS_WALLPAPER;
 
@@ -321,7 +318,7 @@ public class SingleImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //Check if network is available
-                if (checkNetworkConnection(activityWeakReference.get().getApplicationContext())) {
+                if (checkNetworkConnection(getActivity().getApplicationContext())) {
 
 
                     //Downloading image
@@ -329,7 +326,7 @@ public class SingleImageFragment extends Fragment {
                     operation = Operation.DOWNLOAD;
 
                     if (fileExists(imageFileForChecking)) {
-                        showToast(activityWeakReference.get().getApplicationContext().getApplicationContext(),
+                        showToast(getActivity().getApplicationContext().getApplicationContext(),
                                 getString(R.string.image_already_exists_message), Toast.LENGTH_SHORT);
                     } else {
                         //Creating target
@@ -365,9 +362,9 @@ public class SingleImageFragment extends Fragment {
 
     private void createProgressDialog() {
         //Creating progress dialog
-        downloadProgressDialog = new ProgressDialog(activityWeakReference.get(), R.style.AppCompatAlertDialogStyle);
-        downloadProgressDialog.setTitle(activityWeakReference.get().getString(R.string.title_downloading_image));
-        downloadProgressDialog.setMessage(activityWeakReference.get().getString(R.string.message_downloading_image));
+        downloadProgressDialog = new ProgressDialog(getActivity(), R.style.AppCompatAlertDialogStyle);
+        downloadProgressDialog.setTitle(getActivity().getString(R.string.title_downloading_image));
+        downloadProgressDialog.setMessage(getActivity().getString(R.string.message_downloading_image));
         downloadProgressDialog.setCancelable(true);
         downloadProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -410,19 +407,19 @@ public class SingleImageFragment extends Fragment {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    showToast(activityWeakReference.get().getApplicationContext(), getString(R.string.permission_granted_message),
+                    showToast(getActivity().getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
                     downloadImage(currentImageUrl, target);
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(activityWeakReference.get(), getString(R.string.download_permission_message),
+                        showMessageOKCancel(getActivity(), getString(R.string.download_permission_message),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                        Uri uri = Uri.fromParts("package", activityWeakReference.get().getPackageName(), null);
+                                        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
                                         intent.setData(uri);
                                         startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
                                     }
@@ -467,7 +464,7 @@ public class SingleImageFragment extends Fragment {
     }
 
     private boolean isPermissionWriteToExternalStorageGranted() {
-        return (ActivityCompat.checkSelfPermission(activityWeakReference.get(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        return (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED);
     }
 
@@ -496,7 +493,7 @@ public class SingleImageFragment extends Fragment {
             @Override
             public void onResourceReady(final Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation) {
                 if (!downloadImageTaskCancelled) {
-                    downloadImageTask = new DownloadImageAsyncTask(activityWeakReference.get(), operation, currentImageName,
+                    downloadImageTask = new DownloadImageAsyncTask(getActivity(), operation, currentImageName,
                             imageFileForChecking, bitmap, downloadProgressDialog);
                     downloadImageTask.execute();
                 } else {
@@ -509,15 +506,15 @@ public class SingleImageFragment extends Fragment {
 
     private void downloadImage(String currentImageUrl, SimpleTarget<Bitmap> target) {
         //We have permission, so we can download the image
-        Glide.with(activityWeakReference.get()).load(currentImageUrl).asBitmap().into(target);
+        Glide.with(getActivity()).load(currentImageUrl).asBitmap().into(target);
     }
 
     private void setWallpaper(File imageFile) {
-        Intent setAsIntent = new Intent(activityWeakReference.get(), WallpaperManagerActivity.class);
+        Intent setAsIntent = new Intent(getActivity(), WallpaperManagerActivity.class);
         Uri imageUri = Uri.fromFile(imageFile);
         setAsIntent.setDataAndType(imageUri, "image/*");
         setAsIntent.putExtra("mimeType", "image/*");
-        activityWeakReference.get().startActivity(setAsIntent);
+        getActivity().startActivity(setAsIntent);
     }
 
     public enum Operation {
@@ -526,10 +523,32 @@ public class SingleImageFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        /*dispatchOnDetach(getActivity().getSupportFragmentManager().getFragments());*/
         Log.d("AsimTag", "SingleImageFragment onDetach() called, variables nulled");
+        super.onDetach();
     }
 
+    /*private void dispatchOnDetach(Iterable<Fragment> fragments) {
+        if (fragments == null)
+            return;
+
+        FragmentActivity aa = getActivity();
+        if (aa == null)
+            return;
+
+        FragmentManager frMan = aa.getSupportFragmentManager();
+        FragmentTransaction frTr = frMan.beginTransaction();
+
+        for (Fragment fr : fragments) {
+            if (fr != null) {
+                frTr.remove(fr);
+            }
+        }
+
+        frTr.remove(this);
+        frTr.commit();
+    }
+*/
     @Override
     public void onAttachFragment(Fragment childFragment) {
         super.onAttachFragment(childFragment);

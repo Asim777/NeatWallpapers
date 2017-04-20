@@ -71,4 +71,6 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
         super.destroyItem(container, position, object);
         Log.d("AsimTag", "ViewPagerAdapter destroyItem() called");
     }
+
+
 }
