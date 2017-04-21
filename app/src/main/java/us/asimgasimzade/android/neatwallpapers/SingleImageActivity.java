@@ -4,15 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+
 import us.asimgasimzade.android.neatwallpapers.adapters.SingleImageViewPagerAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
@@ -125,37 +126,5 @@ public class SingleImageActivity extends AppCompatActivity {
         sharedPreferencesEditor.putString("CurrentImagesList", currentImagesListJson);
         sharedPreferencesEditor.apply();
     }
-
-    @Override
-    protected void onPause() {
-       /* detachOnDestroy(fragmentManager.getFragments());*/
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-/*        if(fragmentManager.getFragments() != null){
-            for(Fragment fragment:fragmentManager.getFragments()){
-                if(fragment != null) {
-                    fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
-                }
-            }
-        }*/
-        super.onDestroy();
-    }
-
-    /*private void detachOnDestroy(Iterable<Fragment> fragments){
-        if (fragments == null){
-            return;
-        }
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        for(Fragment fragment : fragments){
-            if(fragment != null){
-                fragmentTransaction.remove(fragment);
-            }
-        }
-        fragmentTransaction.commitAllowingStateLoss();
-    }*/
 
 }

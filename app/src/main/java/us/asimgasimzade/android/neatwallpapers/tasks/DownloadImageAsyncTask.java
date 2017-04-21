@@ -55,8 +55,6 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
-
     }
 
     @Override

@@ -20,7 +20,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,7 +86,7 @@ public class SingleImageFragment extends Fragment {
     private boolean downloadImageTaskCancelled;
     SharedPreferences sharedPreferences;
     private DatabaseReference favoritesReference;
-
+    ValueEventListener favoritesListener;
     private boolean permission;
     private Drawable favoriteDrawable;
     private Drawable favoriteSelectedDrawable;
@@ -233,7 +232,7 @@ public class SingleImageFragment extends Fragment {
 
                 //When back button inside SingleImageActivity is clicked, we are initiating
                 //back button pressed and automatically going back to the previous activity
-               getActivity().finish();
+                getActivity().finish();
             }
         });
 
@@ -257,7 +256,7 @@ public class SingleImageFragment extends Fragment {
                     new RemoveFavoriteTask(favoritesReference, currentImageName).start();
 
                     updateImageIsFavorite(false, favoriteButton);
-                    showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
+                    showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_removed_from_favorites_message), Toast.LENGTH_SHORT);
                 } else {
                     //Create new favorite image and put into FireBase database
                     //Image is favorite, we are removing it from database
@@ -268,7 +267,7 @@ public class SingleImageFragment extends Fragment {
                     new AddFavoriteTask(favoritesReference, currentItem).start();
 
                     updateImageIsFavorite(true, favoriteButton);
-                    showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
+                    showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_added_to_favorites_message), Toast.LENGTH_SHORT);
 
                 }
             }
@@ -342,8 +341,7 @@ public class SingleImageFragment extends Fragment {
             }
         });
 
-
-        favoritesReference.addValueEventListener(new ValueEventListener() {
+        favoritesListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Find out if this image exists in favorites node
@@ -355,7 +353,9 @@ public class SingleImageFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+
+        favoritesReference.addValueEventListener(favoritesListener);
 
         return rootView;
     }
@@ -474,7 +474,7 @@ public class SingleImageFragment extends Fragment {
      * if not, it shows Request Permission dialog
      */
     public void downloadImageIfPermitted(boolean isPermissionGranted, String currentImageUrl,
-                                                SimpleTarget<Bitmap> target) {
+                                         SimpleTarget<Bitmap> target) {
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionGranted) {
             //If it's granted, just download the image
@@ -522,37 +522,11 @@ public class SingleImageFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        /*dispatchOnDetach(getActivity().getSupportFragmentManager().getFragments());*/
-        Log.d("AsimTag", "SingleImageFragment onDetach() called, variables nulled");
-        super.onDetach();
-    }
-
-    /*private void dispatchOnDetach(Iterable<Fragment> fragments) {
-        if (fragments == null)
-            return;
-
-        FragmentActivity aa = getActivity();
-        if (aa == null)
-            return;
-
-        FragmentManager frMan = aa.getSupportFragmentManager();
-        FragmentTransaction frTr = frMan.beginTransaction();
-
-        for (Fragment fr : fragments) {
-            if (fr != null) {
-                frTr.remove(fr);
-            }
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (favoritesListener != null && favoritesReference != null) {
+            favoritesReference.removeEventListener(favoritesListener);
         }
-
-        frTr.remove(this);
-        frTr.commit();
-    }
-*/
-    @Override
-    public void onAttachFragment(Fragment childFragment) {
-        super.onAttachFragment(childFragment);
-        Log.d("AsimTag", "SingleImageFragment onAttachFragment() called");
     }
 
     private static class RemoveFavoriteTask extends Thread {
@@ -560,7 +534,7 @@ public class SingleImageFragment extends Fragment {
         DatabaseReference mFavoritesReference;
         String mCurrentImageName;
 
-        RemoveFavoriteTask(DatabaseReference favoritesReference, String currentImageName){
+        RemoveFavoriteTask(DatabaseReference favoritesReference, String currentImageName) {
             mFavoritesReference = favoritesReference;
             mCurrentImageName = currentImageName;
         }
@@ -571,12 +545,13 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
+
     private static class AddFavoriteTask extends Thread {
 
         DatabaseReference mFavoritesReference;
         GridItem mCurrentItem;
 
-        AddFavoriteTask(DatabaseReference favoritesReference, GridItem currentItem){
+        AddFavoriteTask(DatabaseReference favoritesReference, GridItem currentItem) {
             mFavoritesReference = favoritesReference;
             mCurrentItem = currentItem;
         }
@@ -586,7 +561,7 @@ public class SingleImageFragment extends Fragment {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
             String timestamp = simpleDateFormat.format(new Date());
             //If image doesn't exist in database, add it
-            if(mFavoritesReference.child(mCurrentItem.getName()) != null){
+            if (mFavoritesReference.child(mCurrentItem.getName()) != null) {
                 mFavoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem, timestamp);
             }
         }
