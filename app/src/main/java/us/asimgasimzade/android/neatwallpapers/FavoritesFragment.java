@@ -2,6 +2,7 @@ package us.asimgasimzade.android.neatwallpapers;
 
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,8 +22,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 
 import us.asimgasimzade.android.neatwallpapers.adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
@@ -38,11 +53,9 @@ public class FavoritesFragment extends Fragment {
     GridView mGridView;
     View rootView;
     ProgressBar mProgressBar;
-    /*private MultiSwipeRefreshLayout swipeContainer;*/
     private ArrayList<GridItem> mGridData;
-    private ImagesGridViewAdapter mGridAdapter;
+
     private DatabaseReference favoritesReference;
-    private GridItem currentItem;
     private ValueEventListener eventListener;
     FirebaseAuth auth;
     FirebaseUser authUser;
@@ -111,23 +124,8 @@ public class FavoritesFragment extends Fragment {
         eventListener = favoritesQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mGridData = new ArrayList<>();
-                int i= ((int) dataSnapshot.getChildrenCount()) - 1;
-                //Loop through all favorite images and assign their values to gridItem
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    currentItem = child.getValue(GridItem.class);
-                    currentItem.setNumber(i);
-                    mGridData.add(currentItem);
-                    i--;
-                }
-
-                //Reversing values in mGridData to show descending list of items in Favorites page
-                Collections.reverse(mGridData);
-                ImagesDataClass.favoriteImagesList = mGridData;
-                mGridAdapter = new ImagesGridViewAdapter(getActivity(), mGridData);
-                mGridView.setAdapter(mGridAdapter);
-                mProgressBar.setVisibility(View.INVISIBLE);
-
+                //Load favorites from Firebase database
+                new LoadFavoritesTask(dataSnapshot).execute();
             }
 
             @Override
@@ -138,6 +136,142 @@ public class FavoritesFragment extends Fragment {
                         Toast.LENGTH_LONG);
             }
         });
+    }
+
+    private class LoadFavoritesTask extends AsyncTask<String, Void, ArrayList<GridItem>> {
+
+        String mImageName;
+        DataSnapshot mDataSnapshot;
+        ArrayList<GridItem> mGridData;
+        GridItem mCurrentItem;
+        ImagesGridViewAdapter mGridAdapter;
+        String updatedFavoriteUrlString = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&id=";
+        URL mUrl;
+        SimpleDateFormat simpleDateFormat;
+        Date mDate;
+        Date nowDate;
+        HttpURLConnection mUrlConnection;
+        String updatedImage;
+        String updatedThumbnail;
+
+        LoadFavoritesTask(DataSnapshot dataSnapshot) {
+            mDataSnapshot = dataSnapshot;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mGridData = new ArrayList<>();
+            simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
+            nowDate = new Date();
+        }
+
+        @Override
+        protected ArrayList<GridItem> doInBackground(String... params) {
+            int i = ((int) mDataSnapshot.getChildrenCount()) - 1;
+            //Loop through all favorite images and assign their values to gridItem
+            for (DataSnapshot child : mDataSnapshot.getChildren()) {
+                mCurrentItem = child.getValue(GridItem.class);
+                //Getting timestamp (when image was added to favorite or updated after being expired)
+                // which is defined as priority
+                String timestamp = child.getPriority().toString();
+
+                try {
+                    mDate = simpleDateFormat.parse(timestamp);
+                } catch (ParseException e){
+                    e.printStackTrace();
+                }
+
+                //After 2 days pixabay updates image url's so in images favorites lose all their urls
+                //That's why we are cheking if 2 days has pass since image added to database and if yes,
+                //we are getting new urls from pixabay API using image's id_hash
+                if (imageHasExpired()) {
+                    mImageName = mCurrentItem.getName();
+                    try {
+                        mUrl = new URL(updatedFavoriteUrlString + mImageName);
+                        //Create Apache HttpClient
+                        mUrlConnection = (HttpURLConnection) mUrl.openConnection();
+                        int statusCode = mUrlConnection.getResponseCode();
+                        //200 represent status is OK
+                        if (statusCode == 200) {
+                            String response = streamToString(mUrlConnection.getInputStream());
+                            parseResult(response);
+                        } /*else {
+                            //Url request Failed
+                        }*/
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        mUrlConnection.disconnect();
+                    }
+
+                    //Updating GridItem's image and thumbnail url and timestamp adding it to FireBase database
+                    //instead of expired ones
+                    if (updatedImage != null && updatedThumbnail != null) {
+                        mCurrentItem.setImage(updatedImage);
+                        mCurrentItem.setThumbnail(updatedThumbnail);
+                        favoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem, simpleDateFormat.format(new Date()));
+                    }
+                }
+                mCurrentItem.setNumber(i);
+                mGridData.add(mCurrentItem);
+                i--;
+            }
+
+            return mGridData;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<GridItem> updatedGridData) {
+            //Reversing values in mGridData to show descending list of items in Favorites page
+            Collections.reverse(updatedGridData);
+            ImagesDataClass.favoriteImagesList = updatedGridData;
+            mGridAdapter = new ImagesGridViewAdapter(FavoritesFragment.this.getActivity(), updatedGridData);
+            mGridView.setAdapter(mGridAdapter);
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+
+        private String streamToString(InputStream stream) throws IOException {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+            String line;
+            String result = "";
+            while ((line = bufferedReader.readLine()) != null) {
+                result += line;
+            }
+
+            //Close stream
+            stream.close();
+            return result;
+        }
+
+        private void parseResult(String response) {
+            try {
+                JSONObject rootJson = new JSONObject(response);
+                JSONArray hits = rootJson.optJSONArray("hits");
+                if (hits.length() > 0) {
+                    JSONObject image = hits.getJSONObject(0);
+                    if (image != null) {
+                        updatedImage = image.getString("largeImageURL");
+                        updatedThumbnail = image.getString("webformatURL");
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * If image has been added more than 4 days ago, it's expired and we need to update it's
+         * url so that user can see it in Favorites page
+         *
+         * @return long differenceInDays - how many complete days ago image url has been updated last time
+         */
+        private boolean imageHasExpired() {
+            long difference = nowDate.getTime() - mDate.getTime();
+            long differenceInDays = difference / (1000 * 60 * 60 * 24);
+            //If image has been added more than 4 days ago, it's expired and we need to update it's
+            //url so that user can see it in Favorites page
+            return differenceInDays >= 4;
+        }
     }
 
     @Override
