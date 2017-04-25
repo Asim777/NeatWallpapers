@@ -53,7 +53,6 @@ public class FavoritesFragment extends Fragment {
     GridView mGridView;
     View rootView;
     ProgressBar mProgressBar;
-    private ArrayList<GridItem> mGridData;
 
     private DatabaseReference favoritesReference;
     private ValueEventListener eventListener;
@@ -120,7 +119,7 @@ public class FavoritesFragment extends Fragment {
         super.onResume();
         // This listener gets triggered each time there's change in user's favorites node nad
         // updates Favorites Fragment's gridView with new images
-        Query favoritesQuery = favoritesReference.orderByPriority();
+        Query favoritesQuery = favoritesReference.orderByChild("timestamp");
         eventListener = favoritesQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -148,7 +147,7 @@ public class FavoritesFragment extends Fragment {
         String updatedFavoriteUrlString = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&id=";
         URL mUrl;
         SimpleDateFormat simpleDateFormat;
-        Date mDate;
+        Date mImageTimestamp;
         Date nowDate;
         HttpURLConnection mUrlConnection;
         String updatedImage;
@@ -161,7 +160,7 @@ public class FavoritesFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             mGridData = new ArrayList<>();
-            simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
+            simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss", Locale.US);
             nowDate = new Date();
         }
 
@@ -171,12 +170,11 @@ public class FavoritesFragment extends Fragment {
             //Loop through all favorite images and assign their values to gridItem
             for (DataSnapshot child : mDataSnapshot.getChildren()) {
                 mCurrentItem = child.getValue(GridItem.class);
-                //Getting timestamp (when image was added to favorite or updated after being expired)
-                // which is defined as priority
-                String timestamp = child.getPriority().toString();
+                //Getting timestamp (when image was added to favorite or last time updated after being expired)
+                String timestamp = child.child("timestamp").getValue().toString();
 
                 try {
-                    mDate = simpleDateFormat.parse(timestamp);
+                    mImageTimestamp = simpleDateFormat.parse(timestamp);
                 } catch (ParseException e){
                     e.printStackTrace();
                 }
@@ -184,7 +182,7 @@ public class FavoritesFragment extends Fragment {
                 //After 2 days pixabay updates image url's so in images favorites lose all their urls
                 //That's why we are cheking if 2 days has pass since image added to database and if yes,
                 //we are getting new urls from pixabay API using image's id_hash
-                if (imageHasExpired()) {
+                if (Utils.checkNetworkConnection(getActivity().getApplicationContext(), false) && imageHasExpired()) {
                     mImageName = mCurrentItem.getName();
                     try {
                         mUrl = new URL(updatedFavoriteUrlString + mImageName);
@@ -195,6 +193,8 @@ public class FavoritesFragment extends Fragment {
                         if (statusCode == 200) {
                             String response = streamToString(mUrlConnection.getInputStream());
                             parseResult(response);
+                            //Update timestamp
+                            mCurrentItem.setTimestamp(simpleDateFormat.format(new Date()));
                         } /*else {
                             //Url request Failed
                         }*/
@@ -209,7 +209,7 @@ public class FavoritesFragment extends Fragment {
                     if (updatedImage != null && updatedThumbnail != null) {
                         mCurrentItem.setImage(updatedImage);
                         mCurrentItem.setThumbnail(updatedThumbnail);
-                        favoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem, simpleDateFormat.format(new Date()));
+                        favoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem);
                     }
                 }
                 mCurrentItem.setNumber(i);
@@ -266,7 +266,7 @@ public class FavoritesFragment extends Fragment {
          * @return long differenceInDays - how many complete days ago image url has been updated last time
          */
         private boolean imageHasExpired() {
-            long difference = nowDate.getTime() - mDate.getTime();
+            long difference = nowDate.getTime() - mImageTimestamp.getTime();
             long differenceInDays = difference / (1000 * 60 * 60 * 24);
             //If image has been added more than 4 days ago, it's expired and we need to update it's
             //url so that user can see it in Favorites page

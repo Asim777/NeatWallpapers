@@ -267,6 +267,7 @@ public class AccountActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 database.child("users").child(userId).child("email").setValue(newEmail);
+                                userEmailTextView.setText(newEmail);
                                 emailChangeSuccessful = true;
                             }
                         }
@@ -274,6 +275,7 @@ public class AccountActivity extends AppCompatActivity {
                 }
                 if (!newName.isEmpty()) {
                     database.child("users").child(userId).child("fullname").setValue(newName);
+                    userNameTextView.setText(newName);
                     nameChangeSuccessful = true;
                 }
                 //Create reference to our profile image

@@ -12,6 +12,7 @@ public class GridItem {
     private String author;
     private String link;
     private String thumbnail;
+    private String timestamp;
     private int number;
 
     public GridItem(String image, String name, String author, String link, String thumbnail) {
@@ -48,6 +49,10 @@ public class GridItem {
         return number;
     }
 
+    public String getTimestamp() {
+        return timestamp;
+    }
+
     public String getImage() {
         return image;
     }
@@ -74,5 +79,9 @@ public class GridItem {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

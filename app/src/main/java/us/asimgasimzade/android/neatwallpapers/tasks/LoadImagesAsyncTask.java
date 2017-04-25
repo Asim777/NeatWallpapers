@@ -125,7 +125,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         if (result == 1) {
             mGridAdapter.setGridData(mGridData);
         } else {
-            checkNetworkConnection(mActivityReference.get().getApplicationContext());
+            checkNetworkConnection(mActivityReference.get().getApplicationContext(), true);
         }
         //Save mGridData in separate class ImagesDataClass to use later when user scrolls to
         // other images from SingleImageActivity

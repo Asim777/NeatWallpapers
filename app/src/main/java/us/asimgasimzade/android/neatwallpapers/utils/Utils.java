@@ -30,6 +30,7 @@ import us.asimgasimzade.android.neatwallpapers.R;
 import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
 import us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver;
 
+import static android.R.attr.x;
 import static android.content.Context.ALARM_SERVICE;
 
 /**
@@ -107,14 +108,16 @@ public class Utils {
         return bitmap;
     }
 
-    public static boolean checkNetworkConnection(Context context){
+    public static boolean checkNetworkConnection(Context context, boolean showToast){
         boolean networkIsAvailable = false;
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         try {
             if (activeNetworkInfo == null || !activeNetworkInfo.isConnectedOrConnecting()) {
-                showToast(context, "Please check the status of the network.", Toast.LENGTH_SHORT);
+                if(showToast) {
+                    showToast(context, "Please check the status of the network.", Toast.LENGTH_SHORT);
+                }
                 networkIsAvailable = false;
             } else {
                 networkIsAvailable = true;
@@ -134,7 +137,8 @@ public class Utils {
 
             resultBitmap = Bitmap.createBitmap(
                     sourceBitmap,
-                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2, 0,
+                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2,
+                    0,
                     sourceBitmap.getHeight(),
                     sourceBitmap.getHeight()
             );
@@ -153,6 +157,7 @@ public class Utils {
         //Getting rounded bitmap
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(
                 context.getResources(), squareBitmap);
+        roundedBitmapDrawable.setCircular(true);
         //setting radius
         roundedBitmapDrawable.setCornerRadius(Math.max(sourceBitmap.getWidth(),
                 sourceBitmap.getHeight()) / 2.0f);

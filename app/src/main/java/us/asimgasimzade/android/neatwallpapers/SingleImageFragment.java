@@ -46,6 +46,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -53,6 +54,7 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 
+import static us.asimgasimzade.android.neatwallpapers.R.id.rootView;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
@@ -74,6 +76,7 @@ public class SingleImageFragment extends Fragment {
     String currentImageLink;
     String currentImageThumbnail;
     String currentImageName;
+    String currentImageTimestamp;
     String source;
     String url;
     File imageFileForChecking;
@@ -155,6 +158,9 @@ public class SingleImageFragment extends Fragment {
         currentImageUrl = currentItem.getImage();
         currentImageThumbnail = currentItem.getThumbnail();
         currentImageLink = currentItem.getLink();
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss", Locale.US);
+        currentItem.setTimestamp(simpleDateFormat.format(new Date()));
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
@@ -284,7 +290,7 @@ public class SingleImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //Check if network is available
-                if (checkNetworkConnection(getActivity().getApplicationContext())) {
+                if (checkNetworkConnection(getActivity().getApplicationContext(), true)) {
                     //Change the current Wallpaper, if image doesn't exist then download it first
                     operation = Operation.SET_AS_WALLPAPER;
 
@@ -317,7 +323,7 @@ public class SingleImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //Check if network is available
-                if (checkNetworkConnection(getActivity().getApplicationContext())) {
+                if (checkNetworkConnection(getActivity().getApplicationContext(), true)) {
 
 
                     //Downloading image
@@ -558,11 +564,9 @@ public class SingleImageFragment extends Fragment {
 
         @Override
         public void run() {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
-            String timestamp = simpleDateFormat.format(new Date());
             //If image doesn't exist in database, add it
             if (mFavoritesReference.child(mCurrentItem.getName()) != null) {
-                mFavoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem, timestamp);
+                mFavoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem);
             }
         }
     }
