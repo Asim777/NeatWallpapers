@@ -1,15 +1,12 @@
 package us.asimgasimzade.android.neatwallpapers;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +15,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -83,6 +80,7 @@ public class AccountActivity extends AppCompatActivity {
     Button changeProfilePictureButton;
     Button saveChangesButton;
     Button removeAccountButton;
+    AppBarLayout appBarLayout;
     FirebaseAuth auth;
     FirebaseUser authUser;
     FirebaseAuth.AuthStateListener authListener;
@@ -124,7 +122,8 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         //We need this to make action bar visible after adding app:elevation="0dp" to it in xml
-        findViewById(R.id.account_appBarLayout).bringToFront();
+        appBarLayout = (AppBarLayout) findViewById(R.id.account_appBarLayout);
+        appBarLayout.bringToFront();
 
         //Getting references to views
         profilePicture = (ImageView) findViewById(R.id.profile_picture_imageView);

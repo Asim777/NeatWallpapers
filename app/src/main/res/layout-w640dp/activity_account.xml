@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,9 +8,10 @@
     tools:context=".AccountActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/account_appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        app:elevation="0dp">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/account_toolbar"
@@ -19,37 +19,37 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
     </android.support.design.widget.AppBarLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-
-        <FrameLayout
+        <RelativeLayout
             android:id="@+id/account_info_holder"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:background="@drawable/account_background"
             android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+
 
             <LinearLayout
                 android:id="@+id/account_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center"
+                android:layout_centerInParent="true"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
-
 
                 <FrameLayout
                     android:id="@+id/profile_picture_holder"
@@ -60,9 +60,10 @@
 
                     <ImageView
                         android:id="@+id/profile_picture_imageView"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
                         android:contentDescription="@string/account_profile_picture"
+                        android:scaleType="fitXY"
                         android:src="@drawable/default_profile_picture" />
 
                 </FrameLayout>
@@ -80,19 +81,18 @@
                         android:id="@+id/account_name_textView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Asim Qasimzade"
                         android:textColor="@color/white"
-                        android:textSize="18sp" />
+                        android:textSize="25sp" />
 
                     <TextView
                         android:id="@+id/account_email_textView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="asim.qasimzade@gmail.com"
                         android:textColor="@color/white"
-                        android:textSize="13sp" />
+                        android:textSize="20sp" />
 
                     <LinearLayout
+                        style="?android:attr/buttonBarStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -103,12 +103,12 @@
                             android:id="@+id/account_logout_button"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0.3"
+                            android:layout_weight="0.4"
                             android:background="@drawable/transparent_button"
-                            android:minHeight="30dp"
+                            android:minHeight="45dp"
                             android:text="@string/account_logout_button_text"
-                            android:textSize="11sp"
-                            tools:ignore="SmallSp" />
+                            android:textSize="13sp"
+                            tools:ignore="ButtonStyle,SmallSp" />
 
                         <Button
                             android:id="@+id/account_change_picture_button"
@@ -116,21 +116,20 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
                             android:layout_marginStart="5dp"
-                            android:layout_weight="0.4"
+                            android:layout_weight="0.6"
                             android:background="@drawable/transparent_button"
-                            android:minHeight="30dp"
+                            android:minHeight="45dp"
                             android:text="@string/account_change_profile_picture_button_text"
-                            android:textSize="11sp"
+                            android:textSize="13sp"
                             tools:ignore="ButtonStyle,SmallSp" />
-
 
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-        </FrameLayout>
+        </RelativeLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/edit_account_settings"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -138,17 +137,14 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_weight="3"
             android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/account_name_editText_textInputLayout"
-                android:layout_width="400dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/account_name_editText"
@@ -161,12 +157,9 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/account_email_editText_textInputLayout"
-                android:layout_width="400dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/account_name_editText_textInputLayout">
+                android:id="@+id/email_textinputlayout">
 
                 <EditText
                     android:id="@+id/account_email_editText"
@@ -182,34 +175,25 @@
                 android:id="@+id/account_save_changes_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="20dp"
-                android:layout_centerVertical="true"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
                 android:background="@color/colorAccent"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:text="@string/account_save_changes_text"
-                android:textColor="@color/white"
-                tools:ignore="RelativeOverlap" />
+                android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/account_remove_account_button"
                 style="?android:attr/buttonBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:text="@string/account_remove_account_text"
                 android:textColor="@color/colorAccent" />
 
-        </RelativeLayout>
-
-
+        </LinearLayout>
     </LinearLayout>
+
 </RelativeLayout>

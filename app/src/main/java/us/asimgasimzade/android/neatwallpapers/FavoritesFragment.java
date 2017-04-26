@@ -182,7 +182,8 @@ public class FavoritesFragment extends Fragment {
                 //After 2 days pixabay updates image url's so in images favorites lose all their urls
                 //That's why we are cheking if 2 days has pass since image added to database and if yes,
                 //we are getting new urls from pixabay API using image's id_hash
-                if (Utils.checkNetworkConnection(getActivity().getApplicationContext(), false) && imageHasExpired()) {
+                if (Utils.checkNetworkConnection(FavoritesFragment.this.getActivity().getApplicationContext(),
+                        false) && imageHasExpired()) {
                     mImageName = mCurrentItem.getName();
                     try {
                         mUrl = new URL(updatedFavoriteUrlString + mImageName);
