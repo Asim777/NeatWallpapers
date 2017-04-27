@@ -5,6 +5,7 @@ package us.asimgasimzade.android.neatwallpapers.data;
  */
 
 public class Color {
+
     private String colorName;
     private int colorThumbnail;
 

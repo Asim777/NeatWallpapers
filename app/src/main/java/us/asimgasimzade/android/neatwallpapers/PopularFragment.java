@@ -45,14 +45,14 @@ public class PopularFragment extends Fragment {
 
         // Lookup the swipe container view
         swipeContainer = (MultiSwipeRefreshLayout) rootView.findViewById(R.id.popular_container_swipe);
-        // Setting gridView as swipable children, so that scrolling gridView up doesn't interfere with
+        // Setting gridView as swipeable children, so that scrolling gridView up doesn't interfere with
         // SwipeRefreshLayout to be triggered when in the middle of gridView
         swipeContainer.setSwipeableChildren(R.id.gridView);
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateGridView();
+                refreshGridView();
             }
         });
 
@@ -63,11 +63,14 @@ public class PopularFragment extends Fragment {
                 android.R.color.holo_red_light);
 
 
-        updateGridView();
+        refreshGridView();
         return rootView;
     }
 
-    private void updateGridView() {
+    /**
+     * Refresh Popular images GridView with new data
+     */
+    private void refreshGridView() {
         ProgressBar mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         GridView mGridView = (GridView) rootView.findViewById(R.id.gridView);
 

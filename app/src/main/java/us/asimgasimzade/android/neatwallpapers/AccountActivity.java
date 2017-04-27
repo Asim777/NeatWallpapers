@@ -59,6 +59,7 @@ import us.asimgasimzade.android.neatwallpapers.data.User;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.R.id.message;
 import static android.view.View.GONE;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
@@ -107,12 +108,14 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_account);
+        //Set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.account_toolbar);
         setSupportActionBar(toolbar);
 
 
         //Enable up button
         final Drawable upArrow = ContextCompat.getDrawable(this, R.mipmap.ic_up);
+        //Make up button white
         upArrow.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         if (getSupportActionBar() != null) {
@@ -121,7 +124,7 @@ public class AccountActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        //We need this to make action bar visible after adding app:elevation="0dp" to it in xml
+        //To make action bar visible after adding app:elevation="0dp" to it in xml
         appBarLayout = (AppBarLayout) findViewById(R.id.account_appBarLayout);
         appBarLayout.bringToFront();
 
@@ -153,8 +156,6 @@ public class AccountActivity extends AppCompatActivity {
         ColorStateList list = new ColorStateList(states, colors);
         logOutButton.setTextColor(list);
         changeProfilePictureButton.setTextColor(list);
-
-
 
         //Getting FirebaseAuth object instance
         auth = FirebaseAuth.getInstance();
@@ -332,7 +333,6 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void removeUser() {
-
         database.child("users").child(userId).removeValue();
         if (authUser != null) {
             authUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -352,6 +352,12 @@ public class AccountActivity extends AppCompatActivity {
             });
         }
     }
+
+    /**
+     * Update views with new data. It's called from onDataChange method of ValueEventListener
+     *
+     * @param mCurrentUser - new User object, got from ValueEventListener
+     */
 
     private void updateUI(User mCurrentUser) {
         if (mCurrentUser == null) return;
@@ -385,20 +391,22 @@ public class AccountActivity extends AppCompatActivity {
             case PICK_IMAGE_INTENT_KEY:
                 if (resultCode == RESULT_OK) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        uploadIfPermissionGranted();
+                        changeProfilePicture();
                     }
-
                 }
         }
     }
 
+    /**
+     * Get choosen image, make circle out of profile image and set it to profileImage ImageView if
+     * permission is granted and finish profile image change
+     */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    private void uploadIfPermissionGranted() {
-
+    private void changeProfilePicture() {
 
         //Checking if permission to READ_EXTERNAL_STORAGE is granted by user
         if (isPermissionReadFromExternalStorageGranted()) {
-            //If it's granted, just upload the image
+            //If it's granted, make circle shaped profile picture and change the image with new one
             try {
                 final Uri profileImageUri = uploadIntent.getData();
                 final InputStream profileImageStream = getContentResolver().openInputStream(profileImageUri);
@@ -406,7 +414,6 @@ public class AccountActivity extends AppCompatActivity {
                 newCircledDrawable = Utils.getCircleImage(this, selectedProfileImage);
                 profilePicture.setImageDrawable(newCircledDrawable);
                 profileImageChangeSuccessful = true;
-
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 showToast(this, getString(R.string.change_image_error_message), Toast.LENGTH_LONG);
@@ -456,6 +463,10 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if current user has logged in via Google Login, and if yes, hide email EditText, because
+     * we don't want to change email if it's connected to Google account
+     */
     public void isGoogleUser() {
         for (UserInfo user : authUser.getProviderData()) {
             if (user.getProviderId().equals("google.com")) {
@@ -491,33 +502,43 @@ public class AccountActivity extends AppCompatActivity {
                     showToast(this.getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        uploadIfPermissionGranted();
+                        changeProfilePicture();
                     }
                     break;
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        Utils.showMessageOKCancel(this, getString(R.string.upload_permission_message),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                        Uri uri = Uri.fromParts("package", AccountActivity.this.getPackageName(), null);
-                                        intent.setData(uri);
-                                        startActivityForResult(intent, PERMISSION_SETTING_REQUEST_CODE);
-                                    }
-                                });
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this,
+                                R.style.AppCompatAlertDialogStyle);
+                        dialogBuilder.setMessage(R.string.upload_permission_message)
+                                .setPositiveButton(R.string.permission_dialog_positive_button,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                                Uri uri = Uri.fromParts("package", AccountActivity.this.getPackageName(), null);
+                                                intent.setData(uri);
+                                                startActivityForResult(intent, PERMISSION_SETTING_REQUEST_CODE);
+                                            }
+                                        })
+                                .setNegativeButton(R.string.permission_dialog_negative_button, null)
+                                .create()
+                                .show();
                     }
                 }
         }
 
     }
 
+    /**
+     * Check whether or not permission to read from external storage is granted by user
+     *
+     * @return boolean - true if permission is granted, false otherwise
+     */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public boolean isPermissionReadFromExternalStorageGranted() {
         return (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-
                 == PackageManager.PERMISSION_GRANTED);
     }
 }

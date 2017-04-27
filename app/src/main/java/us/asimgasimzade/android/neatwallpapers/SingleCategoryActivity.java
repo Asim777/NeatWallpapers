@@ -28,6 +28,9 @@ import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 
 public class SingleCategoryActivity extends AppCompatActivity {
     String url;
+    String urlPartOne;
+    String urlPartTwo;
+    String pixabayKey;
     String categoryKeyword;
     String categoryName;
     String callingFragment;
@@ -43,10 +46,7 @@ public class SingleCategoryActivity extends AppCompatActivity {
         MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
         AdView mAdView = (AdView) findViewById(R.id.categories_adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
-                .addTestDevice("256571F20E046FFBCCB1FF45FC193BC6")
-                .build();
+        AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
         //Get categoryKeyword
@@ -57,10 +57,12 @@ public class SingleCategoryActivity extends AppCompatActivity {
 
         //Set Category name as title
         setTitle(categoryName);
-        //Set categoryKeyword
-        // as URL extension
-        constructUrl("popular", categoryKeyword
-        );
+        //Set categoryKeyword as URL extension
+
+        urlPartOne = getString(R.string.url_part_one);
+        urlPartTwo = getString(R.string.url_part_two_category);
+        pixabayKey = getString(R.string.pixabay_key);
+        constructUrl("popular", categoryKeyword);
 
         // Lookup the swipe container view
         swipeContainer = (MultiSwipeRefreshLayout) findViewById(R.id.rootView);
@@ -178,13 +180,13 @@ public class SingleCategoryActivity extends AppCompatActivity {
         switch (callingFragment) {
             case "CategoriesFragment": {
                 if (categoryName.equals("animals") || categoryName.equals("people") ){
-                    url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&category=" + categoryKeyword;
+                    url = urlPartOne + pixabayKey +  urlPartTwo + order + "&category=" + categoryKeyword;
                 } else {
-                    url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryKeyword;                }
+                    url =  urlPartOne + pixabayKey +  urlPartTwo + order + "&q=" + categoryKeyword;                }
                 break;
             }
             case "ColorsFragment": {
-                url = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=" + order + "&q=" + categoryName;
+                url = urlPartOne + pixabayKey + urlPartTwo + order + "&q=" + categoryName;
                 break;
             }
         }

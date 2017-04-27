@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/lightBackground"
     android:id="@+id/popular_container_swipe"
-    tools:context="us.asimgasimzade.android.neatwallpapers.PopularFragment">
+    tools:context=".PopularFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

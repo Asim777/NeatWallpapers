@@ -9,15 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import us.asimgasimzade.android.neatwallpapers.data.GridItem;
-import us.asimgasimzade.android.neatwallpapers.R;
-
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.data.GridItem;
+
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.ALL;
-import static java.lang.System.load;
 
 /**
  * ArrayAdapter that sets Image GridView items
@@ -51,7 +50,7 @@ public class ImagesGridViewAdapter extends ArrayAdapter<GridItem> {
         ViewHolder holder;
         if (row == null) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-            row = inflater.inflate( R.layout.image_grid_item_layout, parent, false);
+            row = inflater.inflate(R.layout.image_grid_item_layout, parent, false);
             holder = new ViewHolder();
             holder.imageView = (ImageView) row.findViewById(R.id.grid_item_image);
             row.setTag(holder);

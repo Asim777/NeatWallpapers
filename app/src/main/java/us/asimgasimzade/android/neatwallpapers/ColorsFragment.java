@@ -16,7 +16,7 @@ import us.asimgasimzade.android.neatwallpapers.data.Color;
 import java.util.ArrayList;
 
 /**
- * This fragment holds colors list
+ * This fragment holds colors list and provides navigation through different categories
  */
 
 public class ColorsFragment extends Fragment{

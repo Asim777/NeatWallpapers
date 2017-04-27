@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Get Firebase auth instance
+        //Get FireBase auth instance
         auth = FirebaseAuth.getInstance();
 
         //If user is currently signed in, just start the MainActivity
@@ -295,6 +295,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Start intent to go to MainActivity
+     */
     private void goToMainActivity() {
         //Go to MainActivity
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -302,6 +305,9 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Start sign in intent to login using Google account
+     */
     private void signInWithGoogle() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -320,6 +326,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * If result is true, Authorize user via Google Account,also add email to SharedPreferences to
+     * use in autocomplete later, if not, show toast message
+     *
+     * @param result - GoogleSignInResult object
+     */
     private void handleGoogleSignInResult(GoogleSignInResult result) {
         Log.d("AsimTag", "Sign in attempt status is " + result.getStatus());
         progressDialog.dismiss();
@@ -328,7 +340,7 @@ public class LoginActivity extends AppCompatActivity {
             GoogleSignInAccount googleSignInAccount = result.getSignInAccount();
             if (googleSignInAccount != null) {
                 firebaseAuthWithGoogle(googleSignInAccount);
-                // Save email to sharedpreferences for using in email
+                // Save email to SharedPreferences for using in email
                 // AutoCompleteTextView in future
                 if (auth.getCurrentUser() != null) {
                     String currentEmail = auth.getCurrentUser().getEmail();
@@ -350,6 +362,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Authorize user to FireBase Authorization server via Google Account
+     *
+     * @param googleSignInAccount - GoogleSignInAccount object for currently loginned user
+     */
     private void firebaseAuthWithGoogle(final GoogleSignInAccount googleSignInAccount) {
         //get an ID token from the GoogleSignInAccount object, exchange it for a Firebase credential,
         // and authenticate with Firebase using the Firebase credential
@@ -386,11 +403,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Add user info to FireBase database to keep FireBase Database and FireBase Authorization synced
+     *
+     * @param googleUserName - UserName from Google Account
+     * @param googleUserEmail - Email from Google Account
+     * @param googleUserProfilePicture - Profile picture from Google Account
+     */
     private void addNewUserInfoToDatabase(final String googleUserName,
                                           final String googleUserEmail, final String googleUserProfilePicture) {
         // Add new user to FirebaseDatabase under the "users" node
         // Creating new user node, which returns the unique key value
-        // new user node would be /users/$userid/
 
         //Get FireBase database reference instance
         database = FirebaseDatabase.getInstance().getReference();
@@ -424,6 +447,11 @@ public class LoginActivity extends AppCompatActivity {
         goToMainActivity();
     }
 
+    /**
+     * Show progress dialog while handling sign in
+     *
+     * @param message - message to show while dialog is running
+     */
     private void showProgressDialog(String message) {
         //Creating progress dialog
          progressDialog = new ProgressDialog(this);

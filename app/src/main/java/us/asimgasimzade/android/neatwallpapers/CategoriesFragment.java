@@ -1,7 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers;
 
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,7 +16,7 @@ import us.asimgasimzade.android.neatwallpapers.adapters.CategoriesListViewAdapte
 import us.asimgasimzade.android.neatwallpapers.data.Category;
 
 /**
- * This fragment holds categories list
+ * This fragment holds categories list and provides navigation through different categories
  */
 
 public class CategoriesFragment extends Fragment {

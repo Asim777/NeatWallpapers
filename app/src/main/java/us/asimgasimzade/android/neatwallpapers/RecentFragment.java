@@ -69,6 +69,9 @@ public class RecentFragment extends Fragment{
         return rootView;
     }
 
+    /**
+     * Refresh Recent images GridView with new data
+     */
     private void refreshGridView() {
         //Start Download
         new LoadImagesAsyncTask(getActivity(), rootView, url, swipeContainer, "recent").execute();

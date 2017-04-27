@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -21,10 +22,12 @@ import android.widget.Toast;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.getBitmapFromUri;
+import us.asimgasimzade.android.neatwallpapers.utils.SuccessDialogFragment;
+
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
@@ -69,7 +72,7 @@ public class WallpaperManagerActivity extends AppCompatActivity {
         //We need it in order to get image's aspect ratio so that we can set it when user selects
         //"Entire" aspect ratio option
         try {
-            currentBitmap = getBitmapFromUri(thisActivity, imageUri);
+            currentBitmap = getBitmapFromUri(imageUri);
             if (currentBitmap != null) {
                 //Getting width and height of image
                 currentBitmapWidth = currentBitmap.getWidth();
@@ -181,6 +184,11 @@ public class WallpaperManagerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handles aspect ratio selecting buttons' click
+     *
+     * @param callingButton - button tjat was clicked
+     */
     private void selectButton(String callingButton) {
 
         int color;
@@ -196,18 +204,21 @@ public class WallpaperManagerActivity extends AppCompatActivity {
         Drawable freeButtonDrawableBlack = ContextCompat.getDrawable(thisActivity, R.mipmap.ic_free_black);
 
         switch (callingButton) {
+            //If it's standard aspect ratio, select perfect square area in the middle of the image
             case "standard":
                 currentButton = standardButton;
                 otherButtons = new Button[]{entireButton, freeButton};
                 currentButtonDrawable = standardButtonDrawableWhite;
                 break;
 
+            //If it's entire aspect ratio, select full width and height of image
             case "entire":
                 currentButton = entireButton;
                 otherButtons = new Button[]{standardButton, freeButton};
                 currentButtonDrawable = entireButtonDrawableWhite;
                 break;
 
+            //If it's free aspect ratio, select standard window, but enable free dragging of window
             case "free":
                 currentButton = freeButton;
                 otherButtons = new Button[]{standardButton, entireButton};
@@ -247,7 +258,36 @@ public class WallpaperManagerActivity extends AppCompatActivity {
         if (successDialogFragment != null) {
             successDialogFragment.dismiss();
         }
+    }
 
+    /**
+     * Create and return Bitmap out of Uri
+     *
+     * @param uri - Uri to get Bitmap from
+     * @return Bitmap - result Bitmap
+     * @throws IOException if InputStream from Uri throws FileNotFoundException
+     */
+
+    public Bitmap getBitmapFromUri(Uri uri) throws IOException {
+        InputStream input = this.getContentResolver().openInputStream(uri);
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;
+        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        assert input != null;
+        input.close();
+
+        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1)) {
+            return null;
+        }
+
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//
+        input = this.getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        assert input != null;
+        input.close();
+        return bitmap;
     }
 }
 

@@ -51,14 +51,20 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
     @Override
     protected Integer doInBackground(String... params) {
 
+        //Constructing array of url's for getting notification image
+        String url_part_one = context.getString(R.string.url_part_one);
+        String url_part_two = context.getString(R.string.url_part_two);
+        String pixabay_key = context.getString(R.string.pixabay_key);
+
         String[] urls = {
-                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=nature%20landscape",
-                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=building",
-                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=monuments",
-                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=space%20stars",
-                "https://pixabay.com/api/?key=" + context.getString(R.string.pixabay_key) + "&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=user:unsplash",
+                url_part_one + pixabay_key + url_part_two + "nature%20landscape",
+                url_part_one + pixabay_key + url_part_two + "building",
+                url_part_one + pixabay_key + url_part_two + "monuments",
+                url_part_one + pixabay_key + url_part_two + "space%20stars",
+                url_part_one + pixabay_key + url_part_two + "user:unsplash",
         };
 
+        //Selecting one of the categories randomly
         Random random = new Random();
         int randomCategory = random.nextInt(urls.length);
         String url = urls[randomCategory];
@@ -77,6 +83,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
 
             //200 represent status is OK
             if (statusCode == 200) {
+                //Getting one of the 3 images in random category randomly
                 int randomImage = random.nextInt(3);
                 String response = streamToString(urlConnection.getInputStream());
                 try {
@@ -105,7 +112,7 @@ public class AddNotificationTask extends AsyncTask<String, Void, Integer> {
             urlConnection.disconnect();
         }
 
-        //get the Bitmap to show in notification bar
+        // Get the Bitmap to show in notification bar
         try {
             notificationBitmap = Glide.with(context).
                     load(notificationImageURL).

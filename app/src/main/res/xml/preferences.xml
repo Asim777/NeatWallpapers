@@ -11,16 +11,6 @@
             android:key="settings_account"
             android:title="Account" />
 
-        <Preference
-            android:key="settings_clear_cache"
-            android:title="Clear cache"
-            android:summary="Clear locally cached content"/>
-
-        <Preference
-            android:key="settings_check_cache_usage"
-            android:title="Check Cache Usage"
-            android:summary="Display current size of local cache"/>
-
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="settings_receive_notifications"

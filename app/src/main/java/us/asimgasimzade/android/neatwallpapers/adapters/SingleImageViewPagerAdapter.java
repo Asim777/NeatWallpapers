@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.ViewGroup;
 
 import us.asimgasimzade.android.neatwallpapers.SingleImageFragment;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
@@ -29,6 +28,7 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
         final String IMAGE_NUMBER = "image_number";
         final String IMAGE_SOURCE = "image_source";
 
+        //Creating new SingleImageFragments with Bundle containing position and source
         Bundle b = new Bundle();
         b.putInt(IMAGE_NUMBER, position);
         b.putString(IMAGE_SOURCE, mSource);
@@ -40,6 +40,7 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         int returnValue = 0;
+        // Deciding which ImagesList to return
         switch (mSource) {
             case "favorites":
                 returnValue = ImagesDataClass.favoriteImagesList.size();
@@ -58,11 +59,6 @@ public class SingleImageViewPagerAdapter extends FragmentStatePagerAdapter {
                 break;
         }
         return returnValue;
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        super.destroyItem(container, position, object);
     }
 
 

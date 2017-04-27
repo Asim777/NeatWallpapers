@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/darkBackground"
-    tools:context="us.asimgasimzade.android.neatwallpapers.RecentFragment">
+    tools:context=".RecentFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

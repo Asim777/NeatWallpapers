@@ -40,7 +40,9 @@
     <string name="permission_granted_message">Permission is granted</string>
     <string name="download_permission_message">You need to grant permission to save image into your device in order to download it. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
     <string name="upload_permission_message">You need to grant permission to read image from your device in order to update your profile image. Please go to Neat Wallpapers Settings - Permissions - and grant the Storage permission.</string>
-    <string name="problem_while_creating_directory_message">There was a problem while creating directory!</string>
+    <string name="permission_dialog_positive_button">Go to settings</string>
+    <string name="permission_dialog_negative_button">Cancel</string>
+    <string name="problem_while_creating_directory_message">There was a problem while creating Neat Wallpapers directory!</string>
     <string name="unfortunately_there_are_no_results_for_this_request">Unfortunately there are no results for this request.</string>
     <string name="full_image_description">Full image</string>
     <string name="favorites_action_title">Favorites</string>
@@ -51,8 +53,6 @@
     <string name="wallpaper_manager_option_entire">ENTIRE</string>
     <string name="wallpaper_manager_option_free">FREE</string>
     <string name="wallpaper_manager_option_others">OTHERS</string>
-    <string name="permission_dialog_positive_button">Go to settings</string>
-    <string name="permission_dialog_negative_button">Cancel</string>
     <string name="success_dialog_message">It\'s done. Do you want to go to home screen and check out how it looks?</string>
     <string name="success_dialog_positive_button">Check it out</string>
     <string name="success_dialog_negative_button">Stay</string>
@@ -136,7 +136,6 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="login_logo_content_description">Login page logo</string>
     <string name="account_action_title">Account</string>
     <string name="title_activity_account">Account</string>
@@ -180,4 +179,9 @@
     <string name="settings_feedback_email">asim.qasimzade@gmail.com</string>
     <string name="settings_feedback_email_subject">Neat Wallpapers feedback</string>
     <string name="settings_feedback_chooser_header">Send feedback…</string>
+    <string name="url_part_one">https://pixabay.com/api/?key=</string>
+    <string name="url_part_two"><![CDATA[&image_type=photo&orientation=horizontal&safesearch=true&order=latest&per_page=3&q=]]></string>
+    <string name="cache_cleared_message">Cache is cleared</string>
+    <string name="url_part_two_category"><![CDATA[&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=]]></string>
+    <string name="success_icon">success_icon_content_description</string>
 </resources>

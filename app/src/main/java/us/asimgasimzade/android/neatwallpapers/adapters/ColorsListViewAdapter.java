@@ -10,10 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import us.asimgasimzade.android.neatwallpapers.data.Color;
-import us.asimgasimzade.android.neatwallpapers.R;
-
 import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.data.Color;
 
 /**
  * ArrayAdapter that sets Color ListView items
@@ -36,9 +36,11 @@ public class ColorsListViewAdapter extends ArrayAdapter<Color> {
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
+        //Getting the row
         View row = convertView;
         ColorsListViewAdapter.ViewHolder holder;
 
+        //If it's null, setting name and thumbnail and returning the row
         if (row == null) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             row = inflater.inflate(mLayoutResourceId, parent, false);

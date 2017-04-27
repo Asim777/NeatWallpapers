@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -43,15 +44,18 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
+import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 
+import static android.R.id.message;
+import static us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass.favoriteImagesList;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
@@ -64,11 +68,15 @@ public class FullImageActivity extends AppCompatActivity  {
     private static final int REQUEST_PERMISSION_SETTING = 43;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     boolean imageIsFavorite;
+    int currentPosition;
     String currentImageUrl;
     String currentImageAuthor;
     String currentImageLink;
     String currentImageThumbnail;
     String currentImageName;
+    GridItem currentItem;
+    String source;
+    ArrayList<GridItem> currentImagesList;
     MenuItem favoriteActionButton;
     SingleImageFragment.Operation operation;
     ProgressDialog downloadProgressDialog;
@@ -80,6 +88,8 @@ public class FullImageActivity extends AppCompatActivity  {
     private DatabaseReference favoritesReference;
     private ValueEventListener favoritesListener;
     private boolean permission;
+    SimpleDateFormat simpleDateFormat;
+    String nowDate;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,13 +124,50 @@ public class FullImageActivity extends AppCompatActivity  {
         photoViewAttacher.setMaximumScale(2);
         photoViewAttacher.update();
 
+
+
         //Get image attributes from the intent
         Intent intent = getIntent();
-        currentImageUrl = intent.getStringExtra("url");
-        currentImageAuthor = intent.getStringExtra("author");
-        currentImageLink = intent.getStringExtra("link");
-        currentImageThumbnail = intent.getStringExtra("thumbnail");
-        currentImageName = intent.getStringExtra("name");
+        currentPosition = intent.getIntExtra("position", 0);
+        source = intent.getStringExtra("source");
+
+
+        assert source != null;
+        switch (source) {
+            case "popular": {
+                currentImagesList = ImagesDataClass.popularImagesList;
+            }
+            break;
+            case "recent": {
+                currentImagesList = ImagesDataClass.recentImagesList;
+            }
+            break;
+            case "favorites": {
+                currentImagesList = favoriteImagesList;
+            }
+            break;
+            case "search": {
+                currentImagesList = ImagesDataClass.searchResultImagesList;
+            }
+            break;
+            case "default": {
+                currentImagesList = ImagesDataClass.defaultImagesList;
+            }
+        }
+
+        //Get current item properties from currentImagesList
+        currentItem = currentImagesList.get(currentPosition);
+        currentImageUrl = currentItem.getImage();
+        currentImageAuthor = currentItem.getAuthor();
+        currentImageLink = currentItem.getLink();
+        currentImageThumbnail = currentItem.getThumbnail();
+        currentImageName = currentItem.getName();
+
+        //Set timestamp for current item, because use may add it to favorites
+        simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss", Locale.US);
+        nowDate = simpleDateFormat.format(new Date());
+        currentItem.setTimestamp(nowDate);
+        currentItem.setFirstAddedTime(nowDate);
 
         loadingAnimationProgressBar = (ProgressBar) findViewById(R.id.loading_progress_bar);
         loadingAnimationProgressBar.setVisibility(View.VISIBLE);
@@ -245,13 +292,9 @@ public class FullImageActivity extends AppCompatActivity  {
                     favoritesReference.child(currentImageName).removeValue();
                     showToast(getApplicationContext(), getResources().getString(R.string.image_removed_from_favorites_message),Toast.LENGTH_SHORT);
                 } else {
-                    //Create new favorite image and put into FireBase database
-                    GridItem currentItem = new GridItem(currentImageUrl, currentImageName,
-                            currentImageAuthor, currentImageLink, currentImageThumbnail);
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-hhmmss", Locale.US);
-                    String timestamp = simpleDateFormat.format(new Date());
-
-                    favoritesReference.child(currentImageName).setValue(currentItem, timestamp);
+                    if (favoritesReference.child(currentItem.getName()) != null) {
+                        favoritesReference.child(currentImageName).setValue(currentItem);
+                    }
                     showToast(getApplicationContext(), this.getResources().getString(R.string.image_added_to_favorites_message),Toast.LENGTH_SHORT);
                 }
 
@@ -305,16 +348,22 @@ public class FullImageActivity extends AppCompatActivity  {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(this, getString(R.string.download_permission_message),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                        Uri uri = Uri.fromParts("package", getPackageName(), null);
-                                        intent.setData(uri);
-                                        startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-                                    }
-                                });
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this,
+                                R.style.AppCompatAlertDialogStyle);
+                        dialogBuilder.setMessage(message)
+                                .setPositiveButton(R.string.permission_dialog_positive_button,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                                intent.setData(uri);
+                                                startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+                                            }
+                                        })
+                                .setNegativeButton(R.string.permission_dialog_negative_button, null)
+                                .create()
+                                .show();
                     }
                 }
             }
@@ -425,11 +474,22 @@ public class FullImageActivity extends AppCompatActivity  {
         }
     }
 
+    /**
+     * Download image to device memory
+     *
+     * @param currentImageUrl - Url to download from
+     * @param target - target to download into
+     */
     private void downloadImage(String currentImageUrl, SimpleTarget<Bitmap> target) {
         //We have permission, so we can download the image
         Glide.with(this).load(currentImageUrl).asBitmap().into(target);
     }
 
+    /**
+     * Set image as Wallpaper
+     *
+     * @param imageFile - File to set as wallpaper
+     */
     private void setWallpaper(File imageFile) {
         Intent setAsIntent = new Intent(this, WallpaperManagerActivity.class);
         Uri imageUri = Uri.fromFile(imageFile);

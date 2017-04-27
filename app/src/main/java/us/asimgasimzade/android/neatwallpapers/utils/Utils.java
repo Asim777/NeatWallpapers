@@ -1,36 +1,23 @@
 package us.asimgasimzade.android.neatwallpapers.utils;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 
-import us.asimgasimzade.android.neatwallpapers.R;
-import us.asimgasimzade.android.neatwallpapers.WallpaperManagerActivity;
 import us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver;
 
-import static android.R.attr.x;
 import static android.content.Context.ALARM_SERVICE;
 
 /**
@@ -42,7 +29,7 @@ public class Utils {
     private static Toast mToast;
 
     /**
-     * Method to prevent Toast accumulation. It cancel's current Toast (if it exists) before showing
+     * Prevent Toast accumulation. It cancels current Toast (if it exists) before showing
      * new one
      */
 
@@ -53,7 +40,7 @@ public class Utils {
     }
 
     /**
-     * *This method checks if downloading image was successful so we can show according feedback to
+     * Check if downloading image was successful so we can show according feedback to
      * the user
      *
      * @param image - image to be checked
@@ -66,7 +53,7 @@ public class Utils {
     }
 
     /**
-     * This method checks if there is External Storage currently mounted in device. It returns boolean
+     * Check if there is an External Storage currently mounted in device.
      *
      * @return boolean - true if External Storage is mounted, false if not
      */
@@ -76,46 +63,21 @@ public class Utils {
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    public static void showMessageOKCancel(Activity thisActivity, String message, DialogInterface.OnClickListener okListener) {
-        AlertDialog.Builder showMessageOKCancelDialog = new AlertDialog.Builder(thisActivity, R.style.AppCompatAlertDialogStyle);
-        showMessageOKCancelDialog.setMessage(message)
-                .setPositiveButton(R.string.permission_dialog_positive_button, okListener)
-                .setNegativeButton(R.string.permission_dialog_negative_button, null)
-                .create()
-                .show();
-    }
-
-    public static Bitmap getBitmapFromUri(Activity thisActivity, Uri uri) throws IOException {
-        InputStream input = thisActivity.getContentResolver().openInputStream(uri);
-
-        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
-        onlyBoundsOptions.inJustDecodeBounds = true;
-        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
-        assert input != null;
-        input.close();
-
-        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1)) {
-            return null;
-        }
-
-        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//
-        input = thisActivity.getContentResolver().openInputStream(uri);
-        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
-        assert input != null;
-        input.close();
-        return bitmap;
-    }
-
-    public static boolean checkNetworkConnection(Context context, boolean showToast){
+    /**
+     * Check whether there is active network connection or not
+     *
+     * @param context - Context
+     * @param showToast - Whether or not show Toast message about network state, show if true
+     * @return boolean - true if network connection is active, false if not
+     */
+    public static boolean checkNetworkConnection(Context context, boolean showToast) {
         boolean networkIsAvailable = false;
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         try {
             if (activeNetworkInfo == null || !activeNetworkInfo.isConnectedOrConnecting()) {
-                if(showToast) {
+                if (showToast) {
                     showToast(context, "Please check the status of the network.", Toast.LENGTH_SHORT);
                 }
                 networkIsAvailable = false;
@@ -130,25 +92,33 @@ public class Utils {
     }
 
 
+    /**
+     * Create circle shaped image out of input Drawable and return it
+     * First create square, then use roundedBitmapDrawable to make it circle
+     *
+     * @param context - Context
+     * @param sourceBitmap - Bitmap to create circle version of
+     * @return Drawable - circle shaped drawable
+     */
     public static Drawable getCircleImage(Context context, Bitmap sourceBitmap) {
         Bitmap resultBitmap;
         //Cropping square out of selected bitmap
-        if (sourceBitmap.getWidth() >= sourceBitmap.getHeight()){
+        if (sourceBitmap.getWidth() >= sourceBitmap.getHeight()) {
 
             resultBitmap = Bitmap.createBitmap(
                     sourceBitmap,
-                    sourceBitmap.getWidth()/2 - sourceBitmap.getHeight()/2,
+                    sourceBitmap.getWidth() / 2 - sourceBitmap.getHeight() / 2,
                     0,
                     sourceBitmap.getHeight(),
                     sourceBitmap.getHeight()
             );
 
-        }else{
+        } else {
 
             resultBitmap = Bitmap.createBitmap(
                     sourceBitmap,
                     0,
-                    sourceBitmap.getHeight()/2 - sourceBitmap.getWidth()/2,
+                    sourceBitmap.getHeight() / 2 - sourceBitmap.getWidth() / 2,
                     sourceBitmap.getWidth(),
                     sourceBitmap.getWidth()
             );
@@ -170,6 +140,8 @@ public class Utils {
     /**
      * Sets notifications about new images showing after 3 days intially and then after every 7 days
      * It will run only if user hasn't disabled notifications from settings (enabled by default)
+     *
+     * @param mContext - Context
      */
     public static void setNotifications(Context mContext) {
         //Getting current date
@@ -179,67 +151,12 @@ public class Utils {
         //Setting intent to fire NotificationReceiver which will create the notification
         Intent intent = new Intent(mContext, NotificationReceiver.class);
         //Setting pending intent
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext.getApplicationContext(),
-                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
         //after 3 days
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
                 AlarmManager.INTERVAL_DAY * 7, pendingIntent);
     }
-
-    /**
-     * Cancels repeating alarm that triggers regular notifications.
-     *
-     * @param mContext - context of calling Activity
-     */
-    public static void cancelNotifications(Activity mContext) {
-        //Getting pendingIntent equivalent to the one that started alarm
-        Intent intent = new Intent(mContext, NotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext.getApplicationContext(),
-                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        //Getting instance of system alarmManager
-        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-        //Cancelling this pendingIntent from the alarm
-        alarmManager.cancel(pendingIntent);
-    }
-
-    public static void clearApplicationData(Context mContext) {
-        File cache = mContext.getCacheDir();
-        File appDir = new File(cache.getParent());
-        if (appDir.exists()) {
-            String[] children = appDir.list();
-            for (String s : children) {
-                if (!s.equals("lib")) {
-                    if (deleteDir(new File(appDir, s))) {
-                        Utils.showToast(mContext.getApplicationContext(), "Cache is cleared",
-                                Toast.LENGTH_SHORT);
-                    }
-                }
-            }
-        }
-    }
-
-    private static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (String aChildren : children) {
-                boolean success = deleteDir(new File(dir, aChildren));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return dir != null && dir.delete();
-    }
-
-    public static long getCacheDirectorySize(Context mContext) {
-        long size = 0;
-        File[] files = mContext.getCacheDir().listFiles();
-        for (File f : files) {
-            size = size + f.length();
-        }
-        return size;
-    }
-
 
 }

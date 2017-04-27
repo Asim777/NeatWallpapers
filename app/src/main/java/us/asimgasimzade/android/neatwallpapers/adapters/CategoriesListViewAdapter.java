@@ -10,10 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import us.asimgasimzade.android.neatwallpapers.data.Category;
-import us.asimgasimzade.android.neatwallpapers.R;
-
 import java.util.ArrayList;
+
+import us.asimgasimzade.android.neatwallpapers.R;
+import us.asimgasimzade.android.neatwallpapers.data.Category;
 
 /**
  * ArrayAdapter that sets Category ListView items
@@ -31,14 +31,15 @@ public class CategoriesListViewAdapter extends ArrayAdapter<Category> {
         mCategoryData = CategoryData;
     }
 
-
     @Override
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
+        //Getting the row
         View row = convertView;
         CategoriesListViewAdapter.ViewHolder holder;
 
+        //If it's not null, setting name and thumbnail and returning the row
         if (row == null) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             row = inflater.inflate(mLayoutResourceId, parent, false);

@@ -1,7 +1,6 @@
 package us.asimgasimzade.android.neatwallpapers.tasks;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
@@ -30,8 +29,8 @@ import us.asimgasimzade.android.neatwallpapers.utils.NoResultsCallbackInterface;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 
 /**
- * This task is called from MainActivity, SingleCategoryActivity and SearchResultActivity to load
- * images from online database and pass them to adapter
+ * This task is called from MainActivity(PopularFragment and RecentFragment), SingleCategoryActivity
+ * and SearchResultActivity to load images from online database and pass them to adapter
  */
 
 //Downloading data asynchronously
@@ -57,11 +56,9 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         mUrl = url;
         mSwipeContainer = swipeContainer;
         mSource = source;
-        if (mSource.equals("search")) {
-            noResultsCallbackReference = new WeakReference<>((NoResultsCallbackInterface) activity);
-        }
     }
 
+    //This constructor is to be called from SearchResultsActivity, where we don't have SwipeRefreshLayout
     public LoadImagesAsyncTask(Activity activity, View rootView, String url, String source) {
         mActivityReference = new WeakReference<>(activity);
         mRootView = rootView;
@@ -78,7 +75,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
         mProgressBar = (ProgressBar) mRootView.findViewById(R.id.progressBar);
         mGridView = (GridView) mRootView.findViewById(R.id.gridView);
 
-        //Initialize with empty data
+        //Initialize mGridData with empty data and set it to mGridAdapter
         mGridData = new ArrayList<>();
         mGridAdapter = new ImagesGridViewAdapter(mActivityReference.get(), mGridData);
         mGridView.setAdapter(mGridAdapter);
@@ -112,6 +109,7 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
+                if(urlConnection != null)
                 urlConnection.disconnect();
             }
         }
@@ -153,10 +151,20 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
             break;
         }
         mProgressBar.setVisibility(View.GONE);
-        if(mSwipeContainer != null){
+        if (mSwipeContainer != null) {
             mSwipeContainer.setRefreshing(false);
         }
     }
+
+    /**
+     * Creates a string out of InputStream and returns it
+     *
+     * @param stream - InputStream to turn into String
+     *
+     * @return result - String made of InputStream
+     *
+     * @throws IOException if InputStream is null
+     */
 
     private String streamToString(InputStream stream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
@@ -172,9 +180,10 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     }
 
     /**
-     * Parsing the feed results and get the list
+     * Parses the feed results and get the list
      *
-     * @param result is result String we got from InputStreamReader
+     * @param result - String we got from InputStreamReader
+     * @param pageNumber - Number of pages in current query
      */
     private void parseResult(String result, int pageNumber) {
 
@@ -231,10 +240,12 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     }
 
     /**
-     * Returning true if aspect ratio meets requirements
+     * Return true if aspect ratio meets requirements (width / height is less or equal to 1.7)
      *
      * @param width  - width of image
      * @param height - height of image
+     *
+     * @return boolean - true if image meets requirements
      */
     private boolean imageMeetsRequirements(int width, int height) {
         double mWidth = (double) width;
@@ -243,9 +254,11 @@ public class LoadImagesAsyncTask extends AsyncTask<String, Void, Integer> {
     }
 
     /**
-     * Returning number of pages to loop through
+     * Returns number of pages to loop through
      *
-     * @param result is result String we got from InputStreamReader
+     * @param result - String we got from InputStreamReader
+     *
+     * @return int - number of pages
      */
     private int getNumberOfPages(String result) {
         int pages = 0;

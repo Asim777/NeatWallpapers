@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -54,10 +54,9 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 
-import static us.asimgasimzade.android.neatwallpapers.R.id.rootView;
+import static android.R.id.message;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
-import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showMessageOKCancel;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
@@ -76,14 +75,12 @@ public class SingleImageFragment extends Fragment {
     String currentImageLink;
     String currentImageThumbnail;
     String currentImageName;
-    String currentImageTimestamp;
     String source;
     String url;
     File imageFileForChecking;
     SimpleTarget<Bitmap> target;
     ArrayList<GridItem> currentImagesList;
     Operation operation;
-    //Downloading progress dialog
     ProgressDialog downloadProgressDialog;
     DownloadImageAsyncTask downloadImageTask;
     private boolean downloadImageTaskCancelled;
@@ -94,6 +91,9 @@ public class SingleImageFragment extends Fragment {
     private Drawable favoriteDrawable;
     private Drawable favoriteSelectedDrawable;
     ImageView imageView;
+    Button favoriteButton;
+    SimpleDateFormat simpleDateFormat;
+    String nowDate;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,6 +107,7 @@ public class SingleImageFragment extends Fragment {
         //Get instance of SharedPreferences
         sharedPreferences = getActivity().getSharedPreferences("SINGLE_IMAGE_SP", Context.MODE_PRIVATE);
 
+        //Getting FireBase auth and database instances
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser authUser = auth.getCurrentUser();
         String userId = authUser != null ? authUser.getUid() : null;
@@ -159,8 +160,11 @@ public class SingleImageFragment extends Fragment {
         currentImageThumbnail = currentItem.getThumbnail();
         currentImageLink = currentItem.getLink();
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss", Locale.US);
-        currentItem.setTimestamp(simpleDateFormat.format(new Date()));
+        //Set timestamp for current item, because use may add it to favorites
+        simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss", Locale.US);
+        nowDate = simpleDateFormat.format(new Date());
+        currentItem.setTimestamp(nowDate);
+        currentItem.setFirstAddedTime(nowDate);
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
@@ -172,12 +176,8 @@ public class SingleImageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent fullImageIntent = new Intent(getActivity(), FullImageActivity.class).
-                        putExtra("url", currentImageUrl).
-                        putExtra("author", currentImageAuthor).
-                        putExtra("link", currentImageLink).
-                        putExtra("name", currentImageName).
-                        putExtra("thumbnail", currentImageThumbnail).
-                        putExtra("image_is_favorite", imageIsFavorite);
+                        putExtra("position", currentPosition).
+                        putExtra("source", source);
                 startActivityForResult(fullImageIntent, FULL_IMAGE_REQUEST_CODE);
             }
         });
@@ -245,7 +245,7 @@ public class SingleImageFragment extends Fragment {
         //-----------------------------------------------------------------------------------------
         // Favorite button
         //-----------------------------------------------------------------------------------------
-        final Button favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
+        favoriteButton = (Button) rootView.findViewById(R.id.single_image_favorite_button);
 
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -261,18 +261,13 @@ public class SingleImageFragment extends Fragment {
                     //button will be changed back anyway, when onDataChange in listener is triggered
                     new RemoveFavoriteTask(favoritesReference, currentImageName).start();
 
-                    updateImageIsFavorite(false, favoriteButton);
+                    updateImageIsFavorite(false);
                     showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_removed_from_favorites_message), Toast.LENGTH_SHORT);
                 } else {
                     //Create new favorite image and put into FireBase database
-                    //Image is favorite, we are removing it from database
-                    //We are doing it in parallel thread so that user sees toast message immediately.
-                    // We are also changing favorite button background from here because addValueEventListener
-                    // might take some time to update it. If it's not added successfully, favorite
-                    //button will be changed back anyway, when onDataChange in listener is triggered
                     new AddFavoriteTask(favoritesReference, currentItem).start();
 
-                    updateImageIsFavorite(true, favoriteButton);
+                    updateImageIsFavorite(true);
                     showToast(getActivity().getApplicationContext(), getActivity().getResources().getString(R.string.image_added_to_favorites_message), Toast.LENGTH_SHORT);
 
                 }
@@ -303,7 +298,7 @@ public class SingleImageFragment extends Fragment {
                         //Show downloading progress dialog
                         downloadProgressDialog.show();
 
-                        downloadImageIfPermitted(permission, currentImageUrl, target);
+                        downloadImageIfPermitted(permission, currentImageUrl);
                     } else {
                         //if it exists, just set it as wallpaper
                         setWallpaper(imageFileForChecking);
@@ -341,7 +336,7 @@ public class SingleImageFragment extends Fragment {
                         //Show downloading progress dialog
                         downloadProgressDialog.show();
                         //If it doesn't exist, download it, but first check if we have permission to do it
-                        downloadImageIfPermitted(permission, currentImageUrl, target);
+                        downloadImageIfPermitted(permission, currentImageUrl);
                     }
                 }
             }
@@ -352,7 +347,7 @@ public class SingleImageFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Find out if this image exists in favorites node
                 imageIsFavorite = dataSnapshot.child(currentImageName).exists();
-                updateImageIsFavorite(imageIsFavorite, favoriteButton);
+                updateImageIsFavorite(imageIsFavorite);
             }
 
             @Override
@@ -415,27 +410,30 @@ public class SingleImageFragment extends Fragment {
                     // permission was granted, yay!
                     showToast(getActivity().getApplicationContext(), getString(R.string.permission_granted_message),
                             Toast.LENGTH_SHORT);
-                    downloadImage(currentImageUrl, target);
+                    downloadImage(currentImageUrl);
                 } else {
                     //Permission is not granted, but did the user also check "Never ask again"?
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
-                        showMessageOKCancel(getActivity(), getString(R.string.download_permission_message),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-                                        intent.setData(uri);
-                                        startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-                                    }
-                                });
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(),
+                                R.style.AppCompatAlertDialogStyle);
+                        dialogBuilder.setMessage(R.string.download_permission_message)
+                                .setPositiveButton(R.string.permission_dialog_positive_button,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                                                intent.setData(uri);
+                                                startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+                                            }
+                                        })
+                                .setNegativeButton(R.string.permission_dialog_negative_button, null)
+                                .create()
+                                .show();
                     }
                 }
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
 
     }
@@ -449,8 +447,12 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
-    public void updateImageIsFavorite(boolean response, Button favoriteButton) {
-        imageIsFavorite = response;
+    /**
+     * Check if image is currently favorite or not and change favorite button accordingly
+     *
+     * @param imageIsFavorite - boolean showing is image currenly favorite
+     */
+    public void updateImageIsFavorite(boolean imageIsFavorite) {
 
         if (imageIsFavorite) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -475,16 +477,15 @@ public class SingleImageFragment extends Fragment {
     }
 
     /**
-     * This method checks if user granted a permission to download the image by calling
-     * isPermissionWriteToExternalStorageGranted, and if yes, it calls dowloadImage() method,
-     * if not, it shows Request Permission dialog
+     * Check if user granted a permission to download the image by calling
+     * isPermissionWriteToExternalStorageGranted, and if yes, call dowloadImage() method,
+     * if not, show Request Permission dialog
      */
-    public void downloadImageIfPermitted(boolean isPermissionGranted, String currentImageUrl,
-                                         SimpleTarget<Bitmap> target) {
+    public void downloadImageIfPermitted(boolean isPermissionGranted, String currentImageUrl) {
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         if (isPermissionGranted) {
             //If it's granted, just download the image
-            downloadImage(currentImageUrl, target);
+            downloadImage(currentImageUrl);
         } else {
             //If it's not granted, request it
             SingleImageFragment.this.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -492,6 +493,11 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
+    /**
+     * Create SimpleTarget and download image into it
+     *
+     * @return SimpleTarget - created Target
+     */
     public SimpleTarget<Bitmap> createTarget() {
 
         return new SimpleTarget<Bitmap>() {
@@ -510,11 +516,21 @@ public class SingleImageFragment extends Fragment {
 
     }
 
-    private void downloadImage(String currentImageUrl, SimpleTarget<Bitmap> target) {
+    /**
+     * Download image into SimpleTarget using Glide
+     *
+     * @param currentImageUrl - Url to download image from
+     */
+    private void downloadImage(String currentImageUrl) {
         //We have permission, so we can download the image
         Glide.with(getActivity()).load(currentImageUrl).asBitmap().into(target);
     }
 
+    /**
+     * Set image as wallpaper
+     *
+     * @param imageFile - image file to set
+     */
     private void setWallpaper(File imageFile) {
         Intent setAsIntent = new Intent(getActivity(), WallpaperManagerActivity.class);
         Uri imageUri = Uri.fromFile(imageFile);
@@ -523,6 +539,9 @@ public class SingleImageFragment extends Fragment {
         getActivity().startActivity(setAsIntent);
     }
 
+    /**
+     * Enum for defining which operation is currently performing - DOWNLOAD or SET_AS_WALLPAPER
+     */
     public enum Operation {
         DOWNLOAD, SET_AS_WALLPAPER
     }
@@ -535,6 +554,9 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
+    /**
+     * Remove image from FireBase database favorites node
+     */
     private static class RemoveFavoriteTask extends Thread {
 
         DatabaseReference mFavoritesReference;
@@ -551,7 +573,9 @@ public class SingleImageFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Add image to FireBase database favorites node
+     */
     private static class AddFavoriteTask extends Thread {
 
         DatabaseReference mFavoritesReference;

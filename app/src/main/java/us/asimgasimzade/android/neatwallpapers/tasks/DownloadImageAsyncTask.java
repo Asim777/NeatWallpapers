@@ -114,7 +114,8 @@ public class DownloadImageAsyncTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         if(!directoryExists){
-            showToast(mThisActivityReference.get(), "There was a problem while creating app folder. Please try again",
+            showToast(mThisActivityReference.get(),
+                    mThisActivityReference.get().getString(R.string.problem_while_creating_directory_message),
                     Toast.LENGTH_SHORT);
         }
 

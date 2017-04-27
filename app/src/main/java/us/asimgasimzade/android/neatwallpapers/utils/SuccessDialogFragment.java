@@ -1,4 +1,4 @@
-package us.asimgasimzade.android.neatwallpapers;
+package us.asimgasimzade.android.neatwallpapers.utils;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -10,6 +10,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+
+import us.asimgasimzade.android.neatwallpapers.R;
 
 /**
  * Dialog showing success message after wallpaper is set in WallpaperManagerActivity and proposing

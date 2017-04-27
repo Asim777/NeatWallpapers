@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightBackground"
-    tools:context="us.asimgasimzade.android.neatwallpapers.FavoritesFragment">
+    tools:context=".FavoritesFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

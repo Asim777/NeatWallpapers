@@ -59,10 +59,7 @@ public class MainActivity extends AppCompatActivity {
         MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
         AdView mAdView = (AdView) findViewById(R.id.main_adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
-                .addTestDevice("256571F20E046FFBCCB1FF45FC193BC6")
-                .build();
+        AdRequest adRequest = new AdRequest.Builder().build();
 
         mAdView.loadAd(adRequest);
 
@@ -126,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         //Set repeating alarm for showing notifications if user hasn't disabled notifications from
         //settings
         if (sharedPreferences.getBoolean(getString(R.string.settings_receive_notification_sp_key), true)) {
-            Utils.setNotifications(this);
+            Utils.setNotifications(getApplicationContext());
         }
     }
 

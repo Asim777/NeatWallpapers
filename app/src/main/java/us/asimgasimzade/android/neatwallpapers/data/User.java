@@ -19,7 +19,7 @@ public class User {
 
     // Default constructor required for calls to
     // DataSnapshot.getValue(User.class)
-    public User(){
+    public User() {
 
     }
 
@@ -27,31 +27,16 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getFullname() {
         return fullname;
-    }
-
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getProfilePicture() {
         return profilePicture;
     }
 
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
-    }
 }

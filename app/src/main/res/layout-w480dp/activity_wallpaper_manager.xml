@@ -3,7 +3,9 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context=".WallpaperManagerActivity">
 
     <FrameLayout
         android:id="@+id/wallpaper_manager_image_holder"
@@ -43,7 +45,8 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@color/textColorPrimary"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="NestedWeights" />
 
         <Button
             android:id="@+id/option_entire"

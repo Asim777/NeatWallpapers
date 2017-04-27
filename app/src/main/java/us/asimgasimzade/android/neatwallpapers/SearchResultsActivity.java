@@ -29,7 +29,7 @@ import us.asimgasimzade.android.neatwallpapers.tasks.LoadImagesAsyncTask;
 import us.asimgasimzade.android.neatwallpapers.utils.NoResultsCallbackInterface;
 
 /**
- * This Activity shows search result as gridView
+ * This Activity shows search result as GridView
  */
 
 public class SearchResultsActivity extends AppCompatActivity implements NoResultsCallbackInterface {
@@ -51,10 +51,7 @@ public class SearchResultsActivity extends AppCompatActivity implements NoResult
         MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
         AdView mAdView = (AdView) findViewById(R.id.search_adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("56D20C98B34B95A9CFD4027912BF2591")
-                .addTestDevice("256571F20E046FFBCCB1FF45FC193BC6")
-                .build();
+        AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
     }

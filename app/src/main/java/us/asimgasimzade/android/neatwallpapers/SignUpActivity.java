@@ -47,7 +47,7 @@ import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText fullnameEditText, emailEditText, passwordEditText;
-    private Button signInButton, signUpButton, resetPasswordButton;
+    private Button signUpButton;
     private ProgressBar progressBar;
     private FirebaseUser authUser;
     String userId;
@@ -63,12 +63,12 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        //Get Firebase auth instance
+        //Get FireBase auth instance
         auth = FirebaseAuth.getInstance();
 
-        signInButton = (Button) findViewById(R.id.sign_in_button);
+        Button signInButton = (Button) findViewById(R.id.sign_in_button);
         signUpButton = (Button) findViewById(R.id.sign_up_button);
-        resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
+        Button resetPasswordButton = (Button) findViewById(R.id.reset_password_button);
         fullnameEditText = (EditText) findViewById(R.id.name_editText);
         emailEditText = (EditText) findViewById(R.id.email_editText);
         passwordEditText = (EditText) findViewById(R.id.password_editText);
@@ -202,7 +202,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     User user = new User(fullnameEditText.getText().toString(),
                                             emailEditText.getText().toString(), "");
 
-                                    // Save emails to sharedpreferences for using in email
+                                    // Save emails to SharedPreferences for using in email
                                     // AutoCompleteTextView in future
                                     if(auth.getCurrentUser() != null){
                                         String currentEmail = auth.getCurrentUser().getEmail();
@@ -222,9 +222,9 @@ public class SignUpActivity extends AppCompatActivity {
 
                                     //Get FireBase database reference instance
                                     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-                                    //Getting FirebaseAuth object instance
+                                    //Getting FireBaseAuth object instance
                                     auth = FirebaseAuth.getInstance();
-                                    //Getting FirebaseUser for current user
+                                    //Getting FireBaseUser for current user
                                     authUser = auth.getCurrentUser();
                                     userId = authUser != null ? authUser.getUid() : null;
                                     // pushing user to 'users' node using the userId

@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="us.asimgasimzade.android.neatwallpapers.AccountActivity">
+    tools:context=".AccountActivity">
     <item
         android:title="@string/settings_action_title"
         android:id="@+id/action_settings"

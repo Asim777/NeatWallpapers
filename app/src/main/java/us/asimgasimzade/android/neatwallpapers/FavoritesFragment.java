@@ -45,7 +45,7 @@ import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 /**
- * This holds Favorite images gridView and populated from FavoritesDB
+ * This holds Favorite images gridView and populated from FireBase database
  */
 
 public class FavoritesFragment extends Fragment {
@@ -59,6 +59,7 @@ public class FavoritesFragment extends Fragment {
     FirebaseAuth auth;
     FirebaseUser authUser;
     FirebaseDatabase database;
+    private boolean firstTimeLoadHappened;
 
     public FavoritesFragment() {
         // Required empty public constructor
@@ -119,12 +120,21 @@ public class FavoritesFragment extends Fragment {
         super.onResume();
         // This listener gets triggered each time there's change in user's favorites node nad
         // updates Favorites Fragment's gridView with new images
-        Query favoritesQuery = favoritesReference.orderByChild("timestamp");
+        Query favoritesQuery = favoritesReference.orderByChild("firstAddedTime");
         eventListener = favoritesQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Load favorites from Firebase database
-                new LoadFavoritesTask(dataSnapshot).execute();
+                // We are checking this because inside LoadFavoritesTask we are updating expired items
+                // and changing database which initiates onDataChange call and it creates a loop.
+                // We want LoadFavoritesTask to be run only once per lifetime of Fragment. To make
+                // any change to database user has to leave the Fragment (Go to SingleImageFragment
+                // and add new image to Favorites), that's why on onPause we are resetting firstTimeLoadHappened
+                // boolean to false so that when user is back to FavoritesFragment it updates the GridView
+                if(!firstTimeLoadHappened){
+                    //Load favorites from FireBase database and update them if they expired
+                    new LoadFavoritesTask(dataSnapshot).execute();
+                    firstTimeLoadHappened = true;
+                }
             }
 
             @Override
@@ -137,6 +147,10 @@ public class FavoritesFragment extends Fragment {
         });
     }
 
+    /**
+     * Loads list of Favorite images from FireBase database and populates GridView with them
+     * Also takes care of updating expired image url's in database
+     */
     private class LoadFavoritesTask extends AsyncTask<String, Void, ArrayList<GridItem>> {
 
         String mImageName;
@@ -144,7 +158,7 @@ public class FavoritesFragment extends Fragment {
         ArrayList<GridItem> mGridData;
         GridItem mCurrentItem;
         ImagesGridViewAdapter mGridAdapter;
-        String updatedFavoriteUrlString = "https://pixabay.com/api/?key=" + getString(R.string.pixabay_key) + "&response_group=high_resolution&id=";
+        String updatedFavoriteUrlString = getString(R.string.url_part_one) + getString(R.string.pixabay_key) + "&response_group=high_resolution&id=";
         URL mUrl;
         SimpleDateFormat simpleDateFormat;
         Date mImageTimestamp;
@@ -179,9 +193,9 @@ public class FavoritesFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                //After 2 days pixabay updates image url's so in images favorites lose all their urls
-                //That's why we are cheking if 2 days has pass since image added to database and if yes,
-                //we are getting new urls from pixabay API using image's id_hash
+                //After 2 days Pixabay updates image url's so in images favorites lose all their urls
+                //That's why we are checking if 2 days has pass since image added to database and if yes,
+                //we are getting new urls from Pixabay API using image's id_hash
                 if (Utils.checkNetworkConnection(FavoritesFragment.this.getActivity().getApplicationContext(),
                         false) && imageHasExpired()) {
                     mImageName = mCurrentItem.getName();
@@ -205,7 +219,7 @@ public class FavoritesFragment extends Fragment {
                         mUrlConnection.disconnect();
                     }
 
-                    //Updating GridItem's image and thumbnail url and timestamp adding it to FireBase database
+                    //Updating GridItem's image and thumbnail url and adding it to FireBase database
                     //instead of expired ones
                     if (updatedImage != null && updatedThumbnail != null) {
                         mCurrentItem.setImage(updatedImage);
@@ -215,6 +229,7 @@ public class FavoritesFragment extends Fragment {
                 }
                 mCurrentItem.setNumber(i);
                 mGridData.add(mCurrentItem);
+
                 i--;
             }
 
@@ -231,6 +246,14 @@ public class FavoritesFragment extends Fragment {
             mProgressBar.setVisibility(View.INVISIBLE);
         }
 
+        /**
+         *  Getting String from Input stream
+         *
+         *  @param stream - InputStream to convert to String
+         *
+         *  @return result - result String
+         */
+
         private String streamToString(InputStream stream) throws IOException {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
             String line;
@@ -244,6 +267,12 @@ public class FavoritesFragment extends Fragment {
             return result;
         }
 
+        /**
+         * Parse response String with JSON, get updated Image url and Thumbnail for each image
+         *
+         * @param response - JSON response as String
+         *
+         */
         private void parseResult(String response) {
             try {
                 JSONObject rootJson = new JSONObject(response);
@@ -271,7 +300,7 @@ public class FavoritesFragment extends Fragment {
             long differenceInDays = difference / (1000 * 60 * 60 * 24);
             //If image has been added more than 4 days ago, it's expired and we need to update it's
             //url so that user can see it in Favorites page
-            return differenceInDays >= 4;
+            return differenceInDays >= 1;
         }
     }
 
@@ -281,5 +310,6 @@ public class FavoritesFragment extends Fragment {
         if (eventListener != null) {
             favoritesReference.removeEventListener(eventListener);
         }
+        firstTimeLoadHappened = false;
     }
 }

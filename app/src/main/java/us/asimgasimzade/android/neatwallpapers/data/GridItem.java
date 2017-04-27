@@ -13,6 +13,9 @@ public class GridItem {
     private String link;
     private String thumbnail;
     private String timestamp;
+    private String firstAddedTime;
+
+
     private int number;
 
     public GridItem(String image, String name, String author, String link, String thumbnail) {
@@ -57,6 +60,11 @@ public class GridItem {
         return image;
     }
 
+
+    public String getFirstAddedTime() {
+        return firstAddedTime;
+    }
+
     public void setNumber(int number) {
         this.number = number;
     }
@@ -69,19 +77,16 @@ public class GridItem {
         this.name = name;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+
+    public void setFirstAddedTime(String firstAddedTime) {
+        this.firstAddedTime = firstAddedTime;
     }
 }
