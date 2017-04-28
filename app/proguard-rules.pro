@@ -16,4 +16,36 @@
 #   public *;
 #}
 
+#-keep class android.support.v7.widget.SearchView { *; }
+#-keepnames class us.asimgasimzade.android.neatwallpapers.FavoritesFragment { *; }
+#-keep class us.asimgasimzade.android.neatwallpapers.FavoritesFragment { *; }
+#-keepnames class us.asimgasimzade.android.neatwallpapers.SingleImageFragment { *; }
+#-keep class us.asimgasimzade.android.neatwallpapers.SingleImageFragment { *; }
+#-keepnames class us.asimgasimzade.android.neatwallpapers.LoginActivity { *; }
+#-keep class us.asimgasimzade.android.neatwallpapers.LoginActivity { *; }
+#-keep class com.google.android.gms.** { *; }
+#-keepnames class com.google.android.gms.** { *; }
+#-dontwarn com.google.android.gms.**
+#-keep class com.google.firebase.auth.** { *; }
+#-keepnames class com.google.firebase.auth.** { *; }
+#-dontwarn com.google.firebase.auth.**
+#-keep class com.firebase.** { *; }
+#-keep class org.apache.** { *; }
+#-keep class us.asimgasimzade.android.neatwallpapers.data.** { *; }
+#-keepnames class us.asimgasimzade.android.neatwallpapers.data.** { *; }
+#-keepnames class com.fasterxml.jackson.** { *; }
+#-keepnames class javax.servlet.** { *; }
+#-keepnames class org.ietf.jgss.** { *; }
+#-dontwarn org.w3c.dom.**
+#-dontwarn org.apache.**
+#-dontwarn org.joda.time.**
+#-dontwarn org.shaded.apache.**
+#-dontwarn org.ietf.jgss.**
+
 -keep class android.support.v7.widget.SearchView { *; }
+-keepnames class us.asimgasimzade.android.neatwallpapers.FavoritesFragment { *; }
+-keep class us.asimgasimzade.android.neatwallpapers.FavoritesFragment { *; }
+-keepnames class us.asimgasimzade.android.neatwallpapers.SingleImageFragment { *; }
+-keep class us.asimgasimzade.android.neatwallpapers.SingleImageFragment { *; }
+-keep class us.asimgasimzade.android.neatwallpapers.data.** { *; }
+-keepnames class us.asimgasimzade.android.neatwallpapers.data.** { *; }

@@ -77,7 +77,8 @@ public class LoginActivity extends AppCompatActivity {
     String resetPasswordEmail;
     ArrayAdapter<String> savedEmailsAdapter;
     private ValueEventListener userListener;
-    private DatabaseReference userReference;
+    private DatabaseReference usersReference;
+    private FirebaseAuth.AuthStateListener authListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -141,7 +142,8 @@ public class LoginActivity extends AppCompatActivity {
                 .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        showToast(getApplicationContext(), "Google sign in unsuccessful!", Toast.LENGTH_LONG);
+                        showToast(getApplicationContext(), getString(R.string.google_sign_in_fail_message),
+                                Toast.LENGTH_LONG);
                     }
                 })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -293,6 +295,23 @@ public class LoginActivity extends AppCompatActivity {
                         });
             }
         });
+
+
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser authUser = firebaseAuth.getCurrentUser();
+                if (authUser != null) {
+                    // user auth state is changed - user is null
+                    //Add new user to database
+                    if(userName != null && userEmail != null && userProfilePicture != null){
+                        addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
+                    }
+                }
+            }
+        };
+        auth.addAuthStateListener(authListener);
+
     }
 
     /**
@@ -392,9 +411,6 @@ public class LoginActivity extends AppCompatActivity {
                     userName = googleSignInAccount.getDisplayName();
                     userEmail = googleSignInAccount.getEmail();
                     userProfilePicture = profilePictureUriStringHD;
-                    //Add new user to database
-                    addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
-
 
                 }
                 //If the call to signInWithCredential succeeds, the AuthStateListener runs the
@@ -421,30 +437,16 @@ public class LoginActivity extends AppCompatActivity {
         //Getting FirebaseUser for current user
         FirebaseUser authUser = auth.getCurrentUser();
         userId = authUser != null ? authUser.getUid() : null;
-        userReference = database.child("users").child(userId);
-        // This event listener is triggered whenever there is a change in user profile data
-        userListener = userReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()){
-                    user = new User(googleUserName, googleUserEmail, googleUserProfilePicture);
+        usersReference = database.child("users");
 
-                    // adding user to 'users' node using the userId
-                    if (userId != null) {
-                        database.child("users").child(userId).setValue(user);
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Failed to read value
-            }
-        });
-
+        user = new User(googleUserName, googleUserEmail, googleUserProfilePicture);
+        // adding user to 'users' node using the userId
+        if (userId != null) {
+            usersReference.child(userId).setValue(user);
+        }
         //Go to main activity
         goToMainActivity();
+
     }
 
     /**
@@ -492,8 +494,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if( userListener != null && userReference != null){
-            userReference.removeEventListener(userListener);
+        if( userListener != null && usersReference != null){
+            usersReference.removeEventListener(userListener);
+        }
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
         }
     }
 }

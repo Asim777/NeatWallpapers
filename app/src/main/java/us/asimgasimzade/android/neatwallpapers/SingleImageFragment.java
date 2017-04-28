@@ -54,7 +54,6 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 
-import static android.R.id.message;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
