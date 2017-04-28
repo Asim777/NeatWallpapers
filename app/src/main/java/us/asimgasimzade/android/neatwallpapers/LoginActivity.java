@@ -38,11 +38,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -67,17 +64,12 @@ public class LoginActivity extends AppCompatActivity {
     private Gson gson;
     Button signInButton;
     GoogleApiClient mGoogleApiClient;
-    String userName;
-    String userEmail;
-    String userProfilePicture;
     User user;
     DatabaseReference database;
     String userId;
     private ProgressDialog progressDialog;
     String resetPasswordEmail;
     ArrayAdapter<String> savedEmailsAdapter;
-    private ValueEventListener userListener;
-    private DatabaseReference userReference;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -193,18 +185,18 @@ public class LoginActivity extends AppCompatActivity {
                             showProgressDialog(getString(R.string.message_reset_password));
                             auth.sendPasswordResetEmail(resetPasswordEmail).
                                     addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        showToast(LoginActivity.this.getApplicationContext(),
-                                                getString(R.string.reset_password_success_message), Toast.LENGTH_LONG);
-                                    } else {
-                                        showToast(LoginActivity.this.getApplicationContext(),
-                                                getString(R.string.reset_password_fail_message), Toast.LENGTH_LONG);
-                                    }
-                                    progressDialog.dismiss();
-                                }
-                            });
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                showToast(LoginActivity.this.getApplicationContext(),
+                                                        getString(R.string.reset_password_success_message), Toast.LENGTH_LONG);
+                                            } else {
+                                                showToast(LoginActivity.this.getApplicationContext(),
+                                                        getString(R.string.reset_password_fail_message), Toast.LENGTH_LONG);
+                                            }
+                                            progressDialog.dismiss();
+                                        }
+                                    });
                         }
                     }
                 });
@@ -388,14 +380,12 @@ public class LoginActivity extends AppCompatActivity {
                     if (googleSignInAccount.getPhotoUrl() != null) {
                         profilePictureUriString = googleSignInAccount.getPhotoUrl().toString();
                     }
-                    String profilePictureUriStringHD = profilePictureUriString.replace("s96-c", "s500-c");
-                    userName = googleSignInAccount.getDisplayName();
-                    userEmail = googleSignInAccount.getEmail();
-                    userProfilePicture = profilePictureUriStringHD;
+                    String userName = googleSignInAccount.getDisplayName();
+                    String userEmail = googleSignInAccount.getEmail();
+                    //Getting HD version of profile picture by altering some uri
+                    String userProfilePicture = profilePictureUriString.replace("s96-c", "s500-c");
                     //Add new user to database
                     addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
-
-
                 }
                 //If the call to signInWithCredential succeeds, the AuthStateListener runs the
                 // onAuthStateChanged callback
@@ -414,34 +404,16 @@ public class LoginActivity extends AppCompatActivity {
                                           final String googleUserEmail, final String googleUserProfilePicture) {
         // Add new user to FirebaseDatabase under the "users" node
         // Creating new user node, which returns the unique key value
+        // new user node would be /users/$userid/
 
         //Get FireBase database reference instance
         database = FirebaseDatabase.getInstance().getReference();
 
-        //Getting FirebaseUser for current user
+        //Getting FirebaseUser for current user and it's id, to add as new user node name
         FirebaseUser authUser = auth.getCurrentUser();
         userId = authUser != null ? authUser.getUid() : null;
-        userReference = database.child("users").child(userId);
-        // This event listener is triggered whenever there is a change in user profile data
-        userListener = userReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()){
-                    user = new User(googleUserName, googleUserEmail, googleUserProfilePicture);
-
-                    // adding user to 'users' node using the userId
-                    if (userId != null) {
-                        database.child("users").child(userId).setValue(user);
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Failed to read value
-            }
-        });
+        user = new User(googleUserName, googleUserEmail, googleUserProfilePicture);
+        database.child("users").child(userId).setValue(user);
 
         //Go to main activity
         goToMainActivity();
@@ -454,7 +426,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void showProgressDialog(String message) {
         //Creating progress dialog
-         progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -486,14 +458,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
         if(progressDialog != null){
             progressDialog.dismiss();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if( userListener != null && userReference != null){
-            userReference.removeEventListener(userListener);
         }
     }
 }
