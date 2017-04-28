@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +37,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -70,6 +72,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     String resetPasswordEmail;
     ArrayAdapter<String> savedEmailsAdapter;
+    private DatabaseReference userReference;
+    ValueEventListener userEventListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -194,7 +198,9 @@ public class LoginActivity extends AppCompatActivity {
                                                 showToast(LoginActivity.this.getApplicationContext(),
                                                         getString(R.string.reset_password_fail_message), Toast.LENGTH_LONG);
                                             }
-                                            progressDialog.dismiss();
+                                            if(progressDialog != null){
+                                                progressDialog.dismiss();
+                                            }
                                         }
                                     });
                         }
@@ -253,7 +259,9 @@ public class LoginActivity extends AppCompatActivity {
                                 // If sign in fails, display a message to the user. If sign in succeeds
                                 // the auth state listener will be notified and logic to handle the
                                 // signed in user can be handled in the listener.
-                                progressDialog.dismiss();
+                                if(progressDialog != null){
+                                    progressDialog.dismiss();
+                                }
                                 if (!task.isSuccessful()) {
                                     //Login task failed
                                     if (password.length() < 6) {
@@ -276,7 +284,9 @@ public class LoginActivity extends AppCompatActivity {
                                     String savedEmailsListJson = gson.toJson(savedEmails);
                                     sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
                                     sharedPreferencesEditor.apply();
-                                    progressDialog.dismiss();
+                                    if(progressDialog != null){
+                                        progressDialog.dismiss();
+                                    }
                                     goToMainActivity();
 
 
@@ -325,8 +335,6 @@ public class LoginActivity extends AppCompatActivity {
      * @param result - GoogleSignInResult object
      */
     private void handleGoogleSignInResult(GoogleSignInResult result) {
-        Log.d("AsimTag", "Sign in attempt status is " + result.getStatus());
-        progressDialog.dismiss();
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount googleSignInAccount = result.getSignInAccount();
@@ -346,10 +354,16 @@ public class LoginActivity extends AppCompatActivity {
                 sharedPreferencesEditor.apply();
             } else {
                 //Google signInAccount object is null. Sign in failed
+                if(progressDialog != null){
+                    progressDialog.dismiss();
+                }
                 showToast(LoginActivity.this, getString(R.string.google_sign_in_fail_message), Toast.LENGTH_SHORT);
             }
         } else {
             //Google sign in failed
+            if(progressDialog != null){
+                progressDialog.dismiss();
+            }
             showToast(LoginActivity.this, getString(R.string.google_sign_in_fail_message), Toast.LENGTH_SHORT);
         }
     }
@@ -371,6 +385,9 @@ public class LoginActivity extends AppCompatActivity {
                 // signed in user can be handled in the listener.
                 if (!task.isSuccessful()) {
                     //Google sign in failed
+                    if(progressDialog != null){
+                        progressDialog.dismiss();
+                    }
                     showToast(LoginActivity.this, getString(R.string.google_sign_in_fail_message), Toast.LENGTH_SHORT);
                 } else {
                     //Google sign in was successful
@@ -380,12 +397,47 @@ public class LoginActivity extends AppCompatActivity {
                     if (googleSignInAccount.getPhotoUrl() != null) {
                         profilePictureUriString = googleSignInAccount.getPhotoUrl().toString();
                     }
-                    String userName = googleSignInAccount.getDisplayName();
-                    String userEmail = googleSignInAccount.getEmail();
-                    //Getting HD version of profile picture by altering some uri
-                    String userProfilePicture = profilePictureUriString.replace("s96-c", "s500-c");
-                    //Add new user to database
-                    addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
+
+                    //Add new user to database if he doesn't already exist
+                    //Getting FirebaseUser for current user and it's id, to check if he exists and
+                    // if yes, to add as new user node name
+                    FirebaseUser authUser = auth.getCurrentUser();
+                    userId = authUser != null ? authUser.getUid() : null;
+                    //Get FireBase database reference instance
+                    database = FirebaseDatabase.getInstance().getReference();
+                    //Getting reference to user's node in database
+                    userReference = database.child("users").child(userId);
+                    final String finalProfilePictureUriString = profilePictureUriString;
+                    userEventListener = new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //Checking if this google user already registered in system, if he's not,
+                            // adding him, if he is, just going to MainActivity
+                            if(!dataSnapshot.exists()){
+                                String userName = googleSignInAccount.getDisplayName();
+                                String userEmail = googleSignInAccount.getEmail();
+                                //Getting HD version of profile picture by altering some uri
+                                String userProfilePicture = finalProfilePictureUriString.replace("s96-c", "s500-c");
+                                //Call method to add this user to database
+                                addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
+                            } else {
+                                //Go to main activity
+                                goToMainActivity();
+                                if(progressDialog != null){
+                                    progressDialog.dismiss();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    };
+                    //Registering the listener
+                    userReference.addListenerForSingleValueEvent(userEventListener);
+
+
                 }
                 //If the call to signInWithCredential succeeds, the AuthStateListener runs the
                 // onAuthStateChanged callback
@@ -406,16 +458,13 @@ public class LoginActivity extends AppCompatActivity {
         // Creating new user node, which returns the unique key value
         // new user node would be /users/$userid/
 
-        //Get FireBase database reference instance
-        database = FirebaseDatabase.getInstance().getReference();
-
-        //Getting FirebaseUser for current user and it's id, to add as new user node name
-        FirebaseUser authUser = auth.getCurrentUser();
-        userId = authUser != null ? authUser.getUid() : null;
         user = new User(googleUserName, googleUserEmail, googleUserProfilePicture);
         database.child("users").child(userId).setValue(user);
 
         //Go to main activity
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
         goToMainActivity();
     }
 
@@ -456,6 +505,18 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //Removing user event listener
+        if(userEventListener != null){
+            userReference.removeEventListener(userEventListener);
+        }
         if(progressDialog != null){
             progressDialog.dismiss();
         }
