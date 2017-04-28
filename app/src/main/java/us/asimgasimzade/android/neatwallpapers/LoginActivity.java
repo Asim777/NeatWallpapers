@@ -325,7 +325,6 @@ public class LoginActivity extends AppCompatActivity {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleGoogleSignInResult(result);
         }
-
     }
 
     /**
@@ -505,14 +504,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(progressDialog != null){
-            progressDialog.dismiss();
-        }
+
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
         //Removing user event listener
         if(userEventListener != null){
             userReference.removeEventListener(userEventListener);
@@ -520,5 +516,6 @@ public class LoginActivity extends AppCompatActivity {
         if(progressDialog != null){
             progressDialog.dismiss();
         }
+        super.onStop();
     }
 }
