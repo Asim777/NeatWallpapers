@@ -166,7 +166,8 @@ public class LoginActivity extends AppCompatActivity {
                 final AutoCompleteTextView emailEditText = new AutoCompleteTextView(LoginActivity.this);
                 emailEditText.setSingleLine();
                 // Specify the type of input expected;
-                FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.leftMargin = 40;
                 params.rightMargin = 40;
                 params.topMargin = 40;
@@ -193,10 +194,12 @@ public class LoginActivity extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 showToast(LoginActivity.this.getApplicationContext(),
-                                                        getString(R.string.reset_password_success_message), Toast.LENGTH_LONG);
+                                                        getString(R.string.reset_password_success_message),
+                                                        Toast.LENGTH_LONG);
                                             } else {
                                                 showToast(LoginActivity.this.getApplicationContext(),
-                                                        getString(R.string.reset_password_fail_message), Toast.LENGTH_LONG);
+                                                        getString(R.string.reset_password_fail_message),
+                                                        Toast.LENGTH_LONG);
                                             }
                                             if(progressDialog != null){
                                                 progressDialog.dismiss();
@@ -215,7 +218,8 @@ public class LoginActivity extends AppCompatActivity {
                 });
                 AlertDialog alertDialog = forgotPasswordDialog.create();
                 if (alertDialog.getWindow() != null){
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                    alertDialog.getWindow().setSoftInputMode(
+                            WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 }
                 alertDialog.show();
             }
@@ -265,24 +269,29 @@ public class LoginActivity extends AppCompatActivity {
                                 if (!task.isSuccessful()) {
                                     //Login task failed
                                     if (password.length() < 6) {
-                                        passwordEditText.setError(getString(R.string.minimum_password));
+                                        passwordEditText.setError(
+                                                getString(R.string.minimum_password));
                                     } else {
-                                        showToast(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG);
+                                        showToast(LoginActivity.this,
+                                                getString(R.string.auth_failed), Toast.LENGTH_LONG);
                                     }
 
 
                                 } else {
                                     //Login successful
-                                    //Save emails to SharedPreferences for using in email AutoCompleteTextView in future
+                                    //Save emails to SharedPreferences for using in email
+                                    // AutoCompleteTextView in future
                                     if (auth.getCurrentUser() != null) {
                                         String currentEmail = auth.getCurrentUser().getEmail();
                                         if (!savedEmails.contains(currentEmail)) {
                                             savedEmails.add(currentEmail);
                                         }
                                     }
-                                    SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+                                    SharedPreferences.Editor sharedPreferencesEditor =
+                                            sharedPreferences.edit();
                                     String savedEmailsListJson = gson.toJson(savedEmails);
-                                    sharedPreferencesEditor.putString("SavedEmailsList", savedEmailsListJson);
+                                    sharedPreferencesEditor.putString("SavedEmailsList",
+                                            savedEmailsListJson);
                                     sharedPreferencesEditor.apply();
                                     if(progressDialog != null){
                                         progressDialog.dismiss();
@@ -416,7 +425,8 @@ public class LoginActivity extends AppCompatActivity {
                                 String userName = googleSignInAccount.getDisplayName();
                                 String userEmail = googleSignInAccount.getEmail();
                                 //Getting HD version of profile picture by altering some uri
-                                String userProfilePicture = finalProfilePictureUriString.replace("s96-c", "s500-c");
+                                String userProfilePicture =
+                                        finalProfilePictureUriString.replace("s96-c", "s500-c");
                                 //Call method to add this user to database
                                 addNewUserInfoToDatabase(userName, userEmail, userProfilePicture);
                             } else {
@@ -452,7 +462,8 @@ public class LoginActivity extends AppCompatActivity {
      * @param googleUserProfilePicture - Profile picture from Google Account
      */
     private void addNewUserInfoToDatabase(final String googleUserName,
-                                          final String googleUserEmail, final String googleUserProfilePicture) {
+                                          final String googleUserEmail,
+                                          final String googleUserProfilePicture) {
         // Add new user to FirebaseDatabase under the "users" node
         // Creating new user node, which returns the unique key value
         // new user node would be /users/$userid/
@@ -499,12 +510,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         return false;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
     }
 
     @Override

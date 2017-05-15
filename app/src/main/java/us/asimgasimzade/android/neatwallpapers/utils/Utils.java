@@ -155,7 +155,7 @@ public class Utils {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
         //after 3 days
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + 60000/*AlarmManager.INTERVAL_DAY * 3*/,
                 AlarmManager.INTERVAL_DAY * 7, pendingIntent);
     }
 

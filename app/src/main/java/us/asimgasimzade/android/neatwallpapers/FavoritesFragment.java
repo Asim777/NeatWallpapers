@@ -2,9 +2,9 @@ package us.asimgasimzade.android.neatwallpapers;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,44 +22,35 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
 
 import us.asimgasimzade.android.neatwallpapers.adapters.ImagesGridViewAdapter;
 import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
+import us.asimgasimzade.android.neatwallpapers.tasks.LoadFavoritesTaskFragment;
 import us.asimgasimzade.android.neatwallpapers.utils.Utils;
 
 /**
  * This holds Favorite images gridView and populated from FireBase database
  */
 
-public class FavoritesFragment extends Fragment {
+public class FavoritesFragment extends Fragment implements LoadFavoritesTaskFragment.TaskCallbacks {
+
+    private static final String TAG_TASK_FRAGMENT = "task_fragment";
 
     GridView mGridView;
     View rootView;
     ProgressBar mProgressBar;
-
     private DatabaseReference favoritesReference;
     private ValueEventListener eventListener;
     FirebaseAuth auth;
     FirebaseUser authUser;
     FirebaseDatabase database;
     private boolean firstTimeLoadHappened;
+    LoadFavoritesTaskFragment mLoadFavoritesTaskFragment;
+    FragmentManager fm;
+    ImagesGridViewAdapter mGridAdapter;
 
     public FavoritesFragment() {
         // Required empty public constructor
@@ -69,6 +60,7 @@ public class FavoritesFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -131,8 +123,20 @@ public class FavoritesFragment extends Fragment {
                 // and add new image to Favorites), that's why on onPause we are resetting firstTimeLoadHappened
                 // boolean to false so that when user is back to FavoritesFragment it updates the GridView
                 if(!firstTimeLoadHappened){
+                    //Save DataSnapshot to ImagesDataClass static variable
+                    ImagesDataClass.favoritesDataSnapshot = dataSnapshot;
                     //Load favorites from FireBase database and update them if they expired
-                    new LoadFavoritesTask(dataSnapshot).execute();
+                    fm = getFragmentManager();
+                    mLoadFavoritesTaskFragment = (LoadFavoritesTaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+                    // If the Fragment is non-null, then it is currently being
+                    // retained across a configuration change.
+                    if (mLoadFavoritesTaskFragment == null) {
+                        mLoadFavoritesTaskFragment = new LoadFavoritesTaskFragment();
+
+                        fm.beginTransaction().add(mLoadFavoritesTaskFragment, TAG_TASK_FRAGMENT).commit();
+                    }
+                    //Passing current instance of FavoritesFragment to FavoritesTaskFragment
+                    mLoadFavoritesTaskFragment.attachNewFragment(FavoritesFragment.this);
                     firstTimeLoadHappened = true;
                 }
             }
@@ -147,162 +151,29 @@ public class FavoritesFragment extends Fragment {
         });
     }
 
-    /**
-     * Loads list of Favorite images from FireBase database and populates GridView with them
-     * Also takes care of updating expired image url's in database
-     */
-    private class LoadFavoritesTask extends AsyncTask<String, Void, ArrayList<GridItem>> {
-
-        String mImageName;
-        DataSnapshot mDataSnapshot;
-        ArrayList<GridItem> mGridData;
-        GridItem mCurrentItem;
-        ImagesGridViewAdapter mGridAdapter;
-        String updatedFavoriteUrlString = getString(R.string.url_part_one) + getString(R.string.pixabay_key) + "&response_group=high_resolution&id=";
-        URL mUrl;
-        SimpleDateFormat simpleDateFormat;
-        Date mImageTimestamp;
-        Date nowDate;
-        HttpURLConnection mUrlConnection;
-        String updatedImage;
-        String updatedThumbnail;
-
-        LoadFavoritesTask(DataSnapshot dataSnapshot) {
-            mDataSnapshot = dataSnapshot;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mGridData = new ArrayList<>();
-            simpleDateFormat = new SimpleDateFormat("ddMMyyyy-HHmmss", Locale.US);
-            nowDate = new Date();
-        }
-
-        @Override
-        protected ArrayList<GridItem> doInBackground(String... params) {
-            int i = ((int) mDataSnapshot.getChildrenCount()) - 1;
-            //Loop through all favorite images and assign their values to gridItem
-            for (DataSnapshot child : mDataSnapshot.getChildren()) {
-                mCurrentItem = child.getValue(GridItem.class);
-                //Getting timestamp (when image was added to favorite or last time updated after being expired)
-                String timestamp = child.child("timestamp").getValue().toString();
-
-                try {
-                    mImageTimestamp = simpleDateFormat.parse(timestamp);
-                } catch (ParseException e){
-                    e.printStackTrace();
-                }
-
-                //After 2 days Pixabay updates image url's so in images favorites lose all their urls
-                //That's why we are checking if 2 days has pass since image added to database and if yes,
-                //we are getting new urls from Pixabay API using image's id_hash
-                if (Utils.checkNetworkConnection(FavoritesFragment.this.getActivity().getApplicationContext(),
-                        false) && imageHasExpired()) {
-                    mImageName = mCurrentItem.getName();
-                    try {
-                        mUrl = new URL(updatedFavoriteUrlString + mImageName);
-                        //Create Apache HttpClient
-                        mUrlConnection = (HttpURLConnection) mUrl.openConnection();
-                        int statusCode = mUrlConnection.getResponseCode();
-                        //200 represent status is OK
-                        if (statusCode == 200) {
-                            String response = streamToString(mUrlConnection.getInputStream());
-                            parseResult(response);
-                            //Update timestamp
-                            mCurrentItem.setTimestamp(simpleDateFormat.format(new Date()));
-                        } /*else {
-                            //Url request Failed
-                        }*/
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        mUrlConnection.disconnect();
-                    }
-
-                    //Updating GridItem's image and thumbnail url and adding it to FireBase database
-                    //instead of expired ones
-                    if (updatedImage != null && updatedThumbnail != null) {
-                        mCurrentItem.setImage(updatedImage);
-                        mCurrentItem.setThumbnail(updatedThumbnail);
-                        favoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem);
-                    }
-                }
-                mCurrentItem.setNumber(i);
-                mGridData.add(mCurrentItem);
-
-                i--;
-            }
-
-            return mGridData;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<GridItem> updatedGridData) {
-            //Reversing values in mGridData to show descending list of items in Favorites page
-            Collections.reverse(updatedGridData);
-            ImagesDataClass.favoriteImagesList = updatedGridData;
-            mGridAdapter = new ImagesGridViewAdapter(FavoritesFragment.this.getActivity(), updatedGridData);
-            mGridView.setAdapter(mGridAdapter);
-            mProgressBar.setVisibility(View.INVISIBLE);
-        }
-
-        /**
-         *  Getting String from Input stream
-         *
-         *  @param stream - InputStream to convert to String
-         *
-         *  @return result - result String
-         */
-
-        private String streamToString(InputStream stream) throws IOException {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-            String line;
-            String result = "";
-            while ((line = bufferedReader.readLine()) != null) {
-                result += line;
-            }
-
-            //Close stream
-            stream.close();
-            return result;
-        }
-
-        /**
-         * Parse response String with JSON, get updated Image url and Thumbnail for each image
-         *
-         * @param response - JSON response as String
-         *
-         */
-        private void parseResult(String response) {
-            try {
-                JSONObject rootJson = new JSONObject(response);
-                JSONArray hits = rootJson.optJSONArray("hits");
-                if (hits.length() > 0) {
-                    JSONObject image = hits.getJSONObject(0);
-                    if (image != null) {
-                        updatedImage = image.getString("largeImageURL");
-                        updatedThumbnail = image.getString("webformatURL");
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        /**
-         * If image has been added more than 4 days ago, it's expired and we need to update it's
-         * url so that user can see it in Favorites page
-         *
-         * @return long differenceInDays - how many complete days ago image url has been updated last time
-         */
-        private boolean imageHasExpired() {
-            long difference = nowDate.getTime() - mImageTimestamp.getTime();
-            long differenceInDays = difference / (1000 * 60 * 60 * 24);
-            //If image has been added more than 4 days ago, it's expired and we need to update it's
-            //url so that user can see it in Favorites page
-            return differenceInDays >= 1;
-        }
+    @Override
+    public void onCancelled() {
+        //LoadFavoritesTask is cancelled
+        Utils.showToast(getActivity().getApplicationContext(),
+                getActivity().getString(R.string.downloading_favorites_fail_message),
+                Toast.LENGTH_LONG);
     }
+
+    @Override
+    public void onPostExecute(ArrayList<GridItem> updatedGridData) {
+        //Reversing values in mGridData to show descending list of items in Favorites page
+        Collections.reverse(updatedGridData);
+        ImagesDataClass.favoriteImagesList = updatedGridData;
+        mGridAdapter = new ImagesGridViewAdapter(FavoritesFragment.this.getActivity(), updatedGridData);
+        mGridView.setAdapter(mGridAdapter);
+        mProgressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public DatabaseReference getFavoritesReference() {
+        return favoritesReference;
+    }
+
 
     @Override
     public void onPause() {

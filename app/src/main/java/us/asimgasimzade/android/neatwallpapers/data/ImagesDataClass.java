@@ -1,5 +1,7 @@
 package us.asimgasimzade.android.neatwallpapers.data;
 
+import com.google.firebase.database.DataSnapshot;
+
 import java.util.ArrayList;
 
 
@@ -15,4 +17,6 @@ public class ImagesDataClass {
     public static ArrayList<GridItem> recentImagesList = new ArrayList<>();
     public static ArrayList<GridItem> favoriteImagesList = new ArrayList<>();
     public static ArrayList<GridItem> searchResultImagesList = new ArrayList<>();
+
+    public static DataSnapshot favoritesDataSnapshot;
 }
