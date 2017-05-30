@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -16,9 +17,11 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.Date;
 
+import us.asimgasimzade.android.neatwallpapers.BuildConfig;
 import us.asimgasimzade.android.neatwallpapers.broadcast_receivers.NotificationReceiver;
 
 import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * This class has utility methods that can be accessed from everywhere
@@ -141,7 +144,7 @@ public class Utils {
      * Sets notifications about new images showing after 3 days intially and then after every 7 days
      * It will run only if user hasn't disabled notifications from settings (enabled by default)
      *
-     * @param mContext - Context
+     * @param mContext - Application Context
      */
     public static void setNotifications(Context mContext) {
         //Getting current date
@@ -155,8 +158,49 @@ public class Utils {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         //Setting alarmManager to repeat the alarm with interval one week and fire first alarm
         //after 3 days
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + 60000/*AlarmManager.INTERVAL_DAY * 3*/,
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, date.getTime() + AlarmManager.INTERVAL_DAY * 3,
                 AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+    }
+
+    /**
+     * Checks if app runs for the first time, or it runs for a first time after an upgrade
+     *
+     * @param mContext - Application Context
+     * @return true if it's first run false if it's not or it's first run after upgrade
+     */
+    public static boolean checkFirstRun(Context mContext) {
+
+        final String PREFS_NAME = "MyPrefsFile";
+        final String PREF_VERSION_CODE_KEY = "version_code";
+        final int DOESNT_EXIST = -1;
+        boolean result = false;
+
+        // Get current version code
+        int currentVersionCode = BuildConfig.VERSION_CODE;
+
+        // Get saved version code
+        SharedPreferences prefs = mContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
+
+        // Check for first run or upgrade
+        if (currentVersionCode == savedVersionCode) {
+
+            // This is just a normal run
+            result = false;
+
+        } else if (savedVersionCode == DOESNT_EXIST) {
+
+            //This is a new install (or the user cleared the shared preferences)
+            result = true;
+
+        } else if (currentVersionCode > savedVersionCode) {
+
+            //This is an upgrade
+            result = false;
+        }
+        // Update the shared preferences with the current version code
+        prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
+        return result;
     }
 
 }

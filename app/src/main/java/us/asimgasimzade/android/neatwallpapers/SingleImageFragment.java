@@ -22,9 +22,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,6 +56,7 @@ import us.asimgasimzade.android.neatwallpapers.data.GridItem;
 import us.asimgasimzade.android.neatwallpapers.data.ImagesDataClass;
 import us.asimgasimzade.android.neatwallpapers.tasks.DownloadImageAsyncTask;
 
+import static us.asimgasimzade.android.neatwallpapers.R.style.AppCompatAlertDialogStyle;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.checkNetworkConnection;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.fileExists;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
@@ -119,7 +122,11 @@ public class SingleImageFragment extends Fragment {
         //Checking if permission to WRITE_EXTERNAL_STORAGE is granted by user
         permission = isPermissionWriteToExternalStorageGranted();
 
+
+
+
     }
+
 
     @Nullable
     @Override
@@ -168,9 +175,10 @@ public class SingleImageFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_single_image, container, false);
 
-        //Downloading and setting image
-
         imageView = (ImageView) rootView.findViewById(R.id.single_image_view);
+        FrameLayout leftSwipeArea = (FrameLayout) rootView.findViewById(R.id.left_swipe_area);
+        FrameLayout rightSwipeArea = (FrameLayout) rootView.findViewById(R.id.right_swipe_area);
+
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,10 +189,27 @@ public class SingleImageFragment extends Fragment {
             }
         });
 
+        leftSwipeArea.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //This prevents the touches from propagating through the view and incorrectly invoking the button behind it
+                return true;
+            }
+        });
+
+        rightSwipeArea.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //This prevents the touches from propagating through the view and incorrectly invoking the button behind it
+                return true;
+            }
+        });
+
         // Loading animation progress bar
         final ProgressBar loadingAnimationProgressBar = (ProgressBar) rootView.findViewById(R.id.loading_progress_bar);
         loadingAnimationProgressBar.setVisibility(View.VISIBLE);
 
+        //Downloading and setting image
         Glide.with(getActivity().getApplicationContext()).load(currentImageUrl).
                 listener(new RequestListener<String, GlideDrawable>() {
                     @Override
@@ -362,7 +387,7 @@ public class SingleImageFragment extends Fragment {
 
     private void createProgressDialog() {
         //Creating progress dialog
-        downloadProgressDialog = new ProgressDialog(getActivity(), R.style.AppCompatAlertDialogStyle);
+        downloadProgressDialog = new ProgressDialog(getActivity(), AppCompatAlertDialogStyle);
         downloadProgressDialog.setTitle(getActivity().getString(R.string.title_downloading_image));
         downloadProgressDialog.setMessage(getActivity().getString(R.string.message_downloading_image));
         downloadProgressDialog.setCancelable(true);
@@ -415,7 +440,7 @@ public class SingleImageFragment extends Fragment {
                     if (!showRationale) {
                         // user denied permission and also checked "Never ask again"
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(),
-                                R.style.AppCompatAlertDialogStyle);
+                                AppCompatAlertDialogStyle);
                         dialogBuilder.setMessage(R.string.download_permission_message)
                                 .setPositiveButton(R.string.permission_dialog_positive_button,
                                         new DialogInterface.OnClickListener() {
@@ -593,4 +618,5 @@ public class SingleImageFragment extends Fragment {
             }
         }
     }
+
 }

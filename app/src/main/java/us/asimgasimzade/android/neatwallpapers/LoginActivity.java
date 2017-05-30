@@ -50,6 +50,7 @@ import java.util.ArrayList;
 
 import us.asimgasimzade.android.neatwallpapers.data.User;
 
+import static us.asimgasimzade.android.neatwallpapers.R.style.AppCompatAlertDialogStyle;
 import static us.asimgasimzade.android.neatwallpapers.utils.Utils.showToast;
 
 /**
@@ -485,7 +486,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void showProgressDialog(String message) {
         //Creating progress dialog
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this, AppCompatAlertDialogStyle);
         progressDialog.setMessage(message);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);

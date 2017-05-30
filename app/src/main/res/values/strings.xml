@@ -184,4 +184,11 @@
     <string name="cache_cleared_message">Cache is cleared</string>
     <string name="url_part_two_category"><![CDATA[&response_group=high_resolution&image_type=photo&safesearch=true&per_page=200&order=]]></string>
     <string name="success_icon">success_icon_content_description</string>
+    <string name="tutorial_swipe_right">Swipe\nright</string>
+    <string name="tutorial_swipe_right_icon_content_description">Swipe Right Tutorial Icon</string>
+    <string name="tutorial_tap_text">Touch in this area to see more details</string>
+    <string name="tutorial_got_it">Got it</string>
+    <string name="tutorial_swipe_left_icon_content_description">Tutorial Swipe Left Icon</string>
+    <string name="tutorial_swipe_left_text">Swipe left</string>
+    <string name="tutorial_tap_icon_content_description">Tutorial tap icon</string>
 </resources>

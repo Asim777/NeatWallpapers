@@ -9,5 +9,8 @@
     <dimen name="custom_tab_layout_height">72dp</dimen>
     <dimen name="no_results_text_size">24sp</dimen>
     <dimen name="login_horizontal_margin">50dp</dimen>
-    <dimen name="login_logo_size">100dp</dimen>
+    <dimen name="login_logo_size">90dp</dimen>
+    <dimen name="tutorial_tap_icon_size">95dp</dimen>
+    <dimen name="tutorial_tap_text_size">15sp</dimen>
+    <dimen name="tutorial_gotit_text_size">22sp</dimen>
 </resources>

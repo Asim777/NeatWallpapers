@@ -45,13 +45,16 @@ public class LoadFavoritesTaskFragment extends Fragment {
      */
     public interface TaskCallbacks {
         void onCancelled();
+
         void onPostExecute(ArrayList<GridItem> updatedGridData);
+
         DatabaseReference getFavoritesReference();
     }
 
 
     //Required empty default constructor
-    public LoadFavoritesTaskFragment(){}
+    public LoadFavoritesTaskFragment() {
+    }
 
     /**
      * Hold a reference to the parent Fragment so we can report the
@@ -61,8 +64,8 @@ public class LoadFavoritesTaskFragment extends Fragment {
      */
 
 
-    public void attachNewFragment(Fragment callerFragment){
-        if(callerFragment instanceof TaskCallbacks){
+    public void attachNewFragment(Fragment callerFragment) {
+        if (callerFragment instanceof TaskCallbacks) {
             mCallbacks = (TaskCallbacks) callerFragment;
             LoadFavoritesTask loadFavoritesTask = new LoadFavoritesTask();
             loadFavoritesTask.execute();
@@ -133,7 +136,7 @@ public class LoadFavoritesTaskFragment extends Fragment {
             int i = ((int) mDataSnapshot.getChildrenCount()) - 1;
             //Loop through all favorite images and assign their values to gridItem
             for (DataSnapshot child : mDataSnapshot.getChildren()) {
-                if (!isCancelled()){
+                if (!isCancelled()) {
                     mCurrentItem = child.getValue(GridItem.class);
                     //Getting timestamp (when image was added to favorite or last time updated
                     // after being expired)
@@ -141,7 +144,7 @@ public class LoadFavoritesTaskFragment extends Fragment {
 
                     try {
                         mImageTimestamp = simpleDateFormat.parse(timestamp);
-                    } catch (ParseException e){
+                    } catch (ParseException e) {
                         e.printStackTrace();
                     }
 
@@ -178,15 +181,15 @@ public class LoadFavoritesTaskFragment extends Fragment {
                             mCurrentItem.setImage(updatedImage);
                             mCurrentItem.setThumbnail(updatedThumbnail);
                             favoritesReference = mCallbacks.getFavoritesReference();
-                            if(favoritesReference != null){
+                            if (favoritesReference != null) {
                                 favoritesReference.child(mCurrentItem.getName()).setValue(mCurrentItem);
                             }
                         }
                     }
-                mCurrentItem.setNumber(i);
-                mGridData.add(mCurrentItem);
+                    mCurrentItem.setNumber(i);
+                    mGridData.add(mCurrentItem);
 
-                i--;
+                    i--;
                 }
             }
 
@@ -209,11 +212,10 @@ public class LoadFavoritesTaskFragment extends Fragment {
         }
 
         /**
-         *  Getting String from Input stream
+         * Getting String from Input stream
          *
-         *  @param stream - InputStream to convert to String
-         *
-         *  @return result - result String
+         * @param stream - InputStream to convert to String
+         * @return result - result String
          */
 
         private String streamToString(InputStream stream) throws IOException {
@@ -233,7 +235,6 @@ public class LoadFavoritesTaskFragment extends Fragment {
          * Parse response String with JSON, get updated Image url and Thumbnail for each image
          *
          * @param response - JSON response as String
-         *
          */
         private void parseResult(String response) {
             try {

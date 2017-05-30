@@ -56,7 +56,7 @@ public class PopularFragment extends Fragment {
             }
         });
 
-        // Configure the refreshing colors
+        // Configure swipe refreshing colors
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
