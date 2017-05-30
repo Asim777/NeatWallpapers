@@ -15,13 +15,17 @@ android {
         applicationId "us.asimgasimzade.android.neatwallpapers"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 7
-        versionName "2.0"
+        versionCode 8
+        versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             signingConfig signingConfigs.config
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
         }
     }
     // `return void` removes the lint error: `Not all execution paths return a value`.
